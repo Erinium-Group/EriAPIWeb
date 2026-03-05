@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Config System (FR)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="config.html" class="active">FR</a>
+    <a href="../en/config.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link active"><span class="nav-dot"></span>Config System</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Introduction</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Présentation</a></li>
+        <li><a href="#demarrage-rapide"><span class="nav-dot"></span>Démarrage rapide</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Annotations</div>
+      <ul>
+        <li><a href="#annotations"><span class="nav-dot"></span>Vue d'ensemble</a></li>
+        <li><a href="#annotation-ericonfig"><span class="nav-dot"></span>@EriConfig</a></li>
+        <li><a href="#annotation-category"><span class="nav-dot"></span>@Category</a></li>
+        <li><a href="#annotation-range"><span class="nav-dot"></span>@Range</a></li>
+        <li><a href="#annotation-comment"><span class="nav-dot"></span>@Comment</a></li>
+        <li><a href="#annotation-colorfield"><span class="nav-dot"></span>@ColorField</a></li>
+        <li><a href="#annotation-pattern"><span class="nav-dot"></span>@Pattern</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Types &amp; Mapping</div>
+      <ul>
+        <li><a href="#types-supportes"><span class="nav-dot"></span>Types supportés</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">API</div>
+      <ul>
+        <li><a href="#config-parser"><span class="nav-dot"></span>ConfigParser</a></li>
+        <li><a href="#config-gui"><span class="nav-dot"></span>ConfigGuiFactory</a></li>
+        <li><a href="#sync-reseau"><span class="nav-dot"></span>ConfigSyncHandler</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Exemple</div>
+      <ul>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section" id="introduction">
+      <h2>Config System</h2>
+      <p>
+        Le <strong>Config System</strong> d'EriAPI est un module de configuration par annotations qui permet
+        de définir, lire, sauvegarder et synchroniser des paramètres de mod sans écrire de code boilerplate.
+        Tu annotes des champs Java avec <code>@EriConfig</code>, <code>@Category</code>, <code>@Range</code>
+        et autres — le framework fait le reste.
+      </p>
+      <p>
+        Le module repose sur le système de configuration Forge standard (fichiers <code>.cfg</code>) tout en
+        y ajoutant plusieurs couches :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:16px;line-height:2.2;">
+        <li><strong style="color:var(--text);">Parsing par réflexion</strong> — lecture et écriture automatiques des champs annotés</li>
+        <li><strong style="color:var(--text);">GUI auto-généré</strong> — un écran de configuration complet créé à la volée depuis les annotations</li>
+        <li><strong style="color:var(--text);">Validation intégrée</strong> — plages numériques (<code>@Range</code>), regex (<code>@Pattern</code>), couleurs (<code>@ColorField</code>)</li>
+        <li><strong style="color:var(--text);">Synchronisation réseau</strong> — envoi automatique des valeurs entre client et serveur via <code>ConfigSyncHandler</code></li>
+        <li><strong style="color:var(--text);">Compatibilité Forge</strong> — les fichiers <code>.cfg</code> générés sont lisibles par n'importe quel éditeur de texte</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">ℹ</div>
+        <div class="ib-body">
+          <div class="ib-title">Compatibilité</div>
+          <p>Le Config System est conçu pour Minecraft Forge <strong>1.12.2</strong> (14.23.5.2864).
+          Il s'appuie sur <code>net.minecraftforge.common.config.Configuration</code> pour la persistance des fichiers.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DEMARRAGE RAPIDE
+    ====================================================== -->
+    <section class="doc-section" id="demarrage-rapide">
+      <h2>Démarrage rapide</h2>
+      <p>
+        Voici tout ce dont tu as besoin pour avoir une config fonctionnelle avec GUI et synchronisation réseau
+        en moins de cinq minutes.
+      </p>
+
+      <h3>1. Créer la classe de configuration</h3>
+      <p>
+        Crée une classe avec des champs <code>public static</code>. Annote la classe avec <code>@EriConfig</code>
+        et les champs avec les annotations de ton choix.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — MyConfig.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.eri.eriapi.config;
+
+import fr.eri.eriapi.config.annotations.*;
+
+@EriConfig(modid = "monmod", filename = "monmod")
+public class MyConfig {
+
+    @Category("general")
+    @Comment("Activer les fonctionnalites experimentales")
+    public static boolean enableExperimental = false;
+
+    @Category("general")
+    @Comment("Nombre maximum de tentatives de connexion")
+    @Range(min = 1, max = 10)
+    public static int maxRetries = 3;
+
+    @Category("display")
+    @Comment("Couleur principale de l'interface")
+    @ColorField
+    public static int primaryColor = 0xFF00CFCF;
+
+    @Category("display")
+    @Comment("Prefixe affiche dans le chat")
+    @Pattern("^[a-zA-Z0-9_-]{1,16}$")
+    public static String chatPrefix = "monmod";
+}</code></pre>
+      </div>
+
+      <h3>2. Enregistrer la config dans preInit</h3>
+      <p>
+        Dans ta classe principale annotée <code>@Mod</code>, enregistre la config lors de l'événement
+        <code>FMLPreInitializationEvent</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — enregistrement dans preInit</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    // Enregistre et charge immediatement la config depuis le disque
+    ConfigParser.register(MyConfig.class, event.getModConfigurationDirectory());
+}</code></pre>
+      </div>
+
+      <h3>3. Initialiser la synchronisation réseau</h3>
+      <p>
+        Appelle <code>ConfigSyncHandler.init()</code> dans le même <code>preInit</code> (ou dans <code>init</code>),
+        après l'enregistrement du canal réseau principal du mod.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — init du sync réseau</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void init(FMLInitializationEvent event) {
+    // Initialise le canal de synchronisation config (client <-> serveur)
+    ConfigSyncHandler.init();
+}</code></pre>
+      </div>
+
+      <h3>4. Ouvrir le GUI de configuration</h3>
+      <p>
+        Depuis n'importe quel endroit côté client (commande, bouton dans un menu...), ouvre le GUI généré
+        automatiquement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ouvrir le GUI config</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Depuis le thread client (EventHandler, commande client, etc.)
+Minecraft.getMinecraft().displayGuiScreen(
+    ConfigGuiFactory.createGui(MyConfig.class)
+);
+
+// Ou avec un ecran parent (pour revenir en arriere avec Echap) :
+Minecraft.getMinecraft().displayGuiScreen(
+    ConfigGuiFactory.createGui(MyConfig.class, Minecraft.getMinecraft().currentScreen)
+);</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Resultat</div>
+          <p>Un fichier <code>config/monmod.cfg</code> est cree automatiquement dans le dossier Minecraft.
+          Les valeurs sont chargees au demarrage et sauvegardees des que le joueur clique sur "Sauvegarder"
+          dans le GUI.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANNOTATIONS
+    ====================================================== -->
+    <section class="doc-section" id="annotations">
+      <h2>Annotations</h2>
+      <p>
+        Toutes les annotations se trouvent dans le package <code>fr.eri.eriapi.config.annotations</code>.
+        Elles s'appliquent aux champs <code>public static</code> d'une classe annotee <code>@EriConfig</code>.
+      </p>
+
+      <div class="info-box warning">
+        <div class="ib-icon">!</div>
+        <div class="ib-body">
+          <div class="ib-title">Champs public static obligatoires</div>
+          <p>Le Config System utilise la reflexion Java pour lire et modifier les valeurs. Les champs
+          doivent absolument etre <code>public static</code> (non-final) pour que le parsing fonctionne.</p>
+        </div>
+      </div>
+
+      <!-- @EriConfig -->
+      <h3 id="annotation-ericonfig"><code>@EriConfig</code></h3>
+      <p>
+        Annote la <strong>classe</strong> de configuration. Indique l'identifiant du mod et le nom du fichier
+        <code>.cfg</code> a generer. Cette annotation est obligatoire sur la classe racine.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @EriConfig</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.TYPE (classe)
+// Retention : RUNTIME
+
+@EriConfig(
+    modid    = "monmod",    // ID du mod (pour les metadonnees Forge)
+    filename = "monmod"     // Nom du fichier : config/monmod.cfg
+)
+public class MyConfig {
+    // champs...
+}</code></pre>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Attribut</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Type</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:8px 12px;"><code>modid</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">String</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Identifiant du mod. Utilise dans les metadonnees Forge du fichier .cfg.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;"><code>filename</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">String</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Nom du fichier sans extension. Le fichier cree sera <code>config/&lt;filename&gt;.cfg</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- @Category -->
+      <h3 id="annotation-category"><code>@Category</code></h3>
+      <p>
+        Regroupe les champs dans une <strong>section</strong> du fichier <code>.cfg</code> et dans le GUI.
+        Si omis, le champ est place dans la categorie <code>"general"</code> par defaut.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @Category</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.FIELD
+// Retention : RUNTIME
+
+@Category("general")
+public static boolean enableFeature = true;
+
+@Category("display")
+public static int uiScale = 100;
+
+@Category("network")
+public static String serverUrl = "localhost";</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">ℹ</div>
+        <div class="ib-body">
+          <div class="ib-title">Sections dans le fichier .cfg</div>
+          <p>Chaque valeur unique de <code>@Category</code> cree une section <code>[nom]</code> dans le fichier
+          <code>.cfg</code> Forge. Le GUI regroupe les champs par categorie dans des panneaux separes.</p>
+        </div>
+      </div>
+
+      <!-- @Range -->
+      <h3 id="annotation-range"><code>@Range</code></h3>
+      <p>
+        Definit la plage de valeurs autorisees pour un champ numerique (<code>int</code>, <code>float</code>,
+        <code>double</code>). Le GUI affiche un <strong>Slider</strong> ou un <strong>NumericField</strong>
+        contraint entre <code>min</code> et <code>max</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @Range</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.FIELD
+// Retention : RUNTIME
+
+@Category("general")
+@Range(min = 1, max = 20)
+public static int maxPlayers = 8;      // Slider 1 -> 20
+
+@Category("display")
+@Range(min = 0.1, max = 3.0)
+public static float renderScale = 1.0f;  // NumericField decimal 0.1 -> 3.0
+
+@Category("network")
+@Range(min = 1000, max = 30000)
+public static double timeoutMs = 5000;   // NumericField decimal</code></pre>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Attribut</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Type</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Par defaut</th>
+            <th style="text-align:left;padding:8px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:8px 12px;"><code>min</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">double</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>Double.MIN_VALUE</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Valeur minimale autorisee (inclusive).</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;"><code>max</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">double</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>Double.MAX_VALUE</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Valeur maximale autorisee (inclusive).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- @Comment -->
+      <h3 id="annotation-comment"><code>@Comment</code></h3>
+      <p>
+        Ajoute une <strong>description</strong> au champ. Ce texte apparait comme commentaire dans le fichier
+        <code>.cfg</code> et comme infobulle dans le GUI de configuration.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @Comment</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.FIELD
+// Retention : RUNTIME
+
+@Category("general")
+@Comment("Active le mode debug. Affiche des informations supplementaires dans les logs.")
+public static boolean debugMode = false;
+
+// Dans le fichier .cfg genere, cela produira :
+# Active le mode debug. Affiche des informations supplementaires dans les logs.
+# [par defaut : false]
+B:debugMode=false</code></pre>
+      </div>
+
+      <!-- @ColorField -->
+      <h3 id="annotation-colorfield"><code>@ColorField</code></h3>
+      <p>
+        Marque un champ <code>int</code> comme une <strong>couleur ARGB</strong>. Le GUI remplace le champ
+        numerique standard par un <strong>ColorPicker</strong> complet (roue HSB + slider luminosite + preview hex).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @ColorField</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.FIELD (int uniquement)
+// Retention : RUNTIME
+
+@Category("display")
+@Comment("Couleur principale de l'interface (format ARGB)")
+@ColorField
+public static int primaryColor = 0xFF00CFCF;  // Cyan opaque
+
+@Category("display")
+@Comment("Couleur de fond des panneaux")
+@ColorField
+public static int panelBackground = 0xCC1A1A2E; // Bleu fonce semi-transparent</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Format ARGB</div>
+          <p>Les couleurs EriAPI sont au format <code>0xAARRGGBB</code>. Le byte de poids fort est l'alpha
+          (transparence) : <code>0xFF</code> = completement opaque, <code>0x00</code> = completement transparent.
+          Voir la classe <code>Colors</code> du GUI Framework pour des constantes et helpers.</p>
+        </div>
+      </div>
+
+      <!-- @Pattern -->
+      <h3 id="annotation-pattern"><code>@Pattern</code></h3>
+      <p>
+        Valide un champ <code>String</code> contre une <strong>expression reguliere</strong>. Si la valeur
+        saisie ne correspond pas au pattern, le GUI affiche un message d'erreur et refuse la sauvegarde.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @Pattern</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Package : fr.eri.eriapi.config.annotations
+// Cible   : ElementType.FIELD (String uniquement)
+// Retention : RUNTIME
+
+@Category("general")
+@Comment("Prefixe du chat (1 a 16 caracteres alphanumeriques)")
+@Pattern("^[a-zA-Z0-9_-]{1,16}$")
+public static String chatPrefix = "monmod";
+
+@Category("network")
+@Comment("Adresse IP du serveur de statistiques")
+@Pattern("^(\\d{1,3}\\.){3}\\d{1,3}$")
+public static String statsServer = "127.0.0.1";
+
+@Category("network")
+@Comment("Cle API (UUID format)")
+@Pattern("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+public static String apiKey = "00000000-0000-0000-0000-000000000000";</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         TYPES SUPPORTES
+    ====================================================== -->
+    <section class="doc-section" id="types-supportes">
+      <h2>Types supportes</h2>
+      <p>
+        Le Config System supporte les types Java suivants pour les champs de configuration.
+        Chaque type est automatiquement mappe vers un composant GUI adapte.
+      </p>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Type Java</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Annotations possibles</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Composant GUI genere</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Cle Forge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>boolean</code> / <code>Boolean</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Checkbox</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>B:</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>int</code> / <code>Integer</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Range</code>, <code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Slider (si @Range) ou NumericField</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>I:</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>int</code> + <code>@ColorField</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@ColorField</code>, <code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">ColorPicker (roue HSB + hex)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>I:</code></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>float</code> / <code>Float</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Range</code>, <code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">NumericField (decimal)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>S:</code> (stocke comme String)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>double</code> / <code>Double</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Range</code>, <code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">NumericField (decimal)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>S:</code> (stocke comme String)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>String</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Pattern</code>, <code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">TextField (avec validation si @Pattern)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>S:</code></td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;"><code>enum</code> (toute enum Java)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>@Comment</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">RadioGroup (une option par valeur d'enum)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);"><code>S:</code> (nom de la constante)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Exemple de mapping visuel</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — tous les types dans une config</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@EriConfig(modid = "monmod", filename = "monmod")
+public class MyConfig {
+
+    // boolean -> Checkbox dans le GUI
+    @Category("general")
+    @Comment("Activer le mode experimental")
+    public static boolean experimentalMode = false;
+
+    // int sans @Range -> NumericField entier
+    @Category("general")
+    @Comment("Quantite de ressources allouees")
+    public static int resourceAmount = 100;
+
+    // int avec @Range -> Slider
+    @Category("general")
+    @Comment("Nombre de threads (1 a 8)")
+    @Range(min = 1, max = 8)
+    public static int threadCount = 2;
+
+    // int avec @ColorField -> ColorPicker
+    @Category("display")
+    @Comment("Couleur principale")
+    @ColorField
+    public static int mainColor = 0xFF00CFCF;
+
+    // float avec @Range -> NumericField decimal contraint
+    @Category("display")
+    @Comment("Echelle de rendu (0.5 a 2.0)")
+    @Range(min = 0.5, max = 2.0)
+    public static float renderScale = 1.0f;
+
+    // String sans @Pattern -> TextField libre
+    @Category("general")
+    @Comment("Nom affiche dans l'interface")
+    public static String displayName = "Joueur";
+
+    // String avec @Pattern -> TextField avec validation
+    @Category("network")
+    @Comment("Adresse du serveur (format IP)")
+    @Pattern("^(\\d{1,3}\\.){3}\\d{1,3}$")
+    public static String serverIp = "127.0.0.1";
+
+    // enum -> RadioGroup
+    @Category("general")
+    @Comment("Mode de difficulte")
+    public static Difficulty difficulty = Difficulty.NORMAL;
+
+    public enum Difficulty { EASY, NORMAL, HARD }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONFIG PARSER
+    ====================================================== -->
+    <section class="doc-section" id="config-parser">
+      <h2>ConfigParser</h2>
+      <p>
+        <code>ConfigParser</code> est la classe centrale qui gere l'enregistrement, le chargement et la
+        sauvegarde des configurations. Elle maintient une registry interne des classes enregistrees.
+      </p>
+      <p>Package : <code>fr.eri.eriapi.config</code></p>
+
+      <h3>Methodes principales</h3>
+
+      <h4><code>register(Class&lt;?&gt;, File)</code></h4>
+      <p>
+        Enregistre une classe de configuration et charge immediatement les valeurs depuis le fichier
+        <code>.cfg</code>. Si le fichier n'existe pas encore, il est cree avec les valeurs par defaut
+        des champs Java.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — register</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans preInit :
+@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    File configDir = event.getModConfigurationDirectory();
+
+    // Enregistre MyConfig -> cree/lit config/monmod.cfg
+    ConfigParser.register(MyConfig.class, configDir);
+
+    // Tu peux enregistrer plusieurs configs
+    ConfigParser.register(NetworkConfig.class, configDir);
+    ConfigParser.register(DisplayConfig.class, configDir);
+}</code></pre>
+      </div>
+
+      <h4><code>reload(Class&lt;?&gt;)</code></h4>
+      <p>
+        Relit le fichier <code>.cfg</code> depuis le disque et met a jour les champs Java avec les
+        nouvelles valeurs. Utile si le fichier a ete modifie manuellement pendant que le jeu tournait.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — reload</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Recharger la config depuis le fichier (ex: apres edition manuelle)
+ConfigParser.reload(MyConfig.class);
+
+// Les champs sont maintenant mis a jour :
+System.out.println(MyConfig.maxRetries); // Nouvelle valeur du .cfg</code></pre>
+      </div>
+
+      <h4><code>save(Class&lt;?&gt;)</code></h4>
+      <p>
+        Ecrit les valeurs actuelles des champs Java dans le fichier <code>.cfg</code>. Appele automatiquement
+        par le GUI quand le joueur clique sur "Sauvegarder", mais tu peux aussi l'appeler manuellement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — save</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Modifier une valeur programmatiquement puis sauvegarder :
+MyConfig.maxRetries = 5;
+ConfigParser.save(MyConfig.class); // Ecrit dans config/monmod.cfg</code></pre>
+      </div>
+
+      <h4><code>getFields(Class&lt;?&gt;)</code></h4>
+      <p>
+        Retourne la liste de tous les <code>FieldInfo</code> d'une config enregistree. Chaque
+        <code>FieldInfo</code> contient le champ Java, ses annotations, sa categorie et sa valeur courante.
+        Utile pour construire des interfaces personnalisees ou inspecter la config programmatiquement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — getFields</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">List&lt;ConfigParser.FieldInfo&gt; fields = ConfigParser.getFields(MyConfig.class);
+
+for (ConfigParser.FieldInfo info : fields) {
+    System.out.println(
+        "[" + info.getCategory() + "] " +
+        info.getField().getName() + " = " +
+        info.getValue()
+    );
+}
+// Affiche par exemple :
+// [general] maxRetries = 3
+// [display] primaryColor = -16724913
+// [display] chatPrefix = monmod</code></pre>
+      </div>
+
+      <h4><code>getForgeConfig(Class&lt;?&gt;)</code></h4>
+      <p>
+        Retourne l'objet <code>Configuration</code> Forge sous-jacent associe a la classe.
+        Permet d'acceder a l'API Forge de bas niveau si necessaire (lecture de sections brutes, etc.).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — getForgeConfig</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import net.minecraftforge.common.config.Configuration;
+
+Configuration forgeCfg = ConfigParser.getForgeConfig(MyConfig.class);
+
+// Lecture directe d'une propriete Forge :
+String rawValue = forgeCfg.getString("chatPrefix", "general", "monmod", "Prefixe chat");
+System.out.println("Valeur brute : " + rawValue);</code></pre>
+      </div>
+
+      <h4><code>isRegistered(Class&lt;?&gt;)</code></h4>
+      <p>
+        Verifie si une classe de configuration a deja ete enregistree dans le <code>ConfigParser</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — isRegistered</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">if (ConfigParser.isRegistered(MyConfig.class)) {
+    System.out.println("Config enregistree, pret a l'emploi.");
+} else {
+    // Ne pas appeler reload/save sans enregistrement prealable
+    System.out.println("Config non enregistree !");
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONFIG GUI
+    ====================================================== -->
+    <section class="doc-section" id="config-gui">
+      <h2>ConfigGuiFactory</h2>
+      <p>
+        <code>ConfigGuiFactory</code> genere automatiquement un ecran de configuration complet a partir
+        des annotations d'une classe enregistree. Le GUI est entierement base sur les composants du
+        GUI Framework EriAPI.
+      </p>
+      <p>Package : <code>fr.eri.eriapi.config</code></p>
+
+      <h3>Methodes</h3>
+
+      <h4><code>createGui(Class&lt;?&gt;)</code></h4>
+      <p>Cree le GUI de configuration sans ecran parent. Appuyer sur Echap fermera le GUI et retournera
+      au menu principal.</p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — createGui simple</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Ouvrir le GUI de configuration pour MyConfig
+Minecraft.getMinecraft().displayGuiScreen(
+    ConfigGuiFactory.createGui(MyConfig.class)
+);</code></pre>
+      </div>
+
+      <h4><code>createGui(Class&lt;?&gt;, GuiScreen)</code></h4>
+      <p>Cree le GUI avec un ecran parent. Quand le joueur appuie sur Echap ou clique sur "Annuler",
+      il retourne a l'ecran parent au lieu du menu principal.</p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — createGui avec parent</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Depuis une GUI existante :
+GuiScreen parent = Minecraft.getMinecraft().currentScreen;
+Minecraft.getMinecraft().displayGuiScreen(
+    ConfigGuiFactory.createGui(MyConfig.class, parent)
+);
+// Echap ou "Annuler" -> retour a l'ecran parent</code></pre>
+      </div>
+
+      <h3>Mapping type vers composant GUI</h3>
+      <p>Voici comment chaque type de champ est traduit en composant visuel dans le GUI genere :</p>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Type / Annotation</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Composant GUI</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:600;font-size:0.85rem;">Interaction</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>boolean</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Checkbox</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Clic pour basculer vrai/faux</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>int</code> + <code>@Range</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Slider</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Glisser entre min et max</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>int</code> sans <code>@Range</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">NumericField</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Saisie directe (entiers uniquement)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>int</code> + <code>@ColorField</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">ColorPicker</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Roue HSB, slider luminosite, hex</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>float</code> / <code>double</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">NumericField (decimal)</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Saisie directe, point decimal autorise</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border-subtle);">
+            <td style="padding:10px 12px;"><code>String</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">TextField</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Saisie libre (bordure rouge si @Pattern invalide)</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;"><code>enum</code></td>
+            <td style="padding:10px 12px;color:var(--text-muted);">RadioGroup</td>
+            <td style="padding:10px 12px;color:var(--text-muted);">Un RadioButton par constante d'enum</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Boutons du GUI</h3>
+      <p>Le GUI genere contient toujours trois boutons en bas de l'ecran :</p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:16px;line-height:2.2;">
+        <li><strong style="color:var(--text);">Sauvegarder</strong> — valide les champs, ecrit dans le <code>.cfg</code> via <code>ConfigParser.save()</code>, puis envoie la config au serveur via <code>ConfigSyncHandler.sendToServer()</code></li>
+        <li><strong style="color:var(--text);">Annuler</strong> — ferme le GUI sans sauvegarder, retourne a l'ecran parent si defini</li>
+        <li><strong style="color:var(--text);">Reinitialiser</strong> — restaure toutes les valeurs aux valeurs par defaut Java definies dans la classe, puis sauvegarde</li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — exemple complet d'ouverture depuis une commande</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans un CommandBase cote client (ou un EventHandler client) :
+@Override
+public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+    // Verifier que c'est bien le client (pas le serveur dedié)
+    if (!(sender instanceof EntityPlayerSP)) return;
+
+    Minecraft mc = Minecraft.getMinecraft();
+    mc.addScheduledTask(() -> {
+        mc.displayGuiScreen(
+            ConfigGuiFactory.createGui(MyConfig.class, mc.currentScreen)
+        );
+    });
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         SYNC RESEAU
+    ====================================================== -->
+    <section class="doc-section" id="sync-reseau">
+      <h2>ConfigSyncHandler</h2>
+      <p>
+        <code>ConfigSyncHandler</code> gere la synchronisation des valeurs de configuration entre le
+        client et le serveur. Il utilise un canal <code>SimpleNetworkWrapper</code> dedie, distinct du
+        canal principal du GUI Framework.
+      </p>
+      <p>Package : <code>fr.eri.eriapi.config</code></p>
+
+      <div class="info-box info">
+        <div class="ib-icon">ℹ</div>
+        <div class="ib-body">
+          <div class="ib-title">Pourquoi synchroniser les configs ?</div>
+          <p>En Minecraft Forge, les configurations sont lues depuis le disque de chaque machine
+          separement. Si un joueur modifie une valeur dans le GUI, le serveur n'en sait rien.
+          <code>ConfigSyncHandler</code> resout ce probleme en envoyant les valeurs via le reseau
+          des que l'utilisateur sauvegarde.</p>
+        </div>
+      </div>
+
+      <h3>Methodes</h3>
+
+      <h4><code>init()</code></h4>
+      <p>
+        Enregistre le canal reseau dedie et les packets de synchronisation. Doit etre appele une seule
+        fois dans <code>init()</code> ou <code>preInit()</code>, apres l'enregistrement des configs.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — init()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void init(FMLInitializationEvent event) {
+    ConfigSyncHandler.init(); // A appeler une seule fois
+}</code></pre>
+      </div>
+
+      <h4><code>sendToServer(Class&lt;?&gt;)</code></h4>
+      <p>
+        Envoie les valeurs d'une config depuis le client vers le serveur. Appele automatiquement par
+        <code>ConfigGuiFactory</code> lors d'une sauvegarde, mais peut aussi etre utilise manuellement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — sendToServer</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Envoyer manuellement apres modification programmatique :
+MyConfig.maxRetries = 7;
+ConfigParser.save(MyConfig.class);
+ConfigSyncHandler.sendToServer(MyConfig.class);
+// Le serveur recoit et met a jour ses champs Java MyConfig.maxRetries = 7</code></pre>
+      </div>
+
+      <h4><code>sendToClient(Class&lt;?&gt;, EntityPlayerMP)</code></h4>
+      <p>
+        Envoie les valeurs d'une config depuis le serveur vers un joueur specifique. Utile pour
+        forcer la synchronisation d'un joueur qui vient de rejoindre ou apres une modification
+        cote serveur.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — sendToClient</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans un EventHandler serveur (ex: PlayerLoggedInEvent) :
+@SubscribeEvent
+public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+    EntityPlayerMP player = (EntityPlayerMP) event.player;
+    // Envoyer la config du serveur au joueur qui rejoint
+    ConfigSyncHandler.sendToClient(MyConfig.class, player);
+}</code></pre>
+      </div>
+
+      <h4><code>sendAllToClient(EntityPlayerMP)</code></h4>
+      <p>
+        Envoie <strong>toutes</strong> les configs enregistrees vers un joueur specifique. Pratique
+        dans <code>PlayerLoggedInEvent</code> pour synchroniser toute la configuration d'un coup.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — sendAllToClient</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@SubscribeEvent
+public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+    EntityPlayerMP player = (EntityPlayerMP) event.player;
+    // Synchronise TOUTES les configs enregistrees vers ce joueur
+    ConfigSyncHandler.sendAllToClient(player);
+}</code></pre>
+      </div>
+
+      <h3>Synchronisation automatique au login</h3>
+      <p>
+        Si tu enregistres le <code>ConfigSyncHandler</code> comme listener Forge avec
+        <code>MinecraftForge.EVENT_BUS.register()</code>, il intercepte automatiquement l'evenement
+        <code>PlayerLoggedInEvent</code> et envoie toutes les configs au joueur connecte.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — auto-sync au login</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void init(FMLInitializationEvent event) {
+    ConfigSyncHandler.init();
+    // Enregistre le handler d'evenements Forge pour l'auto-sync au login
+    MinecraftForge.EVENT_BUS.register(ConfigSyncHandler.class);
+}</code></pre>
+      </div>
+
+      <h3>Broadcast vers tous les clients</h3>
+      <p>
+        Pour diffuser une modification de config a tous les joueurs connectes (par exemple apres une
+        commande admin), parcours la liste des joueurs et envoie individuellement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — broadcast a tous les joueurs</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Modifier une valeur cote serveur et la diffuser :
+MyConfig.maxRetries = 10;
+ConfigParser.save(MyConfig.class);
+
+MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
+    ConfigSyncHandler.sendToClient(MyConfig.class, player);
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet</h2>
+      <p>
+        Voici un exemple de bout en bout : une classe de configuration complete avec plusieurs categories,
+        tous les types d'annotations, l'enregistrement dans la classe principale, et une commande pour
+        ouvrir le GUI.
+      </p>
+
+      <h3>1. La classe de configuration</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ServerConfig.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.eri.eriapi.config;
+
+import fr.eri.eriapi.config.annotations.*;
+
+/**
+ * Configuration principale du mod EriAPI.
+ * Fichier genere : config/eriapi.cfg
+ */
+@EriConfig(modid = "eriapi", filename = "eriapi")
+public class ServerConfig {
+
+    // ========================
+    // Categorie : general
+    // ========================
+
+    @Category("general")
+    @Comment("Active les fonctionnalites experimentales (instables)")
+    public static boolean experimentalFeatures = false;
+
+    @Category("general")
+    @Comment("Niveau de log (0=SILENT, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG)")
+    @Range(min = 0, max = 4)
+    public static int logLevel = 3;
+
+    @Category("general")
+    @Comment("Prefixe affiche dans les messages de chat du mod")
+    @Pattern("^[a-zA-Z0-9_-]{1,16}$")
+    public static String chatPrefix = "EriAPI";
+
+    @Category("general")
+    @Comment("Mode de performance global")
+    public static PerformanceMode performanceMode = PerformanceMode.BALANCED;
+
+    public enum PerformanceMode { LOW, BALANCED, HIGH, ULTRA }
+
+    // ========================
+    // Categorie : display
+    // ========================
+
+    @Category("display")
+    @Comment("Couleur principale de l'interface (ARGB)")
+    @ColorField
+    public static int primaryColor = 0xFF00CFCF;
+
+    @Category("display")
+    @Comment("Couleur d'accent pour les boutons et highlights (ARGB)")
+    @ColorField
+    public static int accentColor = 0xFFFF6B6B;
+
+    @Category("display")
+    @Comment("Opacite des fonds de panneau (0.0 = transparent, 1.0 = opaque)")
+    @Range(min = 0.0, max = 1.0)
+    public static float panelOpacity = 0.85f;
+
+    @Category("display")
+    @Comment("Taille de police de l'interface (pourcentage, 80 a 150)")
+    @Range(min = 80, max = 150)
+    public static int fontScale = 100;
+
+    // ========================
+    // Categorie : network
+    // ========================
+
+    @Category("network")
+    @Comment("Activer la synchronisation automatique des configs au login")
+    public static boolean autoSync = true;
+
+    @Category("network")
+    @Comment("Timeout des requetes reseau en millisecondes")
+    @Range(min = 1000, max = 30000)
+    public static int networkTimeout = 5000;
+
+    @Category("network")
+    @Comment("Adresse du serveur de telemetrie (laisser vide pour desactiver)")
+    public static String telemetryServer = "";
+}</code></pre>
+      </div>
+
+      <h3>2. Enregistrement dans la classe principale</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriAPI.java (extrait)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod(modid = Reference.MODID, version = Reference.VERSION, name = Reference.NAME)
+public class EriAPI {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        // Enregistre la config -> lit/cree config/eriapi.cfg
+        ConfigParser.register(ServerConfig.class, event.getModConfigurationDirectory());
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Initialise le canal de sync reseau
+        ConfigSyncHandler.init();
+        // Auto-sync au login des joueurs
+        MinecraftForge.EVENT_BUS.register(ConfigSyncHandler.class);
+    }
+}</code></pre>
+      </div>
+
+      <h3>3. Commande pour ouvrir le GUI</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — CommandOpenConfig.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.eri.eriapi.command;
+
+import fr.eri.eriapi.config.ConfigGuiFactory;
+import fr.eri.eriapi.config.ServerConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerSP;
+import net.minecraft.server.MinecraftServer;
+
+public class CommandOpenConfig extends CommandBase {
+
+    @Override
+    public String getName() {
+        return "ericonfig";
+    }
+
+    @Override
+    public String getUsage(ICommandSender sender) {
+        return "/ericonfig - Ouvre le panneau de configuration";
+    }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+        if (!(sender instanceof EntityPlayerSP)) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.addScheduledTask(() -> {
+            // Ouvre le GUI avec l'ecran courant comme parent (Echap -> retour)
+            mc.displayGuiScreen(
+                ConfigGuiFactory.createGui(ServerConfig.class, mc.currentScreen)
+            );
+        });
+    }
+
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 0; // Accessible a tous les joueurs
+    }
+}</code></pre>
+      </div>
+
+      <h3>Fichier .cfg genere</h3>
+      <p>Voici a quoi ressemble le fichier <code>config/eriapi.cfg</code> genere automatiquement :</p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>INI — config/eriapi.cfg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">####################
+# display
+####################
+
+display {
+    # Couleur d'accent pour les boutons et highlights (ARGB)
+    # [par defaut: -10066]\
+    I:accentColor=-10066
+
+    # Taille de police de l'interface (pourcentage, 80 a 150)
+    # Min: 80 | Max: 150
+    # [par defaut: 100]
+    I:fontScale=100
+
+    # Opacite des fonds de panneau (0.0 = transparent, 1.0 = opaque)
+    # Min: 0.0 | Max: 1.0
+    # [par defaut: 0.85]
+    S:panelOpacity=0.85
+
+    # Couleur principale de l'interface (ARGB)
+    # [par defaut: -16724913]
+    I:primaryColor=-16724913
+}
+
+####################
+# general
+####################
+
+general {
+    # Prefixe affiche dans les messages de chat du mod
+    # [par defaut: EriAPI]
+    S:chatPrefix=EriAPI
+
+    # Active les fonctionnalites experimentales (instables)
+    # [par defaut: false]
+    B:experimentalFeatures=false
+
+    # Niveau de log (0=SILENT, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG)
+    # Min: 0 | Max: 4
+    # [par defaut: 3]
+    I:logLevel=3
+
+    # Mode de performance global
+    # Valeurs valides: LOW, BALANCED, HIGH, ULTRA
+    # [par defaut: BALANCED]
+    S:performanceMode=BALANCED
+}
+
+####################
+# network
+####################
+
+network {
+    # Activer la synchronisation automatique des configs au login
+    # [par defaut: true]
+    B:autoSync=true
+
+    # Timeout des requetes reseau en millisecondes
+    # Min: 1000 | Max: 30000
+    # [par defaut: 5000]
+    I:networkTimeout=5000
+
+    # Adresse du serveur de telemetrie (laisser vide pour desactiver)
+    # [par defaut: ]
+    S:telemetryServer=
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Modification manuelle du fichier .cfg</div>
+          <p>Le fichier <code>.cfg</code> peut etre edite directement dans un editeur de texte quand le jeu
+          est ferme. Les commentaires (lignes commencant par <code>#</code>) sont regeneres a chaque
+          sauvegarde. Apres edition manuelle, appelle <code>ConfigParser.reload(MyConfig.class)</code>
+          pour que les nouvelles valeurs soient prises en compte sans redemarrage.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

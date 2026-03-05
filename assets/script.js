@@ -1,13 +1,77 @@
 /* ============================================================
-   EriAPI Documentation — Shared Scripts
+   EriAPI Documentation — Liquid Glass Interactions
+   Scroll-reveal, parallax, smooth transitions
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* ---- Mobile menu toggle ------------------------------------ */
-  const menuToggle = document.querySelector('.menu-toggle');
-  const sidebar    = document.querySelector('.sidebar');
-  let overlay      = document.querySelector('.sidebar-overlay');
+  /* ============================================================
+     SCROLL-REVEAL — Animate sections on scroll
+     ============================================================ */
+  const revealSections = document.querySelectorAll('.doc-section');
+
+  if ('IntersectionObserver' in window && revealSections.length > 0) {
+    const revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      rootMargin: '0px 0px -60px 0px',
+      threshold: 0.05
+    });
+
+    revealSections.forEach(function (section) {
+      revealObserver.observe(section);
+    });
+  } else {
+    /* Fallback: reveal everything immediately */
+    revealSections.forEach(function (s) { s.classList.add('revealed'); });
+  }
+
+  /* Also reveal intro sections and heroes immediately */
+  document.querySelectorAll('.section-intro, .hero').forEach(function (el) {
+    var parent = el.closest('.doc-section');
+    if (parent) parent.classList.add('revealed');
+  });
+
+  /* ============================================================
+     HEADER SCROLL EFFECT — Glass intensifies on scroll
+     ============================================================ */
+  var header = document.querySelector('.site-header');
+  var lastScrollY = 0;
+  var ticking = false;
+
+  function updateHeader() {
+    if (header) {
+      if (window.scrollY > 20) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    }
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    lastScrollY = window.scrollY;
+    if (!ticking) {
+      requestAnimationFrame(updateHeader);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  /* Initial check */
+  updateHeader();
+
+  /* ============================================================
+     MOBILE MENU — Sidebar toggle with glass overlay
+     ============================================================ */
+  var menuToggle = document.querySelector('.menu-toggle');
+  var sidebar    = document.querySelector('.sidebar');
+  var overlay    = document.querySelector('.sidebar-overlay');
 
   if (!overlay) {
     overlay = document.createElement('div');
@@ -42,17 +106,19 @@ document.addEventListener('DOMContentLoaded', function () {
   /* Close sidebar when a nav link is clicked on mobile */
   sidebar.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
-      if (window.innerWidth <= 720) closeSidebar();
+      if (window.innerWidth <= 768) closeSidebar();
     });
   });
 
-  /* ---- Active nav via IntersectionObserver ------------------- */
-  const sections    = document.querySelectorAll('.doc-section[id]');
-  const navLinks    = document.querySelectorAll('.sidebar .nav-group ul li a');
-  const navMap      = {};
+  /* ============================================================
+     ACTIVE NAV — IntersectionObserver scroll spy
+     ============================================================ */
+  var sections = document.querySelectorAll('.doc-section[id]');
+  var navLinks = document.querySelectorAll('.sidebar .nav-group ul li a');
+  var navMap   = {};
 
   navLinks.forEach(function (link) {
-    const href = link.getAttribute('href');
+    var href = link.getAttribute('href');
     if (href && href.startsWith('#')) {
       navMap[href.slice(1)] = link;
     }
@@ -63,21 +129,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (navMap[id]) {
       navMap[id].classList.add('active');
       /* Scroll nav item into view if needed */
-      const navItem = navMap[id];
-      const sb = sidebar;
-      if (navItem.offsetTop < sb.scrollTop ||
-          navItem.offsetTop + navItem.offsetHeight > sb.scrollTop + sb.clientHeight) {
-        navItem.scrollIntoView({ block: 'nearest' });
+      var navItem = navMap[id];
+      if (navItem.offsetTop < sidebar.scrollTop ||
+          navItem.offsetTop + navItem.offsetHeight > sidebar.scrollTop + sidebar.clientHeight) {
+        navItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
   }
 
   if ('IntersectionObserver' in window && sections.length > 0) {
-    const headerH = parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue('--header-h') || '52'
+    var headerH = parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue('--header-h') || '56'
     );
 
-    const observer = new IntersectionObserver(function (entries) {
+    var navObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           setActive(entry.target.id);
@@ -88,28 +153,29 @@ document.addEventListener('DOMContentLoaded', function () {
       threshold: 0
     });
 
-    sections.forEach(function (section) { observer.observe(section); });
+    sections.forEach(function (section) { navObserver.observe(section); });
   } else {
-    /* Fallback: scroll-based detection */
+    /* Fallback: scroll-based */
     window.addEventListener('scroll', function () {
-      let current = '';
+      var current = '';
       sections.forEach(function (section) {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= 100) current = section.id;
+        if (section.getBoundingClientRect().top <= 100) current = section.id;
       });
       if (current) setActive(current);
     }, { passive: true });
   }
 
-  /* ---- Copy to clipboard ------------------------------------- */
+  /* ============================================================
+     COPY TO CLIPBOARD — With glass-style feedback
+     ============================================================ */
   document.querySelectorAll('.copy-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      const wrapper = btn.closest('.code-wrapper');
+      var wrapper = btn.closest('.code-wrapper');
       if (!wrapper) return;
-      const codeEl = wrapper.querySelector('code');
+      var codeEl = wrapper.querySelector('code');
       if (!codeEl) return;
 
-      const text = codeEl.innerText || codeEl.textContent;
+      var text = codeEl.innerText || codeEl.textContent;
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
@@ -124,21 +190,21 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function showCopied(btn) {
-    const original = btn.textContent;
+    var original = btn.textContent;
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(function () {
       btn.textContent = original;
       btn.classList.remove('copied');
-    }, 1800);
+    }, 2000);
   }
 
   function fallbackCopy(text, btn) {
-    const ta = document.createElement('textarea');
+    var ta = document.createElement('textarea');
     ta.value = text;
     ta.style.position = 'fixed';
     ta.style.left = '-9999px';
-    ta.style.top  = '-9999px';
+    ta.style.top = '-9999px';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
@@ -151,54 +217,64 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.removeChild(ta);
   }
 
-  /* ---- Smooth scroll for anchor links ------------------------ */
+  /* ============================================================
+     SMOOTH SCROLL — Anchor links with offset
+     ============================================================ */
   document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
     anchor.addEventListener('click', function (e) {
-      const id = this.getAttribute('href').slice(1);
-      const target = document.getElementById(id);
+      var id = this.getAttribute('href').slice(1);
+      var target = document.getElementById(id);
       if (target) {
         e.preventDefault();
-        const headerH = document.querySelector('.site-header')
+        var hH = document.querySelector('.site-header')
           ? document.querySelector('.site-header').offsetHeight
-          : 52;
-        const y = target.getBoundingClientRect().top + window.scrollY - headerH - 20;
+          : 56;
+        var y = target.getBoundingClientRect().top + window.scrollY - hH - 24;
         window.scrollTo({ top: y, behavior: 'smooth' });
+
+        /* Reveal the section if not already */
+        if (!target.classList.contains('revealed')) {
+          target.classList.add('revealed');
+        }
       }
     });
   });
 
-  /* ---- Real-time search filter --------------------------------- */
-  const searchInput = document.getElementById('nav-search');
+  /* ============================================================
+     SEARCH FILTER — Real-time with glass transitions
+     ============================================================ */
+  var searchInput = document.getElementById('nav-search');
   if (searchInput) {
-    const allSections = document.querySelectorAll('.doc-section[id]');
-    const allNavGroups = document.querySelectorAll('.nav-group:not(.nav-pages)');
+    var allSections = document.querySelectorAll('.doc-section[id]');
+    var allNavGroups = document.querySelectorAll('.nav-group:not(.nav-pages)');
 
     searchInput.addEventListener('input', function () {
-      const query = this.value.toLowerCase().trim();
+      var query = this.value.toLowerCase().trim();
 
       if (!query) {
-        // Show everything
-        allSections.forEach(function (s) { s.classList.remove('search-hidden'); });
+        allSections.forEach(function (s) {
+          s.classList.remove('search-hidden');
+          s.classList.add('revealed');
+        });
         allNavGroups.forEach(function (g) { g.classList.remove('search-hidden'); });
         return;
       }
 
-      // Filter sections
       allSections.forEach(function (section) {
-        const text = section.textContent.toLowerCase();
-        const id = section.id.toLowerCase();
-        const matches = text.includes(query) || id.includes(query);
+        var text = section.textContent.toLowerCase();
+        var id = section.id.toLowerCase();
+        var matches = text.includes(query) || id.includes(query);
         section.classList.toggle('search-hidden', !matches);
+        if (matches) section.classList.add('revealed');
       });
 
-      // Filter nav groups: hide if all their links' sections are hidden
       allNavGroups.forEach(function (group) {
-        const links = group.querySelectorAll('a[href^="#"]');
-        let anyVisible = false;
+        var links = group.querySelectorAll('a[href^="#"]');
+        var anyVisible = false;
         links.forEach(function (link) {
-          const href = link.getAttribute('href');
+          var href = link.getAttribute('href');
           if (href && href.startsWith('#')) {
-            const targetSection = document.getElementById(href.slice(1));
+            var targetSection = document.getElementById(href.slice(1));
             if (targetSection && !targetSection.classList.contains('search-hidden')) {
               anyVisible = true;
             }
@@ -208,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    // Clear search on Escape
+    /* Clear search on Escape */
     searchInput.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         this.value = '';
@@ -218,7 +294,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ---- Highlight.js init ------------------------------------- */
+  /* ============================================================
+     CARD TILT — Subtle glass refraction effect on hover
+     ============================================================ */
+  document.querySelectorAll('.card, .module-card, .qs-card').forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var rect = card.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width;
+      var y = (e.clientY - rect.top) / rect.height;
+      var rotateX = (y - 0.5) * -4;
+      var rotateY = (x - 0.5) * 4;
+      card.style.transform = 'perspective(800px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-2px)';
+    });
+
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = '';
+    });
+  });
+
+  /* ============================================================
+     HIGHLIGHT.JS INIT
+     ============================================================ */
   if (typeof hljs !== 'undefined') {
     hljs.highlightAll();
   }

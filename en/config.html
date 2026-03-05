@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Config System (EN)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/config.html">FR</a>
+    <a href="config.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link active"><span class="nav-dot"></span>Config System</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Getting Started</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#quick-start"><span class="nav-dot"></span>Quick Start</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Annotations</div>
+      <ul>
+        <li><a href="#annotations"><span class="nav-dot"></span>All Annotations</a></li>
+        <li><a href="#supported-types"><span class="nav-dot"></span>Supported Types</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">API Reference</div>
+      <ul>
+        <li><a href="#config-parser"><span class="nav-dot"></span>ConfigParser</a></li>
+        <li><a href="#config-gui"><span class="nav-dot"></span>ConfigGuiFactory</a></li>
+        <li><a href="#network-sync"><span class="nav-dot"></span>ConfigSyncHandler</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Examples</div>
+      <ul>
+        <li><a href="#full-example"><span class="nav-dot"></span>Full Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section" id="introduction">
+      <h2>Config System</h2>
+
+      <p>
+        The EriAPI Config System is an annotation-based configuration framework built on top of
+        Forge's standard <code>.cfg</code> file format. Instead of manually creating
+        <code>Configuration</code> objects and writing boilerplate load/save logic, you declare a
+        plain Java class, annotate its fields, and let the system handle the rest.
+      </p>
+
+      <p>
+        The system provides four integrated features out of the box:
+      </p>
+
+      <ul>
+        <li><strong>Parsing</strong> — reads and writes standard Forge <code>.cfg</code> files via <code>ConfigParser</code>.</li>
+        <li><strong>Validation</strong> — enforces ranges, patterns and type constraints at load time.</li>
+        <li><strong>Auto-GUI</strong> — generates a fully interactive in-game configuration screen via <code>ConfigGuiFactory</code>, with no manual UI code required.</li>
+        <li><strong>Network sync</strong> — sends config values from server to clients (or client to server) automatically via <code>ConfigSyncHandler</code>.</li>
+      </ul>
+
+      <div class="info-box info">
+        The Config System uses the same EriAPI GUI components as the rest of the framework. The
+        generated screen is a proper <code>EriGuiScreen</code> with Slider, TextField, Checkbox,
+        ColorPicker and other components wired up automatically.
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         QUICK START
+    ====================================================== -->
+    <section class="doc-section" id="quick-start">
+      <h2>Quick Start</h2>
+
+      <p>Four steps are enough to get a working config with auto-GUI and network sync.</p>
+
+      <h3>Step 1 — Declare your config class</h3>
+      <p>
+        Create a plain Java class. Annotate it with <code>@EriConfig</code> and annotate each
+        field you want to expose.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>MyConfig.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@EriConfig(modid = "mymod", filename = "mymod")
+public class MyConfig {
+
+    @Category("general")
+    @Comment("Maximum number of players allowed.")
+    @Range(min = 1, max = 100)
+    public static int maxPlayers = 20;
+
+    @Category("general")
+    @Comment("Enable debug logging.")
+    public static boolean debugMode = false;
+
+    @Category("display")
+    @Comment("Primary accent color (ARGB).")
+    @ColorField
+    public static int accentColor = 0xFF4A90E2;
+
+    @Category("display")
+    @Comment("Server address (hostname or IP).")
+    @Pattern("^[\\w.-]+(:\\d+)?$")
+    public static String serverAddress = "localhost";
+}</code></pre>
+      </div>
+
+      <h3>Step 2 — Register with ConfigParser</h3>
+      <p>
+        Call <code>ConfigParser.register()</code> during your mod's pre-initialization event, passing
+        the config class and the mod configuration directory.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>YourMod.java — FMLPreInitializationEvent</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    ConfigParser.register(MyConfig.class, event.getModConfigurationDirectory());
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <code>ConfigParser.register()</code> immediately loads the file from disk (creating it with
+        defaults if it does not exist) and populates the static fields of your class.
+      </div>
+
+      <h3>Step 3 — Initialise network sync</h3>
+      <p>
+        Call <code>ConfigSyncHandler.init()</code> after registering your network channel. This
+        registers the sync packet and hooks into the player login event so values are pushed to
+        newly connected clients automatically.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>YourMod.java — FMLPreInitializationEvent</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    ConfigParser.register(MyConfig.class, event.getModConfigurationDirectory());
+    ConfigSyncHandler.init(); // registers packet + login hook
+}</code></pre>
+      </div>
+
+      <h3>Step 4 — Open the config GUI</h3>
+      <p>
+        From anywhere on the client (a button, a command, a GuiFactory), open the generated screen:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Opening the auto-generated config screen</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// From a button onClick callback:
+.onClick(() -> {
+    GuiScreen configScreen = ConfigGuiFactory.createGui(MyConfig.class);
+    Minecraft.getMinecraft().displayGuiScreen(configScreen);
+})
+
+// Or with an explicit parent screen (Back button returns to it):
+GuiScreen configScreen = ConfigGuiFactory.createGui(MyConfig.class, currentScreen);
+Minecraft.getMinecraft().displayGuiScreen(configScreen);</code></pre>
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANNOTATIONS
+    ====================================================== -->
+    <section class="doc-section" id="annotations">
+      <h2>Annotations</h2>
+
+      <p>
+        All annotations live in the <code>fr.eri.eriapi.config.annotation</code> package. They are
+        all retained at runtime (<code>@Retention(RUNTIME)</code>) and target fields
+        (<code>@Target(FIELD)</code>) unless stated otherwise.
+      </p>
+
+      <h3>@EriConfig</h3>
+      <p>
+        Marks a class as a config class. Must be present on the class itself (not a field).
+        <code>ConfigParser.register()</code> will refuse to process a class that does not carry
+        this annotation.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@EriConfig — parameters</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@EriConfig(
+    modid    = "mymod",    // used as the config file header and for namespacing
+    filename = "mymod"     // filename without extension → mymod.cfg
+)
+public class MyConfig { ... }</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <code>@Target(TYPE)</code> — this annotation goes on the class declaration, not on fields.
+      </div>
+
+      <hr class="section-divider" />
+
+      <h3>@Category</h3>
+      <p>
+        Groups fields into named sections inside the <code>.cfg</code> file. Fields that share the
+        same category string are written under the same <code>[category]</code> header. In the
+        auto-generated GUI, each category becomes a separate tab.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@Category — usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Category("general")
+public static int maxPlayers = 20;
+
+@Category("display")
+public static int accentColor = 0xFF4A90E2;
+
+// Fields with no @Category go into a default "general" section.</code></pre>
+      </div>
+
+      <hr class="section-divider" />
+
+      <h3>@Range</h3>
+      <p>
+        Constrains the value of a numeric field (<code>int</code>, <code>float</code>,
+        <code>double</code>) to a minimum and maximum. The parser clamps loaded values to the
+        declared range. In the GUI, a <strong>Slider</strong> component is generated instead of a
+        plain text field.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@Range — usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Range(min = 0.0, max = 1.0)
+public static float masterVolume = 0.8f;
+
+@Range(min = 1, max = 100)
+public static int tickRate = 20;</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <code>@Range</code> is ignored on non-numeric fields. Applying it to a <code>String</code>
+        or <code>boolean</code> has no effect and does not cause an error.
+      </div>
+
+      <hr class="section-divider" />
+
+      <h3>@Comment</h3>
+      <p>
+        Attaches a human-readable description to a field. The comment is written as a
+        <code>#</code>-prefixed line above the entry in the <code>.cfg</code> file, and is also
+        displayed as a tooltip in the auto-generated GUI.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@Comment — usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Comment("Maximum render distance in chunks. Higher values impact performance.")
+@Range(min = 2, max = 32)
+public static int renderDistance = 12;</code></pre>
+      </div>
+
+      <hr class="section-divider" />
+
+      <h3>@ColorField</h3>
+      <p>
+        Marks an <code>int</code> field as an ARGB color value. The parser stores and loads it in
+        <code>0xAARRGGBB</code> hexadecimal notation. In the auto-generated GUI, a
+        <strong>ColorPicker</strong> component is generated instead of a numeric field.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@ColorField — usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Category("display")
+@Comment("Background color of the main panel.")
+@ColorField
+public static int backgroundColor = 0xCC1A1A2E;</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <code>@ColorField</code> and <code>@Range</code> are mutually exclusive. If both are
+        present on the same field, <code>@ColorField</code> takes priority and <code>@Range</code>
+        is ignored.
+      </div>
+
+      <hr class="section-divider" />
+
+      <h3>@Pattern</h3>
+      <p>
+        Validates a <code>String</code> field against a regular expression. If the value loaded
+        from the file does not match, the field is reset to its default value and a warning is
+        logged. In the auto-generated GUI, the <strong>TextField</strong> displays a red border
+        while the current input does not match the pattern.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>@Pattern — usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Comment("Server address (hostname:port or bare hostname).")
+@Pattern("^[\\w.-]+(:\\d{1,5})?$")
+public static String serverAddress = "localhost";
+
+@Comment("Hex color code without leading #.")
+@Pattern("^[0-9A-Fa-f]{6}$")
+public static String hexTheme = "4A90E2";</code></pre>
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         SUPPORTED TYPES
+    ====================================================== -->
+    <section class="doc-section" id="supported-types">
+      <h2>Supported Types</h2>
+
+      <p>
+        The following field types are recognised by <code>ConfigParser</code>. Both primitive and
+        boxed forms are accepted. The table also shows which GUI component is generated by
+        <code>ConfigGuiFactory</code> for each type.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Java Type</th>
+            <th>Relevant Annotations</th>
+            <th>Generated GUI Component</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>int</code> / <code>Integer</code></td>
+            <td><code>@Range</code></td>
+            <td>Slider</td>
+            <td>Without <code>@Range</code>, falls back to NumericField (integers only).</td>
+          </tr>
+          <tr>
+            <td><code>int</code> / <code>Integer</code></td>
+            <td><code>@ColorField</code></td>
+            <td>ColorPicker</td>
+            <td>Stored as <code>0xAARRGGBB</code> hex in the <code>.cfg</code> file.</td>
+          </tr>
+          <tr>
+            <td><code>float</code> / <code>Float</code></td>
+            <td><code>@Range</code></td>
+            <td>Slider</td>
+            <td>Without <code>@Range</code>, falls back to NumericField (decimals allowed).</td>
+          </tr>
+          <tr>
+            <td><code>double</code> / <code>Double</code></td>
+            <td><code>@Range</code></td>
+            <td>Slider</td>
+            <td>Without <code>@Range</code>, falls back to NumericField (decimals allowed).</td>
+          </tr>
+          <tr>
+            <td><code>boolean</code> / <code>Boolean</code></td>
+            <td>—</td>
+            <td>Checkbox</td>
+            <td>Stored as <code>true</code> / <code>false</code> in the file.</td>
+          </tr>
+          <tr>
+            <td><code>String</code></td>
+            <td><code>@Pattern</code></td>
+            <td>TextField</td>
+            <td>Red border while input does not match the declared pattern.</td>
+          </tr>
+          <tr>
+            <td>Any <code>enum</code></td>
+            <td>—</td>
+            <td>RadioGroup</td>
+            <td>All enum constants are offered as radio buttons. Stored by constant name.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box warning">
+        Types not listed above (arrays, collections, nested objects) are silently ignored by
+        <code>ConfigParser</code> and do not appear in the generated GUI.
+      </div>
+
+      <h3>Enum example</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Enum config field</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">public enum Difficulty { EASY, NORMAL, HARD, HARDCORE }
+
+@EriConfig(modid = "mymod", filename = "mymod")
+public class MyConfig {
+
+    @Category("gameplay")
+    @Comment("Server difficulty level.")
+    public static Difficulty difficulty = Difficulty.NORMAL;
+}</code></pre>
+      </div>
+      <p>
+        The generated GUI renders a <code>RadioGroup</code> with four options: EASY, NORMAL, HARD,
+        HARDCORE. The selected value is written to the file as the constant name string.
+      </p>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONFIG PARSER
+    ====================================================== -->
+    <section class="doc-section" id="config-parser">
+      <h2>ConfigParser</h2>
+
+      <p>
+        <code>ConfigParser</code> is a static utility class. It manages the lifecycle of all
+        registered config classes: loading from disk, validating values, populating static fields,
+        and saving back to disk.
+      </p>
+
+      <h3>register</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.register()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigParser.register(Class&lt;?&gt; configClass, File configDir);</code></pre>
+      </div>
+      <p>
+        Registers a config class and immediately performs the initial load. If the file does not
+        exist it is created with default values. If a field value is invalid (outside range,
+        pattern mismatch) it is replaced with the default and the file is re-saved.
+      </p>
+
+      <h3>reload</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.reload()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigParser.reload(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Re-reads the <code>.cfg</code> file from disk and updates all static fields. Useful if the
+        file was edited externally while the game is running.
+      </p>
+
+      <h3>save</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.save()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigParser.save(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Writes the current static field values back to the <code>.cfg</code> file. This is called
+        automatically by the Save button in the auto-generated GUI but can be invoked manually at
+        any time.
+      </p>
+
+      <h3>getFields</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.getFields()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">List&lt;Field&gt; fields = ConfigParser.getFields(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Returns the list of annotated fields in declaration order. Useful for building custom UIs
+        or exporting config metadata.
+      </p>
+
+      <h3>getForgeConfig</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.getForgeConfig()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">Configuration cfg = ConfigParser.getForgeConfig(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Returns the underlying Forge <code>Configuration</code> object for advanced use cases. Avoid
+        modifying it directly unless you know what you are doing — changes bypass validation.
+      </p>
+
+      <h3>isRegistered</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigParser.isRegistered()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">boolean registered = ConfigParser.isRegistered(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Returns <code>true</code> if the class has already been registered. Safe to call at any
+        time.
+      </p>
+
+      <div class="info-box tip">
+        All <code>ConfigParser</code> methods throw <code>IllegalArgumentException</code> if the
+        given class is not annotated with <code>@EriConfig</code>, and
+        <code>IllegalStateException</code> if called before <code>register()</code> (except
+        <code>register()</code> and <code>isRegistered()</code> themselves).
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONFIG GUI
+    ====================================================== -->
+    <section class="doc-section" id="config-gui">
+      <h2>ConfigGuiFactory</h2>
+
+      <p>
+        <code>ConfigGuiFactory</code> generates a complete, interactive <code>EriGuiScreen</code>
+        from any registered config class. No manual UI code is required.
+      </p>
+
+      <h3>createGui</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigGuiFactory.createGui()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Without parent — closing the screen returns to the main/game screen.
+GuiScreen screen = ConfigGuiFactory.createGui(Class&lt;?&gt; configClass);
+
+// With parent — the Back / Cancel button returns to parentScreen.
+GuiScreen screen = ConfigGuiFactory.createGui(Class&lt;?&gt; configClass, GuiScreen parentScreen);
+
+Minecraft.getMinecraft().displayGuiScreen(screen);</code></pre>
+      </div>
+
+      <h3>Generated screen layout</h3>
+      <p>
+        The generated screen has a fixed structure:
+      </p>
+      <ul>
+        <li>A <strong>title bar</strong> showing the mod ID and config filename.</li>
+        <li>A <strong>TabView</strong> with one tab per <code>@Category</code> value, plus a
+            "general" tab for uncategorised fields.</li>
+        <li>Inside each tab, all fields for that category are listed vertically with their label
+            on the left and their GUI component on the right.</li>
+        <li>A footer row with three buttons: <strong>Save</strong>, <strong>Cancel</strong> and
+            <strong>Reset to defaults</strong>.</li>
+      </ul>
+
+      <h3>Component mapping</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Field type + annotation</th>
+            <th>Generated component</th>
+            <th>Behaviour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>int/float/double</code> + <code>@Range</code></td>
+            <td>Slider</td>
+            <td>Draggable; value snapped to type precision.</td>
+          </tr>
+          <tr>
+            <td><code>int</code> + <code>@ColorField</code></td>
+            <td>ColorPicker</td>
+            <td>Full HSB wheel + brightness slider + hex input.</td>
+          </tr>
+          <tr>
+            <td><code>int/float/double</code> (no @Range)</td>
+            <td>NumericField</td>
+            <td>Keyboard input; rejects non-numeric characters.</td>
+          </tr>
+          <tr>
+            <td><code>boolean</code></td>
+            <td>Checkbox</td>
+            <td>Toggle on click.</td>
+          </tr>
+          <tr>
+            <td><code>String</code></td>
+            <td>TextField</td>
+            <td>Red border if <code>@Pattern</code> present and not matching.</td>
+          </tr>
+          <tr>
+            <td>Enum</td>
+            <td>RadioGroup</td>
+            <td>One RadioButton per constant; single selection.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Save / Cancel / Reset buttons</h3>
+      <ul>
+        <li>
+          <strong>Save</strong> — validates all fields, writes values to the static fields of the
+          config class, calls <code>ConfigParser.save()</code>, then calls
+          <code>ConfigSyncHandler.sendAllToClient()</code> if on a server. Closes the screen.
+        </li>
+        <li>
+          <strong>Cancel</strong> — discards any in-progress changes and closes the screen without
+          writing anything.
+        </li>
+        <li>
+          <strong>Reset to defaults</strong> — restores all visible fields to their Java default
+          values (as declared in the class). Does not save automatically; the user must click Save.
+        </li>
+      </ul>
+
+      <div class="info-box warning">
+        <code>ConfigGuiFactory.createGui()</code> throws <code>IllegalStateException</code> if the
+        config class has not been registered with <code>ConfigParser</code> first.
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         NETWORK SYNC
+    ====================================================== -->
+    <section class="doc-section" id="network-sync">
+      <h2>ConfigSyncHandler</h2>
+
+      <p>
+        <code>ConfigSyncHandler</code> handles synchronisation of config values over the network
+        using EriAPI's existing <code>GuiNetworkHandler</code> infrastructure. It registers a
+        dedicated packet and hooks into Forge events so that newly connecting clients automatically
+        receive the server's config.
+      </p>
+
+      <h3>init</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigSyncHandler.init()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Call once, after GuiNetworkHandler is initialised:
+ConfigSyncHandler.init();</code></pre>
+      </div>
+      <p>
+        Registers the <code>PacketConfigSync</code> packet with <code>GuiNetworkHandler</code> and
+        subscribes to <code>PlayerEvent.PlayerLoggedInEvent</code> so that each connecting player
+        receives the current server config automatically.
+      </p>
+
+      <h3>sendToServer</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigSyncHandler.sendToServer()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigSyncHandler.sendToServer(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Sends the current static field values of the config class from the client to the server.
+        The server validates, applies and re-saves the received values. Only operators (permission
+        level 2+) are permitted to push config changes to the server; the packet is silently
+        rejected otherwise.
+      </p>
+
+      <h3>sendToClient</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigSyncHandler.sendToClient()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigSyncHandler.sendToClient(Class&lt;?&gt; configClass, EntityPlayerMP player);</code></pre>
+      </div>
+      <p>
+        Sends the current server-side config values to a specific player. Called automatically on
+        login; can be called again if you need to push a mid-session update to one player.
+      </p>
+
+      <h3>sendAllToClient</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ConfigSyncHandler.sendAllToClient()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ConfigSyncHandler.sendAllToClient(Class&lt;?&gt; configClass);</code></pre>
+      </div>
+      <p>
+        Broadcasts the current server-side config values to all connected players. Called
+        automatically by the Save button in the auto-generated GUI when running on the server.
+      </p>
+
+      <div class="info-box info">
+        The sync payload is a compact NBT compound: one entry per field, keyed by
+        <code>category.fieldName</code>. Fields not annotated with any recognised annotation are
+        still included in the sync if they are a supported type.
+      </div>
+
+      <div class="info-box warning">
+        <code>ConfigSyncHandler</code> only syncs values. It does not sync annotation metadata.
+        Clients must have the same mod version (and therefore the same config class) as the server
+        for the received values to be applied correctly.
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FULL EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="full-example">
+      <h2>Full Example</h2>
+
+      <p>
+        The following example shows a complete, self-contained setup: a config class, mod
+        initialisation, a command that opens the config GUI, and a reload command.
+      </p>
+
+      <h3>1 — Config class</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ServerConfig.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">package com.example.mymod.config;
+
+import fr.eri.eriapi.config.annotation.*;
+
+@EriConfig(modid = "mymod", filename = "mymod-server")
+public class ServerConfig {
+
+    // ---- General ----
+
+    @Category("general")
+    @Comment("Enable verbose logging to the server console.")
+    public static boolean verboseLogging = false;
+
+    @Category("general")
+    @Comment("Maximum number of simultaneous connections.")
+    @Range(min = 1, max = 500)
+    public static int maxConnections = 50;
+
+    // ---- Display ----
+
+    @Category("display")
+    @Comment("Primary accent color shown in the HUD (ARGB hex).")
+    @ColorField
+    public static int accentColor = 0xFF4A90E2;
+
+    @Category("display")
+    @Comment("HUD opacity, from 0.0 (transparent) to 1.0 (opaque).")
+    @Range(min = 0.0, max = 1.0)
+    public static float hudOpacity = 0.85f;
+
+    // ---- Network ----
+
+    @Category("network")
+    @Comment("Remote API endpoint (hostname or IP, optional port).")
+    @Pattern("^[\\w.-]+(:\\d{1,5})?$")
+    public static String apiEndpoint = "api.example.com";
+
+    @Category("network")
+    @Comment("Request timeout in seconds.")
+    @Range(min = 1, max = 60)
+    public static int requestTimeout = 10;
+
+    // ---- Gameplay ----
+
+    @Category("gameplay")
+    @Comment("Default server difficulty.")
+    public static Difficulty difficulty = Difficulty.NORMAL;
+
+    public enum Difficulty { EASY, NORMAL, HARD, HARDCORE }
+}</code></pre>
+      </div>
+
+      <h3>2 — Mod main class</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>MyMod.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">package com.example.mymod;
+
+import com.example.mymod.config.ServerConfig;
+import fr.eri.eriapi.config.ConfigParser;
+import fr.eri.eriapi.config.ConfigSyncHandler;
+import fr.eri.eriapi.network.GuiNetworkHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+
+@Mod(modid = "mymod", version = "1.0.0")
+public class MyMod {
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        // 1. Register the config (loads from disk immediately).
+        ConfigParser.register(ServerConfig.class, event.getModConfigurationDirectory());
+
+        // 2. Init EriAPI networking (required before ConfigSyncHandler).
+        GuiNetworkHandler.init("mymod");
+
+        // 3. Register the sync packet and login hook.
+        ConfigSyncHandler.init();
+    }
+
+    @EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandConfig());
+    }
+}</code></pre>
+      </div>
+
+      <h3>3 — Command to open config GUI</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>CommandConfig.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">package com.example.mymod;
+
+import com.example.mymod.config.ServerConfig;
+import fr.eri.eriapi.config.ConfigGuiFactory;
+import fr.eri.eriapi.config.ConfigParser;
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+
+public class CommandConfig extends CommandBase {
+
+    @Override
+    public String getName() { return "mymodconfig"; }
+
+    @Override
+    public String getUsage(ICommandSender sender) { return "/mymodconfig [reload]"; }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            // Reload from disk and push to all clients.
+            ConfigParser.reload(ServerConfig.class);
+            ConfigSyncHandler.sendAllToClient(ServerConfig.class);
+            sender.sendMessage(new TextComponentString("Config reloaded and synced."));
+        } else {
+            // Open the auto-generated GUI on the client side.
+            // (Use a scheduled task to switch to client thread.)
+            Minecraft.getMinecraft().addScheduledTask(() -> {
+                Minecraft.getMinecraft().displayGuiScreen(
+                    ConfigGuiFactory.createGui(ServerConfig.class)
+                );
+            });
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3>4 — Opening the GUI from a Button in an existing screen</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Integrating into an existing EriGuiScreen</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Inside your EriGuiScreen subclass:
+addComponent(
+    new Button(10, 10, 160, 30)
+        .text("Server Config")
+        .colorScheme(Button.Style.PRIMARY)
+        .onClick(() -> {
+            // Pass 'this' as the parent so Cancel returns here.
+            mc.displayGuiScreen(ConfigGuiFactory.createGui(ServerConfig.class, this));
+        })
+);</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        The generated config screen inherits all EriAPI GUI behaviour: keyboard navigation,
+        ScaleManager auto-scaling, and the same visual style as the rest of your mod's UI. No
+        additional styling is needed.
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

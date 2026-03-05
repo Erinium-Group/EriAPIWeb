@@ -41,6 +41,7 @@
       <ul>
         <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
         <li><a href="gui.html" class="nav-page-link active"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
       </ul>
     </div>
     <div class="nav-search">
@@ -479,6 +480,25 @@ tf.nineSliceBorder(4);</code></pre>
           everything else: drawing, hover effects, press animation, and disabled states.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div class="mcb mcb-cyan">Cyan</div>
+          <div class="mcb mcb-purple">Purple</div>
+          <div class="mcb mcb-green">Green</div>
+          <div class="mcb mcb-red">Red</div>
+          <div class="mcb mcb-orange">Orange</div>
+          <div class="mcb mcb-gray">Gray</div>
+          <div class="mcb mcb-white">White</div>
+        </div>
+        <div class="mc-preview-row" style="margin-top: 4px;">
+          <div class="mcb mcb-outlined mcb-cyan">Outlined</div>
+          <div class="mcb mcb-outlined mcb-purple">Outlined</div>
+          <div class="mcb mcb-cyan mcb-pill">Pill Shape</div>
+          <div class="mcb mcb-red mcb-disabled">Disabled</div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>Button — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -690,6 +710,20 @@ btn.nineSliceBorder(6);</code></pre>
           of the texture.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,#2a2a4a,#3a3a6a);border:2px solid #4a4a7a;border-radius:4px;display:flex;align-items:center;justify-content:center;position:relative;">
+            <span style="font-size:1.4rem;">&#9733;</span>
+            <span style="position:absolute;bottom:2px;font-family:var(--font-mono);font-size:0.55rem;color:#E2E2F0;">Play</span>
+          </div>
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,#2a2a4a,#3a3a6a);border:2px solid #4a4a7a;border-radius:4px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 20px rgba(0,221,255,0.15);">
+            <span style="font-size:1.4rem;">&#9881;</span>
+          </div>
+          <span class="mc-label mc-label-muted" style="font-size:0.7rem;">Hover: cyan tint</span>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>TexturedButton — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -778,6 +812,28 @@ addComponent(new TexturedButton(900, 400, 64, 64)  // 64x64 button
           (making text bigger or smaller), drop shadows, and clipping (trimming text with "..." if
           it's too long to fit). Labels can also scroll their text when hovered.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col">
+          <div class="mc-label mc-label-shadow" style="font-size:1.1rem;">Menu Title</div>
+          <div style="display:flex;gap:40px;">
+            <div>
+              <div class="mc-label mc-label-small mc-label-muted">Align LEFT</div>
+              <div class="mc-label">Left aligned</div>
+            </div>
+            <div style="text-align:center;">
+              <div class="mc-label mc-label-small mc-label-muted">Align CENTER</div>
+              <div class="mc-label">Centered text</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="mc-label mc-label-small mc-label-muted">Align RIGHT</div>
+              <div class="mc-label">Right aligned</div>
+            </div>
+          </div>
+          <div class="mc-label mc-label-cyan" style="font-size:0.9rem;">Cyan colored text</div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -897,6 +953,16 @@ addComponent(new Label(400, 300, 500, 24)
           and decorative elements.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div class="mc-rect" style="width:80px;height:50px;background:#00AACC;"></div>
+          <div class="mc-rect" style="width:80px;height:50px;background:transparent;border:2px solid #AA44FF;border-radius:8px;"></div>
+          <div class="mc-rect" style="width:80px;height:50px;background:rgba(0,200,100,0.3);border:1px solid #00C864;border-radius:12px;"></div>
+          <div class="mc-rect" style="width:120px;height:50px;background:linear-gradient(135deg,#0a0a2a,#1a1a4a);border:1px solid #3a3a5a;border-radius:4px;"></div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>Rectangle — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -976,6 +1042,16 @@ addComponent(new Rectangle(300, 150, 800, 500)
           box, and width/height should be equal to make a perfect circle.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div class="mc-circle" style="width:50px;height:50px;background:#00DDFF;"></div>
+          <div class="mc-circle" style="width:40px;height:40px;background:transparent;border:2px solid #AA44FF;"></div>
+          <div class="mc-circle" style="width:60px;height:60px;background:rgba(255,64,64,0.4);border:2px solid #FF4040;"></div>
+          <div class="mc-circle" style="width:35px;height:35px;background:#00C864;"></div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>Circle — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -1026,6 +1102,16 @@ addComponent(new Circle(850, 450, 40, 40)
           Draws a triangle pointing in one of four directions: up, down, left, or right. Useful for
           arrows, expand/collapse indicators, dropdown arrows, pagination buttons, etc.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row" style="gap:20px;">
+          <div style="text-align:center;"><div class="mc-triangle mc-triangle-up"></div><div class="mc-label mc-label-small mc-label-muted">UP</div></div>
+          <div style="text-align:center;"><div class="mc-triangle mc-triangle-down"></div><div class="mc-label mc-label-small mc-label-muted">DOWN</div></div>
+          <div style="text-align:center;"><div class="mc-triangle mc-triangle-left"></div><div class="mc-label mc-label-small mc-label-muted">LEFT</div></div>
+          <div style="text-align:center;"><div class="mc-triangle mc-triangle-right"></div><div class="mc-label mc-label-small mc-label-muted">RIGHT</div></div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -1078,6 +1164,14 @@ addComponent(new Triangle(920, 440, 40, 24)
           gets long, keyboard shortcuts (Ctrl+C to copy, Ctrl+V to paste, Ctrl+X to cut), and focus
           management (clicking another text field deselects this one).
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:10px;">
+          <div class="mc-textfield"><span class="mc-placeholder">Enter your name...</span></div>
+          <div class="mc-textfield mc-textfield-focus"><span>MyUsername</span><span class="mc-cursor"></span></div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -1179,6 +1273,18 @@ addComponent(nameField);
           price inputs, or any numeric setting.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div class="mc-numericfield">
+            <div class="mc-numericfield-btn">-</div>
+            <div class="mc-numericfield-input">42</div>
+            <div class="mc-numericfield-btn">+</div>
+          </div>
+          <span class="mc-label mc-label-muted mc-label-small">min: 0 &nbsp; max: 100</span>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>NumericField — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -1257,6 +1363,13 @@ addComponent(quantityField);
           password. It can optionally show a "reveal" toggle button.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row">
+          <div class="mc-textfield mc-textfield-password"><span class="mc-dots">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</span><span class="mc-cursor"></span></div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>PasswordField — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -1309,6 +1422,14 @@ addComponent(passField);
         A <strong>multi-line text input</strong> with vertical scrolling, optional line numbers,
         and full multi-line selection. Ideal for consoles, code editors, or long text areas.
       </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-multiline">
+          <div class="mc-multiline-numbers">1<br>2<br>3<br>4</div>
+          <div class="mc-multiline-content">public void hello() {<br>&nbsp;&nbsp;System.out.println(<br>&nbsp;&nbsp;&nbsp;&nbsp;"Hello EriAPI!"<br>&nbsp;&nbsp;);</div>
+        </div>
+      </div>
 
       <div class="class-card">
         <div class="class-badge">
@@ -1389,6 +1510,18 @@ addComponent(passField);
         A text input with <strong>auto-complete suggestions</strong> displayed in a dropdown.
         Extends <code>TextField</code> — same editing behavior, plus a suggestion dropdown overlay.
       </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-autocomplete">
+          <div class="mc-textfield mc-textfield-focus" style="min-width:200px;"><span>dia</span><span class="mc-cursor"></span></div>
+          <div class="mc-autocomplete-dropdown">
+            <div class="mc-autocomplete-option mc-ac-highlight">diamond_sword</div>
+            <div class="mc-autocomplete-option">diamond_pickaxe</div>
+            <div class="mc-autocomplete-option">diamond_block</div>
+          </div>
+        </div>
+      </div>
 
       <div class="class-card">
         <div class="class-badge">
@@ -1480,6 +1613,18 @@ addComponent(passField);
           calculating x/y coordinates for each button yourself, you just add them to the grid and it
           places them evenly. Think of a hotbar grid, a 3x3 option panel, or a card layout.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-gridlayout" style="grid-template-columns:repeat(3,1fr);max-width:280px;">
+          <div class="mc-grid-cell">1</div>
+          <div class="mc-grid-cell">2</div>
+          <div class="mc-grid-cell">3</div>
+          <div class="mc-grid-cell">4</div>
+          <div class="mc-grid-cell">5</div>
+          <div class="mc-grid-cell">6</div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -1575,6 +1720,17 @@ addComponent(grid);</code></pre>
           shows a search bar at the top so the player can filter items by name. The list renders a
           scrollbar automatically when there are more items than fit on screen.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-scrolllist">
+          <div class="mc-scrolllist-item">Diamond Sword</div>
+          <div class="mc-scrolllist-item mc-item-hover">Iron Pickaxe</div>
+          <div class="mc-scrolllist-item mc-item-selected">Enchanted Bow</div>
+          <div class="mc-scrolllist-item">Golden Apple</div>
+          <div class="mc-scrolllist-item">Ender Pearl</div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -1820,6 +1976,14 @@ public class PlayerListItem extends ListItem {
           like a div with overflow: scroll in web design.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-scrollpanel" style="max-width:300px;min-height:80px;">
+          <div class="mc-scrollpanel-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div>
+          <div class="mc-scrollbar"><div class="mc-scrollbar-thumb" style="height:24px;"></div></div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>ScrollPanel — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -1913,6 +2077,18 @@ addComponent(panel);</code></pre>
           header bar, and its own <strong>Panel</strong> (a simple container) that becomes visible
           when the tab is selected.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-tabview">
+          <div class="mc-tabview-header">
+            <div class="mc-tabview-tab mc-tab-active">General</div>
+            <div class="mc-tabview-tab">Display</div>
+            <div class="mc-tabview-tab">Audio</div>
+          </div>
+          <div class="mc-tabview-content">Content of the "General" tab — other tabs are hidden.</div>
+        </div>
+      </div>
 
         <div class="info-box tip">
           <div class="ib-icon">i</div>
@@ -2217,6 +2393,43 @@ addComponent(tabs);</code></pre>
           chart type inherits. The specific chart type then decides how to draw the data inside
           that frame.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-grid" style="grid-template-columns:repeat(3,1fr);gap:16px;">
+          <div class="mc-chart">
+            <div class="mc-chart-title">LineChart</div>
+            <svg width="140" height="70" viewBox="0 0 140 70">
+              <line x1="0" y1="65" x2="140" y2="65" stroke="#2a2a45" stroke-width="1"/>
+              <polyline points="10,55 35,30 60,45 85,15 110,25 135,10" fill="none" stroke="#00DDFF" stroke-width="2"/>
+              <polyline points="10,50 35,55 60,30 85,40 110,20 135,30" fill="none" stroke="#AA44FF" stroke-width="2" stroke-dasharray="4,3"/>
+            </svg>
+            <div class="mc-chart-legend">
+              <div class="mc-chart-legend-item"><div class="mc-chart-legend-dot" style="background:#00DDFF;"></div>Players</div>
+              <div class="mc-chart-legend-item"><div class="mc-chart-legend-dot" style="background:#AA44FF;"></div>Mobs</div>
+            </div>
+          </div>
+          <div class="mc-chart">
+            <div class="mc-chart-title">BarChart</div>
+            <svg width="140" height="70" viewBox="0 0 140 70">
+              <line x1="0" y1="65" x2="140" y2="65" stroke="#2a2a45" stroke-width="1"/>
+              <rect x="10" y="20" width="20" height="45" rx="2" fill="#00DDFF" opacity="0.8"/>
+              <rect x="40" y="35" width="20" height="30" rx="2" fill="#AA44FF" opacity="0.8"/>
+              <rect x="70" y="10" width="20" height="55" rx="2" fill="#00C864" opacity="0.8"/>
+              <rect x="100" y="40" width="20" height="25" rx="2" fill="#FF8800" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="mc-chart">
+            <div class="mc-chart-title">PieChart</div>
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="35" fill="none" stroke="#00DDFF" stroke-width="12" stroke-dasharray="88 132" stroke-dashoffset="0"/>
+              <circle cx="40" cy="40" r="35" fill="none" stroke="#AA44FF" stroke-width="12" stroke-dasharray="55 165" stroke-dashoffset="-88"/>
+              <circle cx="40" cy="40" r="35" fill="none" stroke="#00C864" stroke-width="12" stroke-dasharray="44 176" stroke-dashoffset="-143"/>
+              <circle cx="40" cy="40" r="35" fill="none" stroke="#FF8800" stroke-width="12" stroke-dasharray="33 187" stroke-dashoffset="-187"/>
+            </svg>
+          </div>
+        </div>
+      </div>
 
         <div class="info-box tip">
           <div class="ib-icon">i</div>
@@ -2811,6 +3024,15 @@ addComponent(inventory);</code></pre>
           percentage as text.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:10px;">
+          <div class="mc-progressbar"><div class="mc-progressbar-fill" style="width:75%;"></div><div class="mc-progressbar-text">75%</div></div>
+          <div class="mc-progressbar"><div class="mc-progressbar-fill mc-pf-green" style="width:45%;"></div><div class="mc-progressbar-text">45%</div></div>
+          <div class="mc-progressbar"><div class="mc-progressbar-fill mc-pf-purple" style="width:90%;"></div><div class="mc-progressbar-text">90%</div></div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>ProgressBar — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -2944,6 +3166,20 @@ bar.backgroundImage(new ResourceLocation("mymod", "textures/gui/bar_bg.png"));</
           of a volume slider, a render distance slider, or a brightness control. The player clicks and
           drags the handle. EriAPI handles all the math and mouse tracking.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:10px;">
+          <div class="mc-slider">
+            <div class="mc-slider-track"><div class="mc-slider-fill" style="width:60%;"></div><div class="mc-slider-thumb" style="left:60%;"></div></div>
+            <div class="mc-slider-value">60</div>
+          </div>
+          <div class="mc-slider">
+            <div class="mc-slider-track"><div class="mc-slider-fill" style="width:25%;"></div><div class="mc-slider-thumb" style="left:25%;"></div></div>
+            <div class="mc-slider-value">0.25</div>
+          </div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -3087,6 +3323,15 @@ addComponent(volumeSlider);
           like "Enable notifications", "Show online players only", or "Agree to terms". It has a label
           displayed next to it and fires a callback when toggled.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:8px;">
+          <div class="mc-checkbox"><div class="mc-checkbox-box mc-checked"></div><span class="mc-checkbox-label">Enable notifications</span></div>
+          <div class="mc-checkbox"><div class="mc-checkbox-box"></div><span class="mc-checkbox-label">Fullscreen mode</span></div>
+          <div class="mc-checkbox"><div class="mc-checkbox-box mc-checked"></div><span class="mc-checkbox-label">Show HUD</span></div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -3264,6 +3509,15 @@ addComponent(easyOption);</code></pre>
           are automatically deselected. This is the correct way to create "pick one from a list"
           selections. Use <code>getSelected()</code> to find out which option the player chose.
         </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:8px;">
+          <div class="mc-radio"><div class="mc-radio-circle mc-selected"></div><span class="mc-radio-label">Easy</span></div>
+          <div class="mc-radio"><div class="mc-radio-circle"></div><span class="mc-radio-label">Normal</span></div>
+          <div class="mc-radio"><div class="mc-radio-circle"></div><span class="mc-radio-label">Hard</span></div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
@@ -3491,6 +3745,14 @@ button.shake(10);     // horizontal oscillation</code></pre>
         They appear after a configurable hover delay and reposition themselves to stay within screen edges.
       </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-row" style="gap:16px;">
+          <div class="mc-tooltip"><div class="mc-tooltip-title">Diamond Sword</div>+7 Attack Damage</div>
+          <div class="mc-tooltip">Click to open menu</div>
+        </div>
+      </div>
+
       <div class="class-header">
         <div class="class-badge">FEATURE</div>
         <div>
@@ -3553,6 +3815,24 @@ new Label("Info")
         automatically disappear after a configurable duration.
         They come in four types, each with a distinct color and icon.
       </p>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-preview-col" style="gap:10px;">
+          <div class="mc-notification mc-notif-success">
+            <div class="mc-notification-icon" style="color:#00C864;">&#10003;</div>
+            <div class="mc-notification-body"><div class="mc-notification-title">Success</div><div class="mc-notification-msg">Configuration saved!</div></div>
+          </div>
+          <div class="mc-notification mc-notif-warning">
+            <div class="mc-notification-icon" style="color:#FFB800;">&#9888;</div>
+            <div class="mc-notification-body"><div class="mc-notification-title">Warning</div><div class="mc-notification-msg">Unstable connection</div></div>
+          </div>
+          <div class="mc-notification mc-notif-error">
+            <div class="mc-notification-icon" style="color:#FF4040;">&#10007;</div>
+            <div class="mc-notification-body"><div class="mc-notification-title">Error</div><div class="mc-notification-msg">Unable to connect</div></div>
+          </div>
+        </div>
+      </div>
 
       <div class="class-header">
         <div class="class-badge">CLASS</div>
@@ -4710,6 +4990,22 @@ addComponent(slider);</code></pre>
           to receive the final color.
         </p>
 
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-colorpicker">
+          <div class="mc-colorwheel">
+            <div class="mc-colorwheel-cursor" style="top:30%;left:65%;"></div>
+          </div>
+          <div class="mc-color-controls">
+            <div class="mc-brightness-bar" style="background:linear-gradient(90deg,#000,#00DDFF);"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div class="mc-color-swatch-preview" style="background:#00AACC;"></div>
+              <div class="mc-color-hex">#00AACC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
         <h3>Basic example</h3>
         <div class="code-wrapper">
           <div class="code-label"><span>ColorPicker — basic usage</span><button class="copy-btn">Copy</button></div>
@@ -4879,6 +5175,19 @@ ContextMenu menu = new ContextMenu()
           <li>Clicking a <strong style="color:var(--text)">separator</strong> does nothing.</li>
           <li>Hovered items are highlighted automatically.</li>
         </ul>
+
+      <div class="mc-preview">
+        <div class="mc-preview-label">Preview</div>
+        <div class="mc-contextmenu">
+          <div class="mc-contextmenu-item mc-ctx-hover">Copy</div>
+          <div class="mc-contextmenu-item">Paste</div>
+          <div class="mc-contextmenu-sep"></div>
+          <div class="mc-contextmenu-item">Rename</div>
+          <div class="mc-contextmenu-item" style="color:#FF4040;">Delete</div>
+          <div class="mc-contextmenu-sep"></div>
+          <div class="mc-contextmenu-item mc-ctx-disabled">Undo</div>
+        </div>
+      </div>
 
         <h3>Basic example</h3>
         <div class="code-wrapper">
