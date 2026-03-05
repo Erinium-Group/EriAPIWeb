@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Documentation (EN)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/index.html">FR</a>
+    <a href="index.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link active"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#welcome"><span class="nav-dot"></span>Welcome</a></li>
+        <li><a href="#installation"><span class="nav-dot"></span>Installation</a></li>
+        <li><a href="#first-gui"><span class="nav-dot"></span>Your First GUI</a></li>
+        <li><a href="#modules"><span class="nav-dot"></span>Modules</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         HERO / WELCOME
+    ====================================================== -->
+    <section class="doc-section section-intro" id="welcome">
+      <div class="hero">
+        <h1>EriAPI</h1>
+        <p class="subtitle">
+          The framework for building beautiful graphical interfaces in your Minecraft mods — even if you've never coded in Java.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Minecraft 1.12.2</span>
+          <span class="badge badge-purple">Forge 14.23.5.2864</span>
+          <span class="badge badge-gray">Java 8</span>
+          <span class="badge badge-gray">v1.0-SNAPSHOT</span>
+        </div>
+      </div>
+
+      <h2>Welcome!</h2>
+      <p>
+        Want to create a Minecraft mod with a beautiful interface? A menu, a dashboard, an in-game shop,
+        a settings screen? You're in the right place.
+      </p>
+      <p>
+        <strong>EriAPI</strong> is a library (a set of Java files) that gives you all the tools to build
+        graphical interfaces in Minecraft Forge 1.12.2. You don't have to worry about complex technical details
+        like OpenGL or scaling — the framework handles it for you.
+      </p>
+
+      <h3>What can you build with EriAPI?</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Game menus</strong> (custom inventories, shops, player trades)</li>
+        <li><strong style="color:var(--text);">Settings screens</strong> (sliders, checkboxes, text fields)</li>
+        <li><strong style="color:var(--text);">Dashboards</strong> with progress bars and statistics</li>
+        <li><strong style="color:var(--text);">Forms</strong> (login, character creation, registration)</li>
+        <li><strong style="color:var(--text);">Scrollable lists</strong> (leaderboards, history, option selection)</li>
+        <li><strong style="color:var(--text);">Charts</strong> (LineChart, BarChart, PieChart)</li>
+        <li>And any other interface you can imagine!</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">This documentation is beginner-friendly</div>
+          <p>We assume you don't know Java and have never made a Minecraft mod. Every concept is explained
+          from scratch. If something isn't clear, it's a bug in the docs — not in your head.</p>
+        </div>
+      </div>
+
+      <div class="quickstart-grid">
+        <div class="qs-card">
+          <div class="qs-num">01</div>
+          <div class="qs-title">Install the tools</div>
+          <p>Java, a code editor (IntelliJ), and Forge MDK. We explain everything in detail.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num">02</div>
+          <div class="qs-title">Add EriAPI</div>
+          <p>A few lines in a config file and you have access to all components.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num">03</div>
+          <div class="qs-title">Create your first GUI</div>
+          <p>A few minutes and you have a real menu in Minecraft, openable with a command.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         INSTALLATION
+    ====================================================== -->
+    <section class="doc-section" id="installation">
+      <h2>Installation</h2>
+      <p>
+        Before coding anything, you need to install the right tools on your computer.
+        Follow these steps in order.
+      </p>
+
+      <h3>Step 1 — Install Java 8 JDK</h3>
+      <p>
+        <strong>Java</strong> is the programming language Minecraft uses. The <strong>JDK</strong> (Java Development
+        Kit) is the toolkit that lets you write and compile Java code. It's required.
+      </p>
+      <p>
+        Download <strong>Amazon Corretto 8</strong> (a free, stable version of Java 8):
+        <a href="https://corretto.aws/downloads/latest/amazon-corretto-8-x64-windows-jdk.msi" target="_blank">
+          Download Corretto 8 for Windows (64-bit)
+        </a>
+      </p>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Java 8 only!</div>
+          <p>Minecraft Forge 1.12.2 only works with Java 8. Do not install Java 11, 17 or 21 — it won't work.</p>
+        </div>
+      </div>
+
+      <h3>Step 2 — Install IntelliJ IDEA</h3>
+      <p>
+        Download <strong>IntelliJ IDEA Community Edition</strong> (free):
+        <a href="https://www.jetbrains.com/idea/download/" target="_blank">Download IntelliJ IDEA</a>
+      </p>
+
+      <h3>Step 3 — Download Forge MDK</h3>
+      <p>
+        Download Forge 1.12.2-14.23.5.2864 MDK:
+        <a href="https://maven.minecraftforge.net/net/minecraftforge/forge/1.12.2-14.23.5.2864/forge-1.12.2-14.23.5.2864-mdk.zip" target="_blank">
+          Download Forge 1.12.2 MDK
+        </a>
+      </p>
+      <p>
+        Extract the ZIP to a folder (e.g. <code>C:\Mods\MyMod\</code>).
+      </p>
+
+      <h3>Step 4 — Add EriAPI to your project</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>build.gradle — Full configuration</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-groovy">buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'java'
+
+group = 'com.yourname.yourmod'
+version = '1.0'
+archivesBaseName = 'mymod'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+minecraft {
+    mappings channel: 'stable', version: '39-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYEVENTS'
+            property 'forge.logging.console.level', 'debug'
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYEVENTS'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+repositories {
+    flatDir { dirs 'libs' }
+    maven { url = 'https://maven.minecraftforge.net' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2864'
+    implementation(name: 'EriAPI-1.0-SNAPSHOT-1.12.2', ext: 'jar')
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">How to add the EriAPI.jar file</div>
+          <p>Create a <code>libs</code> folder in the root of your project (where <code>build.gradle</code> is).
+          Copy <code>EriAPI-1.0-SNAPSHOT-1.12.2.jar</code> into it. Gradle will find it automatically.</p>
+        </div>
+      </div>
+
+      <h3>Step 5 — Generate IntelliJ project</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Terminal</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-bash">./gradlew genIntellijRuns</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Verify everything works</div>
+          <p>Run <code>./gradlew build</code> in the terminal. If you see <code>BUILD SUCCESSFUL</code>, the installation is complete!</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         YOUR FIRST GUI
+    ====================================================== -->
+    <section class="doc-section" id="first-gui">
+      <h2>Your First GUI</h2>
+      <p>
+        Let's build your first Minecraft menu from scratch. By the end, you'll be able to type a command
+        in-game and see a real menu with a title and a button.
+      </p>
+
+      <h3>Step 1 — Create the menu file</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — MyFirstMenu.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">package com.yourname.yourmod.gui;
+
+import fr.eri.eriapi.gui.EriGuiScreen;
+import fr.eri.eriapi.gui.components.Button;
+import fr.eri.eriapi.gui.components.Label;
+import fr.eri.eriapi.gui.util.Colors;
+
+public class MyFirstMenu extends EriGuiScreen {
+
+    public MyFirstMenu() {
+        super(1920, 1080); // Design space 1920x1080
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+
+        // Title
+        addComponent(new Label(760, 100, 400, 30)
+            .text("My First Menu")
+            .color(Colors.WHITE)
+            .align(Label.Align.CENTER)
+            .scale(1.5f));
+
+        // Button
+        addComponent(new Button(760, 500, 400, 50)
+            .text("Click me!")
+            .colorScheme(Button.Style.CYAN)
+            .cornerRadius(8)
+            .onClick(() -> this.close()));
+    }
+}</code></pre>
+      </div>
+
+      <h3>Step 2 — Create a command to open the menu</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — CommandMyMenu.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">package com.yourname.yourmod.command;
+
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.client.Minecraft;
+import com.yourname.yourmod.gui.MyFirstMenu;
+
+public class CommandMyMenu extends CommandBase {
+    @Override public String getName() { return "mymenu"; }
+    @Override public String getUsage(ICommandSender sender) { return "/mymenu"; }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+        if (sender instanceof EntityPlayer) {
+            Minecraft.getMinecraft().displayGuiScreen(new MyFirstMenu());
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3>Step 3 — Register the command</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Main mod class</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void init(FMLInitializationEvent event) {
+    net.minecraftforge.client.ClientCommandHandler.instance
+        .registerCommand(new CommandMyMenu());
+}</code></pre>
+      </div>
+
+      <h3>Step 4 — Test it</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Terminal</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-bash">./gradlew runClient</code></pre>
+      </div>
+      <p>
+        In-game, type <code>/mymenu</code> in the chat. Your menu appears!
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Congratulations!</div>
+          <p>You just created your first Minecraft GUI with EriAPI. Explore the modules below to discover
+          everything you can build.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         MODULES
+    ====================================================== -->
+    <section class="doc-section" id="modules">
+      <h2>Modules</h2>
+      <p>
+        EriAPI is organized in independent modules. Each module has its own detailed documentation page.
+      </p>
+
+      <div class="module-grid">
+        <a href="gui.html" class="module-card">
+          <div class="mc-icon" style="background: rgba(0,221,255,0.12); color: var(--accent-cyan);">&#9632;</div>
+          <div class="mc-title">GUI Framework</div>
+          <p class="mc-desc">
+            30+ components for building graphical interfaces: buttons, labels, sliders, scrollable lists,
+            charts, color picker, tabs, text fields, and more.
+          </p>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(255,180,0,0.12); color: #FFB800;">&#9881;</div>
+          <div class="mc-title">Config System</div>
+          <p class="mc-desc">
+            Annotation-based configuration. Auto-generated GUI, server/client sync, hot-reload.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(170,68,255,0.12); color: var(--accent-purple);">&#9654;</div>
+          <div class="mc-title">Command Framework</div>
+          <p class="mc-desc">
+            Fluent builder for commands. Typed arguments, tab-completion, cooldowns, permissions, auto help.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(0,200,100,0.12); color: #00C864;">&#9638;</div>
+          <div class="mc-title">Item &amp; Block Builder</div>
+          <p class="mc-desc">
+            Create items and blocks with fluent API. Auto-registry, runtime models, recipes.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(255,80,120,0.12); color: #FF5080;">&#9650;</div>
+          <div class="mc-title">HUD &amp; Overlay</div>
+          <p class="mc-desc">
+            Persistent HUD elements. Anchoring, dynamic bindings, display conditions, animations.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(120,120,160,0.12); color: var(--text-muted);">&#9679;</div>
+          <div class="mc-title">Data &amp; Storage</div>
+          <p class="mc-desc">
+            Annotation-based data persistence. Annotated POJOs, auto sync, multi-scope (player/world/global).
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(0,221,255,0.12); color: var(--accent-cyan);">&#9200;</div>
+          <div class="mc-title">Scheduler</div>
+          <p class="mc-desc">
+            Task scheduling. Delay, repeat, async, chain, cancel.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(255,180,0,0.12); color: #FFB800;">&#9993;</div>
+          <div class="mc-title">Chat Builder</div>
+          <p class="mc-desc">
+            Rich chat messages with fluent API. Colors, clickable, hover, pagination.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(170,68,255,0.12); color: var(--accent-purple);">&#9733;</div>
+          <div class="mc-title">Capability Helpers</div>
+          <p class="mc-desc">
+            Simplified capabilities. 1 annotation instead of 6 files. Auto sync.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(0,200,100,0.12); color: #00C864;">&#9889;</div>
+          <div class="mc-title">Event Simplifier</div>
+          <p class="mc-desc">
+            One-liner lambda events. Filters, priority, once, auto-expire.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+
+        <div class="module-card" style="opacity: 0.6; cursor: default;">
+          <div class="mc-icon" style="background: rgba(255,80,120,0.12); color: #FF5080;">&#9000;</div>
+          <div class="mc-title">Keybinding Manager</div>
+          <p class="mc-desc">
+            Advanced keybindings. Combos, double-tap, contexts, rebind GUI.
+          </p>
+          <span class="mc-badge mc-coming">Coming soon</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FEATURES
+    ====================================================== -->
+    <section class="doc-section" id="features">
+      <h2>Why EriAPI?</h2>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text">
+            <strong>Fluent API</strong>
+            Write readable code by chaining methods like a sentence.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-purple);">&#10003;</div>
+          <div class="fi-text">
+            <strong>Auto-scaling</strong>
+            Design in 1920x1080, the framework adapts automatically to all resolutions.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>30+ components</strong>
+            Buttons, sliders, lists, charts, color picker, tabs, text fields...
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #FFB800;">&#10003;</div>
+          <div class="fi-text">
+            <strong>Textures & 9-Slice</strong>
+            Apply PNG textures to any component with 5 scaling modes.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #FF5080;">&#10003;</div>
+          <div class="fi-text">
+            <strong>Animations</strong>
+            FadeIn, slideIn, shake, scale with 8 easing functions and sub-tick interpolation.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text">
+            <strong>Built-in networking</strong>
+            Pre-configured client/server packets for GUI communication.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
