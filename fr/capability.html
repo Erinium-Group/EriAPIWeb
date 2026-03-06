@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capability Helpers — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="capability.html" class="active">FR</a>
+    <a href="../en/capability.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link active"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-capability"><span class="nav-dot"></span>@EriCapability</a></li>
+        <li><a href="#attach-target"><span class="nav-dot"></span>AttachTarget</a></li>
+        <li><a href="#eri-cap"><span class="nav-dot"></span>EriCap</a></li>
+        <li><a href="#sync"><span class="nav-dot"></span>@Sync</a></li>
+        <li><a href="#cycle-de-vie"><span class="nav-dot"></span>Cycle de vie</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Capability Helpers</h1>
+        <p class="subtitle">
+          Attache des donnees personnalisees a n'importe quelle entite, item ou tile entity en une seule annotation.
+          Fini les 6 fichiers boilerplate — une classe suffit.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-purple">fr.eri.eriapi.capability</span>
+          <span class="badge badge-cyan">Minecraft 1.12.2</span>
+          <span class="badge badge-gray">Forge Capabilities</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Le systeme de Capabilities de Forge est extremement puissant, mais sa mise en oeuvre manuelle est
+        fastidieuse. Pour attacher la moindre donnee a un joueur, Forge te demande de creer :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2.2;">
+        <li>Une <strong style="color:var(--text);">interface</strong> definissant les getters/setters</li>
+        <li>Une <strong style="color:var(--text);">implementation</strong> de cette interface</li>
+        <li>Un <strong style="color:var(--text);">IStorage</strong> pour la serialisation NBT</li>
+        <li>Un <strong style="color:var(--text);">ICapabilityProvider</strong> pour exposer la capability</li>
+        <li>Un <strong style="color:var(--text);">event handler</strong> pour attacher le provider aux entites</li>
+        <li>Un <strong style="color:var(--text);">packet reseau</strong> pour la synchronisation client</li>
+      </ul>
+
+      <p>
+        Le module <strong>Capability Helpers</strong> d'EriAPI reduit tout ca a une seule annotation placee
+        sur une classe Java ordinaire (un POJO). Le framework genere automatiquement tout le code technique
+        necessaire, et synchronise les champs marques <code>@Sync</code> avec le client sans aucun effort de ta part.
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Principe cle</div>
+          <p>Tu ecris uniquement la donnee qui t'interesse. EriAPI s'occupe de tout le reste : enregistrement,
+          serialisation NBT, gestion de la mort du joueur, et synchronisation reseau.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @EriCapability
+    ====================================================== -->
+    <section class="doc-section" id="eri-capability">
+      <h2>@EriCapability — Annotation</h2>
+      <p>
+        Place <code>@EriCapability</code> sur n'importe quelle classe Java pour la transformer en capability Forge.
+        La classe doit avoir un constructeur sans arguments (ou aucun constructeur — Java en cree un par defaut).
+        Les champs peuvent etre de n'importe quel type primitif, <code>String</code>, ou type serialisable en NBT.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">@EriCapability</div>
+            <div class="package-path">fr.eri.eriapi.capability.EriCapability</div>
+          </div>
+          <span class="badge badge-purple">Annotation</span>
+        </div>
+        <p>Transforme une classe POJO en capability Forge enregistree et geree automatiquement.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <span class="method-sig">String modId()</span>
+            <span class="method-desc">L'identifiant de ton mod (ex. <code>"mymod"</code>). Utilise pour nommer la capability en interne.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">AttachTarget target()</span>
+            <span class="method-desc">Definit a quoi cette capability est attachee : <code>PLAYER</code>, <code>ENTITY</code>, <code>ITEM</code>, ou <code>TILE_ENTITY</code>.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">boolean persistOnDeath() default true</span>
+            <span class="method-desc">Si <code>true</code>, les donnees sont copiees lors de la mort et respawn du joueur (keepInventory ou non). Par defaut : <code>true</code>.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Declarer une capability simple</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCapability;
+import fr.eri.eriapi.capability.AttachTarget;
+import fr.eri.eriapi.capability.Sync;
+
+@EriCapability(modId = "mymod", target = AttachTarget.PLAYER)
+public class Mana {
+    @Sync public int current = 100;
+    @Sync public int max = 100;
+    public float regenRate = 0.5f; // non synce, cote serveur uniquement
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Valeurs par defaut</div>
+          <p>Les valeurs que tu assignes dans la declaration des champs sont les valeurs initiales pour chaque
+          nouveau joueur (ou entite). Elles sont utilisees a la premiere creation de la capability.</p>
+        </div>
+      </div>
+
+      <h3>Exemple avec persistOnDeath desactive</h3>
+      <p>
+        Si tu veux que la donnee soit reinitalisee a la mort du joueur (comme des buffs temporaires),
+        passe <code>persistOnDeath = false</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Capability qui se reinitialise a la mort</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@EriCapability(modId = "mymod", target = AttachTarget.PLAYER, persistOnDeath = false)
+public class TempBuffs {
+    @Sync public boolean speedBoost = false;
+    @Sync public int boostTicksRemaining = 0;
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         AttachTarget
+    ====================================================== -->
+    <section class="doc-section" id="attach-target">
+      <h2>AttachTarget — Enum</h2>
+      <p>
+        <code>AttachTarget</code> determine sur quel type d'objet Minecraft la capability sera attachee.
+        Choisis la valeur qui correspond a ce que tu veux stocker.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AttachTarget</div>
+            <div class="package-path">fr.eri.eriapi.capability.AttachTarget</div>
+          </div>
+          <span class="badge badge-gray">Enum</span>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <span class="method-sig">PLAYER</span>
+            <span class="method-desc">Attache aux joueurs (<code>EntityPlayer</code>). Le cas d'usage le plus courant : mana, XP personnalise, statistiques, flags de quete.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">ENTITY</span>
+            <span class="method-desc">Attache a toute entite vivante (<code>EntityLivingBase</code>) : monstres, animaux, boss. Utile pour ajouter des donnees supplementaires aux mobs.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">ITEM</span>
+            <span class="method-desc">Attache a un <code>ItemStack</code>. Permet de stocker des donnees propres a une instance d'item (durabilite personnalisee, enchantements custom, charges).</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">TILE_ENTITY</span>
+            <span class="method-desc">Attache a un <code>TileEntity</code> (bloc avec logique). Utile pour ajouter des donnees a des blocs existants sans les sous-classer.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemples de cibles differentes</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Donnees attachees a un joueur
+@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class PlayerStats {
+    @Sync public int level = 1;
+    @Sync public int experience = 0;
+}
+
+// Donnees attachees a un item (ex. une epee avec des charges magiques)
+@EriCapability(modId = "myrpg", target = AttachTarget.ITEM)
+public class SoulBound {
+    @Sync public boolean bound = false;
+    @Sync public String ownerName = "";
+}
+
+// Donnees attachees a un bloc (tile entity)
+@EriCapability(modId = "myrpg", target = AttachTarget.TILE_ENTITY)
+public class MachineData {
+    @Sync public int energy = 0;
+    @Sync public boolean active = false;
+}
+
+// Donnees attachees a un monstre
+@EriCapability(modId = "myrpg", target = AttachTarget.ENTITY)
+public class BossPhase {
+    @Sync public int phase = 1;
+    @Sync public boolean enraged = false;
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EriCap
+    ====================================================== -->
+    <section class="doc-section" id="eri-cap">
+      <h2>EriCap — API statique</h2>
+      <p>
+        <code>EriCap</code> est le point d'entree principal pour interagir avec les capabilities. Toutes ses methodes
+        sont statiques, tu peux les appeler depuis n'importe ou sans creer d'instance.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriCap</div>
+            <div class="package-path">fr.eri.eriapi.capability.EriCap</div>
+          </div>
+          <span class="badge badge-cyan">API statique</span>
+        </div>
+        <p>Enregistrement, lecture et synchronisation des capabilities en une ligne.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <span class="method-sig">static void register(Class&lt;?&gt; capClass)</span>
+            <span class="method-desc">Enregistre une classe annotee <code>@EriCapability</code> aupres de Forge. Appeler en <code>preInit</code>.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">static &lt;T&gt; T get(Entity entity, Class&lt;T&gt; capClass)</span>
+            <span class="method-desc">Recupere l'instance de la capability attachee a une entite (joueur ou mob). Retourne <code>null</code> si la capability n'est pas disponible.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">static &lt;T&gt; T get(ItemStack stack, Class&lt;T&gt; capClass)</span>
+            <span class="method-desc">Recupere l'instance de la capability attachee a un <code>ItemStack</code>.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">static &lt;T&gt; T get(TileEntity tile, Class&lt;T&gt; capClass)</span>
+            <span class="method-desc">Recupere l'instance de la capability attachee a un <code>TileEntity</code>.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">static void sync(EntityPlayerMP player, Class&lt;?&gt; capClass)</span>
+            <span class="method-desc">Force la synchronisation des champs <code>@Sync</code> de la capability vers le client du joueur. A appeler apres avoir modifie des donnees cote serveur.</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Enregistrement en preInit</h3>
+      <p>
+        L'enregistrement doit se faire pendant la phase <code>preInit</code> de ton mod, avant que Forge
+        n'ait initialise les entites et items. Un appel par classe annotee suffit.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Enregistrement dans la classe principale du mod</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCap;
+
+@Mod(modid = "mymod", version = "1.0")
+public class MyMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        // Enregistre toutes tes capabilities ici
+        EriCap.register(Mana.class);
+        EriCap.register(PlayerStats.class);
+        EriCap.register(SoulBound.class);
+    }
+}</code></pre>
+      </div>
+
+      <h3>Lire et modifier une capability</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Lecture sur un joueur</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Depuis un event handler ou une commande cote serveur :
+Mana mana = EriCap.get(player, Mana.class);
+
+if (mana != null) {
+    // Lire
+    int manaActuel = mana.current;
+    int manaMax = mana.max;
+
+    // Modifier
+    mana.current = Math.max(0, mana.current - 10);
+
+    // Synchroniser avec le client
+    EriCap.sync((EntityPlayerMP) player, Mana.class);
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Lecture sur un ItemStack</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">ItemStack epee = player.getHeldItemMainhand();
+SoulBound data = EriCap.get(epee, SoulBound.class);
+
+if (data != null && !data.bound) {
+    data.bound = true;
+    data.ownerName = player.getName();
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Lecture sur un TileEntity</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">TileEntity tile = world.getTileEntity(pos);
+MachineData machineData = EriCap.get(tile, MachineData.class);
+
+if (machineData != null) {
+    machineData.energy += 100;
+    machineData.active = machineData.energy > 0;
+}</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Toujours verifier null</div>
+          <p><code>EriCap.get()</code> peut retourner <code>null</code> si la capability n'est pas disponible sur
+          cet objet (par exemple si tu appelles <code>get(player, SoulBound.class)</code> alors que
+          <code>SoulBound</code> a <code>target = ITEM</code>). Verifie toujours le retour avant de l'utiliser.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @Sync
+    ====================================================== -->
+    <section class="doc-section" id="sync">
+      <h2>@Sync — Synchronisation automatique</h2>
+      <p>
+        L'annotation <code>@Sync</code> se place sur les champs d'une capability pour indiquer qu'ils doivent
+        etre envoyes au client. Les champs sans <code>@Sync</code> restent uniquement cote serveur — c'est utile
+        pour des donnees internes que le client n'a pas besoin de connaitre.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">@Sync</div>
+            <div class="package-path">fr.eri.eriapi.capability.Sync</div>
+          </div>
+          <span class="badge badge-gray">Annotation de champ</span>
+        </div>
+        <p>Marque un champ pour la synchronisation automatique serveur → client.</p>
+      </div>
+
+      <h3>Quand la synchronisation se declenche-t-elle ?</h3>
+      <p>
+        EriAPI synchronise automatiquement les champs <code>@Sync</code> dans trois situations, sans que tu aies
+        besoin d'ecrire quoi que ce soit :
+      </p>
+
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2.2;">
+        <li><strong style="color:var(--text);">Login</strong> — Quand le joueur se connecte au serveur, toutes ses capabilities sont envoyees.</li>
+        <li><strong style="color:var(--text);">Respawn</strong> — Apres la mort et le respawn, les donnees sont re-synchronisees.</li>
+        <li><strong style="color:var(--text);">Changement de dimension</strong> — Lors d'un voyage au Nether ou End, les donnees sont re-envoyees.</li>
+      </ul>
+
+      <p>
+        Pour toute modification que tu fais manuellement en jeu (consommer du mana, changer de niveau, etc.),
+        tu dois appeler <code>EriCap.sync()</code> explicitement apres la modification.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple de champs synces vs non synces</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class PlayerStats {
+    // Synce : le client a besoin de ces valeurs pour l'affichage HUD
+    @Sync public int level = 1;
+    @Sync public int experience = 0;
+    @Sync public int health = 100;
+
+    // Non synce : calcul interne, le client n'en a pas besoin
+    public long lastDamageTimestamp = 0L;
+    public float regenAccumulator = 0f;
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Types de champs supportes par @Sync</div>
+          <p>Les types primitifs Java (<code>int</code>, <code>float</code>, <code>double</code>,
+          <code>boolean</code>, <code>long</code>, <code>byte</code>, <code>short</code>),
+          <code>String</code>, et les tableaux de ces types sont supportes. Les objets complexes doivent
+          etre serialis es manuellement.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CYCLE DE VIE
+    ====================================================== -->
+    <section class="doc-section" id="cycle-de-vie">
+      <h2>Cycle de vie d'une Capability</h2>
+      <p>
+        Voici dans quel ordre les evenements se produisent pour une capability attachee a un joueur,
+        depuis l'enregistrement jusqu'a la mort et le respawn.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Sequence des evenements</div>
+          </div>
+        </div>
+        <ul class="method-list">
+          <li class="method-item">
+            <span class="method-sig">1. preInit — EriCap.register()</span>
+            <span class="method-desc">Tu enregistres ta classe. EriAPI genere l'interface, l'impl, le storage et le provider Forge en interne.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">2. Login — sync automatique</span>
+            <span class="method-desc">Quand le joueur rejoint le serveur, EriAPI envoie automatiquement tous les champs <code>@Sync</code> au client.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">3. En jeu — EriCap.sync() manuel</span>
+            <span class="method-desc">Apres chaque modification de donnees que le client doit connaitre, appelle <code>EriCap.sync()</code>.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">4. Mort — copie selon persistOnDeath</span>
+            <span class="method-desc">Si <code>persistOnDeath = true</code>, toutes les donnees sont copiees sur la nouvelle instance du joueur. Sinon, les valeurs par defaut sont utilisees.</span>
+          </li>
+          <li class="method-item">
+            <span class="method-sig">5. Respawn / Dimension — re-sync automatique</span>
+            <span class="method-desc">Apres respawn ou changement de dimension, EriAPI re-synchronise automatiquement tous les champs <code>@Sync</code> avec le client.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Schema du cycle de vie complet</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// === PHASE preInit ===
+EriCap.register(Mana.class); // Une seule fois au demarrage du mod
+
+// === PHASE en jeu (cote serveur) ===
+// Le joueur lance un sort dans un event handler :
+@SubscribeEvent
+public void onPlayerInteract(PlayerInteractEvent.RightClickItem event) {
+    EntityPlayer player = event.getEntityPlayer();
+    if (player.world.isRemote) return; // On est cote serveur uniquement
+
+    Mana mana = EriCap.get(player, Mana.class);
+    if (mana != null && mana.current >= 20) {
+        mana.current -= 20;
+        // Forcer la mise a jour cote client
+        EriCap.sync((EntityPlayerMP) player, Mana.class);
+    }
+}
+
+// === MORT ===
+// Si persistOnDeath = true, EriAPI copie mana.current et mana.max
+// automatiquement lors du PlayerEvent.Clone de Forge.
+
+// === RESPAWN ===
+// EriAPI re-envoie les champs @Sync au client automatiquement.</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet — Systeme de Mana</h2>
+      <p>
+        Voici un exemple complet et fonctionnel d'un systeme de mana pour un mod RPG. Il montre
+        la declaration de la capability, l'enregistrement, la consommation de mana dans une commande,
+        et la regeneration passive via un event tick.
+      </p>
+
+      <h3>Etape 1 — Declarer la capability</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Mana.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.tonnom.myrpg.capability;
+
+import fr.eri.eriapi.capability.EriCapability;
+import fr.eri.eriapi.capability.AttachTarget;
+import fr.eri.eriapi.capability.Sync;
+
+@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class Mana {
+    @Sync public int current = 100;
+    @Sync public int max = 100;
+    public float regenRate = 0.5f; // non synce, serveur uniquement
+}</code></pre>
+      </div>
+
+      <h3>Etape 2 — Enregistrer en preInit</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — MyRpgMod.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.tonnom.myrpg;
+
+import fr.eri.eriapi.capability.EriCap;
+import fr.tonnom.myrpg.capability.Mana;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+@Mod(modid = "myrpg", version = "1.0")
+public class MyRpgMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        EriCap.register(Mana.class);
+    }
+}</code></pre>
+      </div>
+
+      <h3>Etape 3 — Consommer du mana dans un sort</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Consommation de mana lors d'un sort</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCap;
+import fr.tonnom.myrpg.capability.Mana;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+
+public class SpellHandler {
+
+    @SubscribeEvent
+    public void onRightClick(PlayerInteractEvent.RightClickItem event) {
+        if (event.getEntityPlayer().world.isRemote) return;
+
+        EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
+        Mana mana = EriCap.get(player, Mana.class);
+
+        if (mana == null) return;
+
+        int coutMana = 20;
+
+        if (mana.current >= coutMana) {
+            mana.current -= coutMana;
+            EriCap.sync(player, Mana.class); // Mettre a jour le client
+            // Lancer le sort...
+            player.sendMessage(new TextComponentString(
+                "Sort lance ! Mana restant : " + mana.current + "/" + mana.max
+            ));
+        } else {
+            player.sendMessage(new TextComponentString(
+                "Pas assez de mana ! (" + mana.current + "/" + coutMana + " requis)"
+            ));
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3>Etape 4 — Regeneration passive au tick</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Regeneration de mana toutes les secondes</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+public class ManaRegenHandler {
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (event.player.world.isRemote) return;
+        if (event.player.ticksExisted % 20 != 0) return; // 1 fois par seconde
+
+        EntityPlayerMP player = (EntityPlayerMP) event.player;
+        Mana mana = EriCap.get(player, Mana.class);
+
+        if (mana != null && mana.current < mana.max) {
+            mana.current = Math.min(mana.max, mana.current + (int) mana.regenRate);
+            EriCap.sync(player, Mana.class);
+        }
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Lecture cote client</div>
+          <p>Sur le client (pour afficher la valeur dans un HUD par exemple), utilise exactement le meme
+          <code>EriCap.get(player, Mana.class)</code>. Les champs <code>@Sync</code> seront a jour
+          grace a la synchronisation automatique.</p>
+        </div>
+      </div>
+
+      <h3>Resultat</h3>
+      <p>
+        En quelques dizaines de lignes de code — sans aucun boilerplate Forge — tu as un systeme de mana complet :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2.2;">
+        <li>Donnees <strong style="color:var(--text);">persistees en NBT</strong> automatiquement</li>
+        <li><strong style="color:var(--text);">Copiees a la mort</strong> du joueur (persistOnDeath = true par defaut)</li>
+        <li><strong style="color:var(--text);">Synchronisees</strong> cote client a la connexion, au respawn et manuellement</li>
+        <li>Lisibles depuis <strong style="color:var(--text);">n'importe quel contexte</strong> (commande, event, GUI, HUD)</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Simplifier — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="events.html" class="active">FR</a>
+    <a href="../en/events.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link active"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-events"><span class="nav-dot"></span>EriEvents</a></li>
+        <li><a href="#event-builder"><span class="nav-dot"></span>EventBuilder</a></li>
+        <li><a href="#event-handle"><span class="nav-dot"></span>EventHandle</a></li>
+        <li><a href="#event-registry"><span class="nav-dot"></span>EventRegistry</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Event Simplifier</h1>
+        <p class="subtitle">
+          Ecoute les events Forge avec des lambdas en une seule ligne — filtres, priorite, one-shot et expiration automatique.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.event</span>
+          <span class="badge badge-purple">Forge 1.12.2</span>
+          <span class="badge badge-gray">Java 8</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Le module <strong>Event Simplifier</strong> est une surcouche au systeme d'events de Forge.
+        Normalement, pour ecouter un event dans Forge, il faut creer une classe annotee <code>@Mod.EventBusSubscriber</code>,
+        ecrire une methode annotee <code>@SubscribeEvent</code>, et enregistrer la classe dans le bus.
+        C'est verbeux et difficile a maintenir quand on a beaucoup d'events differents.
+      </p>
+      <p>
+        Avec <strong>EriEvents</strong>, la meme chose s'ecrit en une ligne :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Avant (Forge brut)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Avant : beaucoup de code pour juste ecouter un event
+@Mod.EventBusSubscriber
+public class MesEvents {
+    @SubscribeEvent
+    public static void onDeath(LivingDeathEvent e) {
+        System.out.println(e.getEntity().getName() + " est mort !");
+    }
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Apres (EriEvents)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Apres : une seule ligne, n'importe ou dans ton code
+EriEvents.on(LivingDeathEvent.class, e -> {
+    System.out.println(e.getEntity().getName() + " est mort !");
+});</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p>Toutes les classes de ce module se trouvent dans le package <code>fr.eri.eriapi.event</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI EVENTS
+    ====================================================== -->
+    <section class="doc-section" id="eri-events">
+      <h2>EriEvents — API statique</h2>
+      <p>
+        <code>EriEvents</code> est le point d'entree principal du module. Elle expose deux formes d'utilisation :
+        le <strong>one-liner</strong> (un seul appel, handler direct) et le <strong>builder</strong>
+        (configuration en plusieurs etapes avant d'attacher le handler).
+      </p>
+
+      <h3>One-liner — enregistrement immediat</h3>
+      <p>
+        Passe la classe de l'event et un lambda directement. L'event sera ecoute immediatement et indefiniment.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriEvents.on() one-liner</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Ecoute tous les deces d'entites
+EriEvents.on(LivingDeathEvent.class, e -> {
+    System.out.println(e.getEntity().getName() + " est mort !");
+});</code></pre>
+      </div>
+
+      <h3>Builder — configuration avancee</h3>
+      <p>
+        Appelle <code>EriEvents.on(ClassEvent.class)</code> sans handler pour obtenir un <code>EventBuilder</code>.
+        Tu peux ensuite chainer les options avant d'appeler <code>.handle()</code> pour activer l'ecoute.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriEvents.on() avec builder</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Ecoute la connexion d'un joueur, mais seulement si c'est "Steve"
+EriEvents.on(PlayerLoggedInEvent.class)
+    .filter(e -> e.player.getName().equals("Steve"))
+    .once()
+    .handle(e -> e.player.sendMessage(new TextComponentString("Bienvenue Steve !")));</code></pre>
+      </div>
+
+      <h3>Methodes statiques de EriEvents</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>on(Class&lt;E&gt; type, Consumer&lt;E&gt; handler)</code></td>
+              <td>Enregistre un handler immediat (one-liner). Retourne un <code>EventHandle</code>.</td>
+            </tr>
+            <tr>
+              <td><code>on(Class&lt;E&gt; type)</code></td>
+              <td>Cree un <code>EventBuilder</code> pour configurer l'ecoute avant de l'activer.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="event-builder">
+      <h2>EventBuilder — Options de configuration</h2>
+      <p>
+        <code>EventBuilder</code> est l'objet retourne par <code>EriEvents.on(Class)</code>.
+        Il expose une <strong>Fluent API</strong> pour configurer toutes les options avant d'activer l'ecoute.
+        Appelle toujours <code>.handle()</code> en dernier pour enregistrer le listener.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EventBuilder complet</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity() instanceof EntityPlayer)  // Seulement les joueurs
+    .priority(EventPriority.HIGH)                        // Priorite haute
+    .once()                                              // Se declenche une seule fois
+    .expireAfter(6000)                                   // Expire apres 5 minutes (6000 ticks)
+    .modId("mymod")                                      // Associe a "mymod" pour cleanup groupee
+    .handle(e -> handleDeath(e));                        // Lance l'ecoute</code></pre>
+      </div>
+
+      <h3>Methodes du builder</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Type du parametre</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>filter(Predicate&lt;E&gt;)</code></td>
+              <td><code>Predicate&lt;E&gt;</code></td>
+              <td>
+                Condition a verifier avant d'appeler le handler. Si le predicate retourne <code>false</code>,
+                l'event est ignore pour cet handler.
+              </td>
+            </tr>
+            <tr>
+              <td><code>priority(EventPriority)</code></td>
+              <td><code>net.minecraftforge.fml.common.eventhandler.EventPriority</code></td>
+              <td>
+                Priorite d'execution du listener parmi les autres listeners du meme event.
+                Valeurs : <code>HIGHEST</code>, <code>HIGH</code>, <code>NORMAL</code>, <code>LOW</code>, <code>LOWEST</code>.
+                Par defaut : <code>NORMAL</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>once()</code></td>
+              <td>—</td>
+              <td>
+                Le handler se declenche une seule fois puis se desenregistre automatiquement.
+                Pratique pour attendre qu'une chose se produise une seule fois.
+              </td>
+            </tr>
+            <tr>
+              <td><code>expireAfter(int ticks)</code></td>
+              <td><code>int</code></td>
+              <td>
+                Le handler se desenregistre automatiquement apres le nombre de ticks indique
+                (20 ticks = 1 seconde). Pratique pour les effets temporaires.
+              </td>
+            </tr>
+            <tr>
+              <td><code>modId(String)</code></td>
+              <td><code>String</code></td>
+              <td>
+                Associe ce listener a un identifiant de mod. Permet de desenregistrer tous les listeners
+                d'un mod en un seul appel via <code>EventRegistry</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>handle(Consumer&lt;E&gt;)</code></td>
+              <td><code>Consumer&lt;E&gt;</code></td>
+              <td>
+                Definit le handler et active l'ecoute. Retourne un <code>EventHandle</code> pour
+                controler le listener apres coup. A appeler en dernier.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Combine once() et expireAfter()</div>
+          <p>
+            Tu peux utiliser <code>.once()</code> et <code>.expireAfter()</code> ensemble.
+            Le handler se desenregistre des que l'une des deux conditions est atteinte en premier.
+          </p>
+        </div>
+      </div>
+
+      <h3>Exemples par cas d'usage</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Filtrer par type d'entite</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Seulement quand un joueur meurt
+EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity() instanceof EntityPlayer)
+    .handle(e -> System.out.println("Un joueur est mort !"));</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Listener temporaire (30 secondes)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Ecoute les mouvements pendant 30 secondes puis s'arrete
+EriEvents.on(PlayerTickEvent.class)
+    .filter(e -> e.phase == PlayerTickEvent.Phase.END)
+    .expireAfter(600) // 30 secondes = 600 ticks
+    .handle(e -> trackPlayerPosition(e.player));</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Attendre la premiere connexion</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// S'execute une seule fois au premier login puis s'arrete
+EriEvents.on(PlayerLoggedInEvent.class)
+    .once()
+    .handle(e -> System.out.println("Premier login : " + e.player.getName()));</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT HANDLE
+    ====================================================== -->
+    <section class="doc-section" id="event-handle">
+      <h2>EventHandle — Controle apres enregistrement</h2>
+      <p>
+        Chaque appel a <code>.handle()</code> (ou au one-liner) retourne un <code>EventHandle</code>.
+        Cet objet te permet de controler le listener apres son enregistrement : le deactiver manuellement,
+        verifier s'il est encore actif, ou savoir s'il a deja ete execute.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Utilisation de EventHandle</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Enregistre et garde une reference au handle
+EventHandle handle = EriEvents.on(TickEvent.class).handle(e -> doStuff());
+
+// Plus tard, quand tu n'en as plus besoin :
+handle.unregister();    // Desenregistre le listener
+
+// Verifications
+handle.isActive();      // true si le listener est encore enregistre
+handle.wasExecuted();   // true si le handler a ete appele au moins une fois</code></pre>
+      </div>
+
+      <h3>Methodes de EventHandle</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Retour</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>unregister()</code></td>
+              <td><code>void</code></td>
+              <td>Desenregistre immediatement le listener du bus d'events Forge. Sans effet s'il est deja inactif.</td>
+            </tr>
+            <tr>
+              <td><code>isActive()</code></td>
+              <td><code>boolean</code></td>
+              <td>
+                Retourne <code>true</code> si le listener est encore enregistre et actif.
+                Retourne <code>false</code> apres un appel a <code>unregister()</code>, apres <code>once()</code>
+                declenche, ou apres expiration.
+              </td>
+            </tr>
+            <tr>
+              <td><code>wasExecuted()</code></td>
+              <td><code>boolean</code></td>
+              <td>Retourne <code>true</code> si le handler a ete appele au moins une fois.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Garde toujours une reference si tu en as besoin</div>
+          <p>
+            Si tu enregistres un listener one-liner sans stocker le handle, tu ne pourras plus le deactiver manuellement.
+            Utilise <code>EventRegistry.unregisterAll("mymod")</code> dans ce cas pour faire le menage.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT REGISTRY
+    ====================================================== -->
+    <section class="doc-section" id="event-registry">
+      <h2>EventRegistry — Cleanup groupee</h2>
+      <p>
+        <code>EventRegistry</code> est le registre interne qui suit tous les listeners actifs.
+        Il permet de desenregistrer des groupes entiers de listeners en un seul appel,
+        ce qui est tres utile lors du dechargement d'un mod ou d'un monde.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EventRegistry</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Desenregistre tous les listeners associes a "mymod"
+EventRegistry.getInstance().unregisterAll("mymod");
+
+// Desenregistre absolument tous les listeners EriEvents actifs
+EventRegistry.getInstance().unregisterAll();
+
+// Nombre de listeners actuellement actifs
+int count = EventRegistry.getInstance().activeCount();</code></pre>
+      </div>
+
+      <h3>Methodes de EventRegistry</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Retour</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getInstance()</code></td>
+              <td><code>EventRegistry</code></td>
+              <td>Retourne l'instance singleton du registre.</td>
+            </tr>
+            <tr>
+              <td><code>unregisterAll(String modId)</code></td>
+              <td><code>void</code></td>
+              <td>
+                Desenregistre tous les listeners enregistres avec <code>.modId(modId)</code>.
+                A appeler lors du dechargement de ton mod.
+              </td>
+            </tr>
+            <tr>
+              <td><code>unregisterAll()</code></td>
+              <td><code>void</code></td>
+              <td>Desenregistre tous les listeners EriEvents actifs, quel que soit leur modId.</td>
+            </tr>
+            <tr>
+              <td><code>activeCount()</code></td>
+              <td><code>int</code></td>
+              <td>Retourne le nombre de listeners actuellement actifs dans le registre.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Bonne pratique : toujours taguer avec modId</div>
+          <p>
+            Utilise <code>.modId("tonmod")</code> sur tous tes listeners. Appelle ensuite
+            <code>EventRegistry.getInstance().unregisterAll("tonmod")</code> dans l'event
+            <code>FMLServerStoppingEvent</code> ou <code>FMLClientStoppingEvent</code> pour ne laisser
+            aucun listener orphelin en memoire.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet</h2>
+      <p>
+        Voici un exemple concret qui illustre plusieurs fonctionnalites du module en meme temps.
+        L'objectif : annoncer dans le chat global quand un joueur tue l'Ender Dragon, avec un message enrichi
+        grace au module <strong>Chat Builder</strong> d'EriAPI.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Annonce de mort du Dragon</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans ta classe principale ou un gestionnaire d'init
+EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity().getName().equals("Ender Dragon"))
+    .modId("mymod")
+    .handle(e -> {
+        Entity source = e.getSource().getTrueSource();
+        if (source instanceof EntityPlayer) {
+            EriChat.create()
+                .text(source.getName()).color(TextFormatting.GOLD).bold()
+                .text(" a tue le ").color(TextFormatting.WHITE)
+                .text("Dragon !").color(TextFormatting.RED).bold()
+                .broadcast();
+        }
+    });</code></pre>
+      </div>
+
+      <h3>Exemple multi-listeners avec cleanup</h3>
+      <p>
+        Cet exemple montre comment enregistrer plusieurs listeners et faire le menage proprement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Gestionnaire d'events avec cleanup</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public class MonModEvents {
+
+    public static void registerAll() {
+        // Salutation a la connexion (une seule fois par session, expire apres 5 min)
+        EriEvents.on(PlayerLoggedInEvent.class)
+            .once()
+            .expireAfter(6000)
+            .modId("mymod")
+            .handle(e -> e.player.sendMessage(
+                new TextComponentString("Bienvenue sur le serveur !")));
+
+        // Detection des kills de boss (priorite haute, indefini)
+        EriEvents.on(LivingDeathEvent.class)
+            .filter(e -> e.getEntity().isNonBoss() == false)
+            .priority(EventPriority.HIGH)
+            .modId("mymod")
+            .handle(e -> onBossKilled(e));
+
+        // Stats en arriere-plan (toutes les 20 ticks = 1 seconde)
+        EriEvents.on(ServerTickEvent.class)
+            .filter(e -> e.phase == ServerTickEvent.Phase.END)
+            .modId("mymod")
+            .handle(e -> updateStats());
+    }
+
+    public static void cleanup() {
+        // Desenregistre tous les listeners de ce mod en un appel
+        EventRegistry.getInstance().unregisterAll("mymod");
+    }
+
+    private static void onBossKilled(LivingDeathEvent e) {
+        System.out.println("Boss elimine : " + e.getEntity().getName());
+    }
+
+    private static void updateStats() {
+        // Mise a jour des statistiques serveur
+    }
+}
+
+// Dans ta classe @Mod :
+@Mod.EventHandler
+public void serverStarting(FMLServerStartingEvent event) {
+    MonModEvents.registerAll();
+}
+
+@Mod.EventHandler
+public void serverStopping(FMLServerStoppingEvent event) {
+    MonModEvents.cleanup();
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Compatibilite avec Forge</div>
+          <p>
+            <code>EriEvents</code> utilise le bus d'events standard de Forge (<code>MinecraftForge.EVENT_BUS</code>)
+            en interne. Tous les events Forge (<code>LivingDeathEvent</code>, <code>PlayerTickEvent</code>,
+            <code>BlockEvent</code>, etc.) sont supportes sans configuration supplementaire.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

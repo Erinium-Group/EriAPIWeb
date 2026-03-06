@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scheduler — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="scheduler.html" class="active">FR</a>
+    <a href="../en/scheduler.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link active"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-scheduler"><span class="nav-dot"></span>EriScheduler</a></li>
+        <li><a href="#scheduled-task"><span class="nav-dot"></span>ScheduledTask</a></li>
+        <li><a href="#task-chain"><span class="nav-dot"></span>TaskChain</a></li>
+        <li><a href="#async-executor"><span class="nav-dot"></span>AsyncExecutor</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Scheduler</h1>
+        <p class="subtitle">
+          Planifie des taches differees, repetitives, asynchrones ou enchainees — sans bloquer le jeu.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.scheduler</span>
+          <span class="badge badge-purple">Minecraft 1.12.2</span>
+          <span class="badge badge-gray">Java 8</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Le <strong>Scheduler</strong> d'EriAPI permet de planifier des taches de plusieurs facons :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Execution differee</strong> — lance une action apres N ticks (20 ticks = 1 seconde)</li>
+        <li><strong style="color:var(--text);">Repetition</strong> — execute une action toutes les N ticks, un nombre fini ou infini de fois</li>
+        <li><strong style="color:var(--text);">Async</strong> — execute du code lourd hors du main thread, puis revient sur le main thread pour toucher aux objets Minecraft</li>
+        <li><strong style="color:var(--text);">Chaine sequentielle</strong> — enchaîne plusieurs actions avec des delais precis entre elles</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p>Toutes les classes du Scheduler sont dans le package <code>fr.eri.eriapi.scheduler</code>.</p>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Attention aux ticks</div>
+          <p>Minecraft tourne a 20 ticks par seconde. Un delai de <code>20</code> ticks = 1 seconde,
+          <code>100</code> ticks = 5 secondes, <code>1200</code> ticks = 1 minute.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI SCHEDULER
+    ====================================================== -->
+    <section class="doc-section" id="eri-scheduler">
+      <h2>EriScheduler — API statique</h2>
+      <p>
+        <code>EriScheduler</code> est le point d'entree principal du module. Toutes ses methodes sont
+        statiques : pas besoin d'instancier quoi que ce soit.
+      </p>
+
+      <h3>Execution differee — <code>delay()</code></h3>
+      <p>
+        Execute une action une seule fois, apres un delai en ticks.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriScheduler.delay()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Delai de 20 ticks = 1 seconde
+ScheduledTask task = EriScheduler.delay(20, () -> {
+    player.sendMessage(new TextComponentString("1 seconde plus tard !"));
+});</code></pre>
+      </div>
+
+      <h3>Repetition limitee — <code>repeat(ticks, maxCount, Runnable)</code></h3>
+      <p>
+        Execute une action toutes les N ticks, au maximum <code>maxCount</code> fois.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriScheduler.repeat() avec limite</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Toutes les 20 ticks, 5 fois au maximum
+ScheduledTask task = EriScheduler.repeat(20, 5, () -> {
+    System.out.println("Tick!");
+});</code></pre>
+      </div>
+
+      <h3>Repetition infinie — <code>repeat(ticks, Runnable)</code></h3>
+      <p>
+        Execute une action toutes les N ticks indefiniment, jusqu'a ce que tu l'annules manuellement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriScheduler.repeat() infini</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Toutes les 100 ticks = toutes les 5 secondes, sans limite
+ScheduledTask task = EriScheduler.repeat(100, () -> {
+    System.out.println("Toutes les 5 secondes");
+});</code></pre>
+      </div>
+
+      <h3>Tache asynchrone — <code>async()</code></h3>
+      <p>
+        Lance un <code>Callable</code> hors du main thread. Voir la section
+        <a href="#async-executor">AsyncExecutor</a> pour les details.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EriScheduler.async()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriScheduler.async(() -> fetchDataFromWeb())
+    .thenSync(result -> player.sendMessage(new TextComponentString("Data: " + result)));</code></pre>
+      </div>
+
+      <h3>Chaine sequentielle — <code>chain()</code></h3>
+      <p>
+        Cree une <code>TaskChain</code> pour enchaîner des actions avec des delais. Voir la section
+        <a href="#task-chain">TaskChain</a>.
+      </p>
+
+      <h3>Gestion globale</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Methodes utilitaires</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Annuler toutes les taches actives
+EriScheduler.cancelAll();
+
+// Obtenir le nombre de taches actives
+int count = EriScheduler.activeCount();</code></pre>
+      </div>
+
+      <h3>Reference des methodes</h3>
+      <div class="api-table-wrapper">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Parametres</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delay()</code></td>
+              <td><code>int ticks, Runnable</code></td>
+              <td>Execute une action une fois apres N ticks</td>
+            </tr>
+            <tr>
+              <td><code>repeat()</code></td>
+              <td><code>int ticks, int maxCount, Runnable</code></td>
+              <td>Repete une action N fois toutes les X ticks</td>
+            </tr>
+            <tr>
+              <td><code>repeat()</code></td>
+              <td><code>int ticks, Runnable</code></td>
+              <td>Repete indefiniment toutes les X ticks</td>
+            </tr>
+            <tr>
+              <td><code>async()</code></td>
+              <td><code>Callable&lt;T&gt;</code></td>
+              <td>Lance une tache hors du main thread, retourne un <code>AsyncExecutor</code></td>
+            </tr>
+            <tr>
+              <td><code>chain()</code></td>
+              <td>—</td>
+              <td>Cree une nouvelle <code>TaskChain</code> vide</td>
+            </tr>
+            <tr>
+              <td><code>cancelAll()</code></td>
+              <td>—</td>
+              <td>Annule toutes les taches en cours</td>
+            </tr>
+            <tr>
+              <td><code>activeCount()</code></td>
+              <td>—</td>
+              <td>Retourne le nombre de taches actives</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         SCHEDULED TASK
+    ====================================================== -->
+    <section class="doc-section" id="scheduled-task">
+      <h2>ScheduledTask — Reference de tache</h2>
+      <p>
+        Chaque appel a <code>EriScheduler.delay()</code> ou <code>EriScheduler.repeat()</code> retourne
+        un objet <code>ScheduledTask</code>. Garde cette reference pour controler la tache apres sa creation.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Controle d'une ScheduledTask</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">ScheduledTask task = EriScheduler.repeat(20, () -> doStuff());
+
+task.pause();           // Gele le compteur de ticks (la tache ne s'execute plus)
+task.resume();          // Reprend le decompte la ou il s'etait arrete
+task.cancel();          // Arrete definitivement la tache
+
+boolean running   = task.isRunning();    // true si active et non pausee
+boolean cancelled = task.isCancelled();  // true si annulee
+boolean paused    = task.isPaused();     // true si gelee
+
+int executions = task.getExecutionCount(); // Nombre de fois que la tache s'est executee</code></pre>
+      </div>
+
+      <h3>Reference des methodes</h3>
+      <div class="api-table-wrapper">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Retour</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pause()</code></td>
+              <td><code>void</code></td>
+              <td>Gele le compteur, la tache ne s'execute plus</td>
+            </tr>
+            <tr>
+              <td><code>resume()</code></td>
+              <td><code>void</code></td>
+              <td>Reprend le decompte apres un <code>pause()</code></td>
+            </tr>
+            <tr>
+              <td><code>cancel()</code></td>
+              <td><code>void</code></td>
+              <td>Annule definitivement la tache</td>
+            </tr>
+            <tr>
+              <td><code>isRunning()</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code> si la tache est active et non pausee</td>
+            </tr>
+            <tr>
+              <td><code>isCancelled()</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code> si la tache a ete annulee</td>
+            </tr>
+            <tr>
+              <td><code>isPaused()</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code> si la tache est gelee</td>
+            </tr>
+            <tr>
+              <td><code>getExecutionCount()</code></td>
+              <td><code>int</code></td>
+              <td>Nombre total d'executions effectuees</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Bonne pratique</div>
+          <p>Stocke toujours la reference de ta tache dans un champ de ta classe si tu as besoin de
+          l'annuler plus tard (par exemple dans la methode <code>onGuiClosed()</code> de ton ecran).</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         TASK CHAIN
+    ====================================================== -->
+    <section class="doc-section" id="task-chain">
+      <h2>TaskChain — Chaine sequentielle</h2>
+      <p>
+        Une <code>TaskChain</code> permet d'enchaîner plusieurs actions avec des delais precis entre chacune.
+        C'est ideal pour des sequences d'evenements en jeu : animations de texte, tutoriels, cinematiques, etc.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — TaskChain : enchaîner des actions</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriScheduler.chain()
+    .then(0,  () -> System.out.println("Maintenant"))
+    .then(20, () -> System.out.println("1s plus tard"))
+    .then(40, () -> System.out.println("2s plus tard"))
+    .run();</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Comment fonctionne le delai dans une chaine ?</div>
+          <p>Le parametre de <code>then(ticks, action)</code> est le delai <strong>depuis le debut de la chaine</strong>,
+          pas depuis l'etape precedente. Un delai de <code>0</code> execute l'action immediatement au lancement de
+          <code>run()</code>. Pense-y comme des "timestamps" dans une timeline.</p>
+        </div>
+      </div>
+
+      <h3>Reference des methodes</h3>
+      <div class="api-table-wrapper">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Parametres</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>then()</code></td>
+              <td><code>int ticks, Runnable</code></td>
+              <td>Ajoute une etape a la chaine avec un delai en ticks</td>
+            </tr>
+            <tr>
+              <td><code>run()</code></td>
+              <td>—</td>
+              <td>Lance la chaine. Toutes les etapes sont planifiees immediatement.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ASYNC EXECUTOR
+    ====================================================== -->
+    <section class="doc-section" id="async-executor">
+      <h2>AsyncExecutor — Taches asynchrones</h2>
+      <p>
+        L'<code>AsyncExecutor</code> permet d'executer du code lourd (appels reseau, lecture de fichiers,
+        calculs intensifs) dans un thread separe, sans bloquer le jeu. Quand le resultat est pret, tu peux
+        revenir sur le main thread pour interagir avec les objets Minecraft.
+      </p>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ne touche jamais aux objets Minecraft hors du main thread</div>
+          <p>Dans le callback de <code>async()</code>, tu ne dois pas appeler de methodes Minecraft
+          (player, world, etc.). Utilise <code>thenSync()</code> pour revenir sur le main thread
+          avant de manipuler des objets du jeu.</p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — AsyncExecutor : hors thread puis retour main thread</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriScheduler.async(() -> {
+    // Hors du main thread — ideal pour les operations lentes
+    return fetchDataFromWeb();
+})
+.onError(e -> {
+    // Appelee si une exception est lancee dans le bloc async
+    System.err.println("Erreur: " + e.getMessage());
+})
+.thenSync(result -> {
+    // Retour sur le main thread — safe pour toucher aux objets Minecraft
+    player.sendMessage(new TextComponentString("Data: " + result));
+});</code></pre>
+      </div>
+
+      <h3>Reference des methodes</h3>
+      <div class="api-table-wrapper">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Parametres</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>onError()</code></td>
+              <td><code>Consumer&lt;Exception&gt;</code></td>
+              <td>Callback appele si une exception est lancee dans le bloc async</td>
+            </tr>
+            <tr>
+              <td><code>thenSync()</code></td>
+              <td><code>Consumer&lt;T&gt;</code></td>
+              <td>Callback execute sur le main thread avec le resultat de la tache async</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet — Countdown</h2>
+      <p>
+        Voici un exemple concret qui combine <code>repeat()</code> et <code>ScheduledTask</code> pour
+        faire un compte a rebours affiché dans le chat du joueur.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Countdown 5...4...3...2...1...Go!</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Compte a rebours : 5...4...3...2...1...Go!
+// La tache se repete 6 fois (5 chiffres + le message "Go!")
+final int[] count = {5};
+
+ScheduledTask countdown = EriScheduler.repeat(20, 6, () -> {
+    if (count[0] > 0) {
+        player.sendMessage(new TextComponentString(count[0] + "..."));
+        count[0]--;
+    } else {
+        player.sendMessage(new TextComponentString("Go!"));
+    }
+});</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Pourquoi <code>final int[]</code> ?</div>
+          <p>En Java 8, les lambdas ne peuvent capturer que des variables effectives finales. Un tableau
+          d'un seul element est une astuce courante pour avoir un compteur mutable dans un lambda :
+          la reference au tableau est finale, mais son contenu (<code>count[0]</code>) peut changer.</p>
+        </div>
+      </div>
+
+      <h3>Exemple avec TaskChain — Sequence de messages</h3>
+      <p>
+        Pour une sequence de messages avec des timings precis, la <code>TaskChain</code> est plus lisible :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Sequence de messages avec TaskChain</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriScheduler.chain()
+    .then(0,   () -> player.sendMessage(new TextComponentString("Bienvenue sur le serveur !")))
+    .then(40,  () -> player.sendMessage(new TextComponentString("Rejoins le Discord : discord.gg/...")))
+    .then(80,  () -> player.sendMessage(new TextComponentString("Tape /help pour la liste des commandes.")))
+    .then(120, () -> player.sendMessage(new TextComponentString("Bonne partie !")))
+    .run();</code></pre>
+      </div>
+
+      <h3>Exemple avec AsyncExecutor — Chargement de donnees</h3>
+      <p>
+        Un cas d'usage typique : charger des donnees depuis une API externe sans freezer le jeu.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Chargement async avec retour sur main thread</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">player.sendMessage(new TextComponentString("Chargement en cours..."));
+
+EriScheduler.async(() -> {
+    // Simule un appel reseau lent (hors main thread)
+    URL url = new URL("https://api.example.com/player/" + player.getName());
+    BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+    return reader.readLine();
+})
+.onError(e -> {
+    player.sendMessage(new TextComponentString("Impossible de charger les donnees."));
+})
+.thenSync(data -> {
+    // On est de retour sur le main thread, safe pour Minecraft
+    player.sendMessage(new TextComponentString("Ton score : " + data));
+});</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Nettoyage des taches</div>
+          <p>Si tu crées des taches repetitives dans une GUI ou un ecran, pense a les annuler quand
+          l'ecran se ferme. Surcharge la methode <code>onGuiClosed()</code> de <code>EriGuiScreen</code>
+          et appelle <code>task.cancel()</code> ou <code>EriScheduler.cancelAll()</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+  </main>
+</div>
+
+</body>
+</html>

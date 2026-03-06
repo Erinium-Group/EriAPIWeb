@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capability Helpers — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/capability.html">FR</a>
+    <a href="capability.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link active"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-capability"><span class="nav-dot"></span>@EriCapability</a></li>
+        <li><a href="#attach-target"><span class="nav-dot"></span>AttachTarget</a></li>
+        <li><a href="#eri-cap"><span class="nav-dot"></span>EriCap API</a></li>
+        <li><a href="#sync"><span class="nav-dot"></span>@Sync</a></li>
+        <li><a href="#lifecycle"><span class="nav-dot"></span>Lifecycle</a></li>
+        <li><a href="#example"><span class="nav-dot"></span>Complete Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Capability Helpers</h1>
+        <p class="subtitle">
+          Attach persistent data to players, entities, items, and tile entities — with a single annotation instead of six files.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Package: fr.eri.eriapi.capability</span>
+          <span class="badge badge-purple">Forge Capabilities</span>
+          <span class="badge badge-gray">Auto Sync</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Forge capabilities are a powerful system, but they come with a high setup cost. To attach custom data to a
+        player in a standard Forge mod, you need to write six separate files: an interface, an implementation, a
+        storage handler, a capability provider, an event handler, and a sync packet. That is a lot of boilerplate
+        for something conceptually simple.
+      </p>
+      <p>
+        The <strong>Capability Helpers</strong> module reduces all of that to a single annotation:
+        <code>@EriCapability</code>. Annotate your data class, call <code>EriCap.register()</code> in
+        <code>preInit</code>, and the framework handles everything else — storage, provider attachment,
+        death persistence, and client synchronization.
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">One annotation, zero boilerplate</div>
+          <p>
+            Instead of creating 6 files (interface, impl, storage, provider, event handler, packet),
+            a single <code>@EriCapability</code> annotation on your data class is enough.
+          </p>
+        </div>
+      </div>
+
+      <div class="quickstart-grid">
+        <div class="qs-card">
+          <div class="qs-num">01</div>
+          <div class="qs-title">Annotate your class</div>
+          <p>Add <code>@EriCapability</code> to any plain Java class holding your data fields.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num">02</div>
+          <div class="qs-title">Register in preInit</div>
+          <p>Call <code>EriCap.register(YourClass.class)</code> once and the capability is live.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num">03</div>
+          <div class="qs-title">Read, write, sync</div>
+          <p>Use <code>EriCap.get()</code> to retrieve data and <code>EriCap.sync()</code> to push it to the client.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @EriCapability
+    ====================================================== -->
+    <section class="doc-section" id="eri-capability">
+      <h2>@EriCapability — Annotation</h2>
+      <p>
+        Place <code>@EriCapability</code> on any plain Java class. The class acts as a plain data holder
+        (POJO) — no interface to implement, no parent class to extend.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Mana.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@EriCapability(modId = "mymod", target = AttachTarget.PLAYER)
+public class Mana {
+    @Sync public int current = 100;
+    @Sync public int max = 100;
+    public float regenRate = 0.5f;
+}</code></pre>
+      </div>
+
+      <h3>Annotation parameters</h3>
+      <div class="prop-table">
+        <div class="prop-row prop-header">
+          <span>Parameter</span><span>Type</span><span>Default</span><span>Description</span>
+        </div>
+        <div class="prop-row">
+          <span><code>modId</code></span>
+          <span><code>String</code></span>
+          <span><em>required</em></span>
+          <span>Your mod ID. Used to namespace the capability key.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>target</code></span>
+          <span><code>AttachTarget</code></span>
+          <span><em>required</em></span>
+          <span>What the capability is attached to. See <a href="#attach-target">AttachTarget</a>.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>persistOnDeath</code></span>
+          <span><code>boolean</code></span>
+          <span><code>true</code></span>
+          <span>Whether the data is copied to the new player instance after death.</span>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Fields not annotated with @Sync</div>
+          <p>
+            Fields without <code>@Sync</code> are still stored and persisted on the server but are
+            <strong>never sent to the client</strong>. Use this for server-only data like <code>regenRate</code>
+            in the example above.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         AttachTarget
+    ====================================================== -->
+    <section class="doc-section" id="attach-target">
+      <h2>AttachTarget — Enum</h2>
+      <p>
+        The <code>AttachTarget</code> enum tells the framework which game object the capability is attached to.
+      </p>
+
+      <div class="prop-table">
+        <div class="prop-row prop-header">
+          <span>Value</span><span>Attached to</span><span>Notes</span>
+        </div>
+        <div class="prop-row">
+          <span><code>PLAYER</code></span>
+          <span>Any <code>EntityPlayer</code></span>
+          <span>Most common target. Supports <code>persistOnDeath</code> and client sync.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>ENTITY</code></span>
+          <span>Any <code>EntityLivingBase</code></span>
+          <span>Attached to mobs and animals as well as players.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>ITEM</code></span>
+          <span><code>ItemStack</code></span>
+          <span>Stored inside the item NBT. Follows the item, not the player.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>TILE_ENTITY</code></span>
+          <span><code>TileEntity</code></span>
+          <span>Attached to block entities like machines, chests, etc.</span>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — AttachTarget usage examples</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Attached to the player
+@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class PlayerStats { ... }
+
+// Attached to any living entity (mobs, players, animals)
+@EriCapability(modId = "myrpg", target = AttachTarget.ENTITY)
+public class EntityAI { ... }
+
+// Stored inside an ItemStack
+@EriCapability(modId = "myrpg", target = AttachTarget.ITEM)
+public class SoulBound { ... }
+
+// Attached to a TileEntity (machine, chest, etc.)
+@EriCapability(modId = "myrpg", target = AttachTarget.TILE_ENTITY)
+public class MachineData { ... }</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EriCap Static API
+    ====================================================== -->
+    <section class="doc-section" id="eri-cap">
+      <h2>EriCap — Static API</h2>
+      <p>
+        <code>EriCap</code> is the single entry point for all capability operations. All methods are static —
+        you never need to instantiate anything.
+      </p>
+
+      <h3>Registering a capability</h3>
+      <p>Call <code>register()</code> in your <code>preInit</code> event handler, before any world loads.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — preInit</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    EriCap.register(Mana.class);
+    EriCap.register(SoulBound.class);
+    EriCap.register(MachineData.class);
+}</code></pre>
+      </div>
+
+      <h3>Reading and writing data</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — get() from various targets</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Read from a player (Entity target)
+Mana mana = EriCap.get(player, Mana.class);
+mana.current -= 10;
+EriCap.sync((EntityPlayerMP) player, Mana.class);
+
+// Read from an ItemStack
+SoulBound data = EriCap.get(stack, SoulBound.class);
+data.bound = true;
+
+// Read from a TileEntity
+MachineData machine = EriCap.get(tile, MachineData.class);</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+      <div class="prop-table">
+        <div class="prop-row prop-header">
+          <span>Method</span><span>Returns</span><span>Description</span>
+        </div>
+        <div class="prop-row">
+          <span><code>register(Class&lt;T&gt;)</code></span>
+          <span><code>void</code></span>
+          <span>Registers the capability. Must be called in <code>preInit</code>.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>get(Entity, Class&lt;T&gt;)</code></span>
+          <span><code>T</code></span>
+          <span>Retrieves the capability instance from an entity (player or any living entity).</span>
+        </div>
+        <div class="prop-row">
+          <span><code>get(ItemStack, Class&lt;T&gt;)</code></span>
+          <span><code>T</code></span>
+          <span>Retrieves the capability instance from an ItemStack.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>get(TileEntity, Class&lt;T&gt;)</code></span>
+          <span><code>T</code></span>
+          <span>Retrieves the capability instance from a TileEntity.</span>
+        </div>
+        <div class="prop-row">
+          <span><code>sync(EntityPlayerMP, Class&lt;T&gt;)</code></span>
+          <span><code>void</code></span>
+          <span>Forces immediate sync of all <code>@Sync</code> fields to the client.</span>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">sync() is server-side only</div>
+          <p>
+            <code>EriCap.sync()</code> takes an <code>EntityPlayerMP</code> (the server-side player class).
+            Never call it on the client side. On the client, always read data from <code>EriCap.get()</code> —
+            it will already contain the last synced values.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @Sync
+    ====================================================== -->
+    <section class="doc-section" id="sync">
+      <h2>@Sync — Automatic Synchronization</h2>
+      <p>
+        Any field on your capability class that is annotated with <code>@Sync</code> will automatically
+        be sent from the server to the client at the following moments:
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Player login</strong> — when the player first joins the server</li>
+        <li><strong style="color:var(--text);">Respawn</strong> — after the player dies and respawns</li>
+        <li><strong style="color:var(--text);">Dimension change</strong> — when traveling between dimensions</li>
+        <li><strong style="color:var(--text);">Manual sync</strong> — whenever you call <code>EriCap.sync()</code></li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — @Sync field annotations</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class PlayerStats {
+    // Synced: the client needs to display these in the HUD
+    @Sync public int level = 1;
+    @Sync public int experience = 0;
+    @Sync public int health = 100;
+
+    // Not synced: only the server needs this
+    public long lastAttackTime = 0;
+    public int ticksInCombat = 0;
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Supported field types for @Sync</div>
+          <p>
+            All primitive types and their boxed equivalents are supported: <code>int</code>, <code>float</code>,
+            <code>double</code>, <code>long</code>, <code>boolean</code>, <code>byte</code>, <code>short</code>,
+            and <code>String</code>. NBT-serializable objects are also supported.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         Lifecycle
+    ====================================================== -->
+    <section class="doc-section" id="lifecycle">
+      <h2>Lifecycle</h2>
+      <p>
+        Understanding when the framework acts on your capability helps you avoid common mistakes.
+      </p>
+
+      <div class="prop-table">
+        <div class="prop-row prop-header">
+          <span>Event</span><span>Framework action</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>preInit</strong></span>
+          <span>You call <code>EriCap.register()</code>. The capability is registered with Forge.</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>AttachCapabilitiesEvent</strong></span>
+          <span>Framework automatically attaches the provider to the correct target (player, entity, item, tile).</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>Player login</strong></span>
+          <span>All <code>@Sync</code> fields are sent to the client automatically.</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>Player death</strong></span>
+          <span>If <code>persistOnDeath = true</code>, all fields are copied to the new player instance.</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>Respawn / Dimension change</strong></span>
+          <span>All <code>@Sync</code> fields are re-sent to the client automatically.</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>Manual <code>EriCap.sync()</code></strong></span>
+          <span>All <code>@Sync</code> fields are immediately sent to the specified player's client.</span>
+        </div>
+        <div class="prop-row">
+          <span><strong>World save / Player disconnect</strong></span>
+          <span>All fields (synced or not) are serialized to NBT and saved automatically.</span>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">When to call EriCap.sync() manually</div>
+          <p>
+            Call <code>sync()</code> any time you mutate a <code>@Sync</code> field on the server and want the
+            client to reflect the change immediately — for example, after a spell is cast, a level-up occurs,
+            or a stat changes mid-game.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         Complete example
+    ====================================================== -->
+    <section class="doc-section" id="example">
+      <h2>Complete Example — Mana System</h2>
+      <p>
+        The following example shows a complete mana system: a data class, registration, and usage inside a
+        spell handler. Everything — storage, sync, and death persistence — is handled by EriAPI.
+      </p>
+
+      <h3>Step 1 — Define the capability</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Mana.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">package com.example.myrpg.capability;
+
+import fr.eri.eriapi.capability.EriCapability;
+import fr.eri.eriapi.capability.AttachTarget;
+import fr.eri.eriapi.capability.Sync;
+
+@EriCapability(modId = "myrpg", target = AttachTarget.PLAYER)
+public class Mana {
+    @Sync public int current = 100;
+    @Sync public int max = 100;
+    public float regenRate = 0.5f; // server-only
+}</code></pre>
+      </div>
+
+      <h3>Step 2 — Register in preInit</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — MyRPGMod.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCap;
+
+@Mod(modid = "myrpg", version = "1.0")
+public class MyRPGMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        EriCap.register(Mana.class);
+    }
+}</code></pre>
+      </div>
+
+      <h3>Step 3 — Use in a spell handler</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — SpellHandler.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCap;
+import net.minecraft.entity.player.EntityPlayerMP;
+
+public class SpellHandler {
+
+    public static boolean castFireball(EntityPlayerMP player) {
+        Mana mana = EriCap.get(player, Mana.class);
+
+        if (mana.current < 20) {
+            // Not enough mana — reject the cast
+            return false;
+        }
+
+        // Deduct mana and sync the new value to the client
+        mana.current -= 20;
+        EriCap.sync(player, Mana.class);
+
+        // ... launch the fireball projectile ...
+        return true;
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">What the framework does for you</div>
+          <p>
+            Behind the scenes, EriAPI generated the <code>ICapabilityProvider</code>, registered the
+            <code>Capability&lt;Mana&gt;</code> token with Forge, wired up the <code>AttachCapabilitiesEvent</code>
+            listener, wrote the NBT serialization/deserialization, set up the death-copy handler, and
+            created the sync packet — none of which you had to write.
+          </p>
+        </div>
+      </div>
+
+      <h3>Reading mana on the client (HUD)</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ManaHud.java (client side)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.capability.EriCap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+
+// Called from a RenderGameOverlayEvent handler
+EntityPlayer player = Minecraft.getMinecraft().player;
+Mana mana = EriCap.get(player, Mana.class);
+
+// mana.current and mana.max are always up to date on the client
+// because they are annotated with @Sync
+String text = "Mana: " + mana.current + " / " + mana.max;</code></pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Command Framework (EN)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/commands.html">FR</a>
+    <a href="commands.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link active"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Getting Started</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Overview</a></li>
+        <li><a href="#quick-start"><span class="nav-dot"></span>Quick Start</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Core API</div>
+      <ul>
+        <li><a href="#ericommand"><span class="nav-dot"></span>EriCommand</a></li>
+        <li><a href="#arguments"><span class="nav-dot"></span>Argument Types</a></li>
+        <li><a href="#command-context"><span class="nav-dot"></span>CommandContext</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Advanced</div>
+      <ul>
+        <li><a href="#sub-commands"><span class="nav-dot"></span>Sub-commands</a></li>
+        <li><a href="#permissions-cooldowns"><span class="nav-dot"></span>Permissions &amp; Cooldowns</a></li>
+        <li><a href="#tab-completion"><span class="nav-dot"></span>Tab Completion</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Registry &amp; Examples</div>
+      <ul>
+        <li><a href="#command-registry"><span class="nav-dot"></span>CommandRegistry</a></li>
+        <li><a href="#full-example"><span class="nav-dot"></span>Full Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <h2>Command Framework — Overview</h2>
+      <p>
+        The <strong>EriAPI Command Framework</strong> provides a fluent, declarative API for creating
+        Minecraft commands. Instead of manually parsing strings, handling tab completion, and managing
+        permissions, you describe your command structure and the framework does the rest.
+      </p>
+
+      <h3>Key Features</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Fluent Builder API</strong> — describe commands as readable chains of method calls</li>
+        <li><strong style="color:var(--text);">Type-safe Arguments</strong> — 7 built-in argument types with automatic parsing and validation</li>
+        <li><strong style="color:var(--text);">Auto Tab Completion</strong> — every argument type provides contextual suggestions out of the box</li>
+        <li><strong style="color:var(--text);">Permissions &amp; Cooldowns</strong> — built-in support for permission levels, custom predicates, and per-player cooldowns</li>
+        <li><strong style="color:var(--text);">Auto-generated Help</strong> — <code>/yourcommand help</code> is created automatically with usage and descriptions</li>
+        <li><strong style="color:var(--text);">Sub-command Trees</strong> — nest sub-commands to any depth with isolated arguments and executors</li>
+        <li><strong style="color:var(--text);">Brigo Compatible</strong> — works alongside Brigo for Brigadier-style suggestions on 1.12.2</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Forge 1.12.2 Commands</div>
+          <p>This framework wraps Forge's <code>ICommand</code> system. You don't need to know anything
+          about <code>ICommand</code> — the framework handles registration, parsing, and dispatching for you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         QUICK START
+    ====================================================== -->
+    <section class="doc-section" id="quick-start">
+      <h2>Quick Start</h2>
+      <p>
+        Here is everything you need to create and register a simple command in two steps.
+      </p>
+
+      <h3>Step 1 — Define your command</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>MyCommand.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">import fr.eri.eriapi.command.EriCommand;
+import fr.eri.eriapi.command.arg.StringArg;
+
+public class MyCommand {
+
+    public static void register() {
+        EriCommand.create("hello")
+            .description("Greets the player")
+            .rootAliases("hi", "greet")
+            .arg(StringArg.of("name").optional("World"))
+            .runs(ctx -> {
+                String name = ctx.getString("name");
+                ctx.reply("Hello, " + name + "!");
+            })
+            .register();
+    }
+}</code></pre>
+      </div>
+
+      <h3>Step 2 — Hook into your mod lifecycle</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>YourMod.java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Mod(modid = "yourmod")
+public class YourMod {
+
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Register command definitions
+        MyCommand.register();
+    }
+
+    @EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        // Register all commands with the server
+        CommandRegistry.getInstance().onServerStarting(event);
+    }
+}</code></pre>
+      </div>
+
+      <p>
+        That's it! Players can now type <code>/hello</code>, <code>/hello Steve</code>,
+        <code>/hi</code>, or <code>/greet</code> in-game. Tab completion and help are automatic.
+      </p>
+    </section>
+
+    <!-- ======================================================
+         ERICOMMAND
+    ====================================================== -->
+    <section class="doc-section" id="ericommand">
+      <h2>EriCommand</h2>
+      <p>
+        <code>EriCommand</code> is the entry point for building commands. It uses a fluent builder
+        pattern — every method returns the builder so you can chain calls.
+      </p>
+
+      <h3>Builder Methods</h3>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Method</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Description</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>create(String name)</code></td>
+              <td style="padding:8px 12px;">Static factory — creates a new command builder with the given name</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>description(String desc)</code></td>
+              <td style="padding:8px 12px;">Sets the description shown in auto-help</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>permission(int level)</code></td>
+              <td style="padding:8px 12px;">Requires a minimum permission level (0=all, 2=op, 4=server)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>permission(Predicate&lt;ICommandSender&gt;)</code></td>
+              <td style="padding:8px 12px;">Custom permission check (e.g., team membership, item in hand)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>rootAliases(String...)</code></td>
+              <td style="padding:8px 12px;">Alternative top-level names for the command</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>autoHelp(boolean)</code></td>
+              <td style="padding:8px 12px;">Enable/disable auto-generated <code>/cmd help</code> (default: true)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>cooldown(int ticks)</code></td>
+              <td style="padding:8px 12px;">Per-player cooldown in ticks (20 ticks = 1 second)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>arg(Argument)</code></td>
+              <td style="padding:8px 12px;">Adds a typed argument to this command or sub-command</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>sub(String name)</code></td>
+              <td style="padding:8px 12px;">Begins a sub-command definition (returns the sub-command builder)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>runs(Consumer&lt;CommandContext&gt;)</code></td>
+              <td style="padding:8px 12px;">Sets the executor — the code that runs when the command is invoked</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>end()</code></td>
+              <td style="padding:8px 12px;">Returns to the parent builder (used after <code>sub()</code>)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>register()</code></td>
+              <td style="padding:8px 12px;">Finalizes the command and registers it with <code>CommandRegistry</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Minimal Example</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Minimal command</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("ping")
+    .description("Replies with pong")
+    .runs(ctx -> ctx.reply("Pong!"))
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ARGUMENT TYPES
+    ====================================================== -->
+    <section class="doc-section" id="arguments">
+      <h2>Argument Types</h2>
+      <p>
+        Arguments define what data a command expects. Each argument type handles parsing, validation,
+        and tab completion automatically. All arguments support <code>.optional(defaultValue)</code>
+        to make them non-required.
+      </p>
+
+      <!-- IntArg -->
+      <h3>IntArg</h3>
+      <p>Parses an integer value. Supports optional range constraints.</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>IntArg examples</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Required integer, any value
+IntArg.of("count")
+
+// With range validation (1 to 64)
+IntArg.of("amount").range(1, 64)
+
+// Optional with default value
+IntArg.of("amount").range(1, 64).optional(1)
+
+// In a command
+EriCommand.create("give")
+    .arg(IntArg.of("amount").range(1, 64).optional(1))
+    .runs(ctx -> {
+        int amount = ctx.getInt("amount");
+        // ...
+    })
+    .register();</code></pre>
+      </div>
+
+      <!-- FloatArg -->
+      <h3>FloatArg</h3>
+      <p>Parses a floating-point number. Supports optional range constraints.</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>FloatArg examples</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Required float
+FloatArg.of("speed")
+
+// With range
+FloatArg.of("speed").range(0.0f, 10.0f)
+
+// In a command
+EriCommand.create("setspeed")
+    .arg(FloatArg.of("speed").range(0, 10))
+    .runs(ctx -> {
+        float speed = ctx.getFloat("speed");
+        ctx.reply("Speed set to " + speed);
+    })
+    .register();</code></pre>
+      </div>
+
+      <!-- StringArg -->
+      <h3>StringArg</h3>
+      <p>
+        Parses a string value. Three modes are available: single word (default),
+        greedy (consumes all remaining input), and quoted (captures text between quotes).
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>StringArg examples</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Single word
+StringArg.of("name")
+
+// Greedy — captures everything after this argument
+StringArg.greedy("message")
+
+// Quoted — captures text between "quotes"
+StringArg.quoted("text")
+
+// In a command
+EriCommand.create("say")
+    .arg(StringArg.greedy("message"))
+    .runs(ctx -> {
+        String msg = ctx.getString("message");
+        ctx.broadcastMessage(msg);
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Greedy arguments must be last</div>
+          <p>A greedy <code>StringArg</code> consumes all remaining input, so it must always be the
+          last argument in a command or sub-command.</p>
+        </div>
+      </div>
+
+      <!-- PlayerArg -->
+      <h3>PlayerArg</h3>
+      <p>Parses an online player name. Tab completion suggests all online players.</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>PlayerArg example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("heal")
+    .permission(2)
+    .arg(PlayerArg.of("target"))
+    .runs(ctx -> {
+        EntityPlayerMP player = ctx.getPlayer("target");
+        player.setHealth(player.getMaxHealth());
+        ctx.reply("Healed " + player.getName());
+    })
+    .register();</code></pre>
+      </div>
+
+      <!-- ItemArg -->
+      <h3>ItemArg</h3>
+      <p>Parses a Minecraft item identifier (e.g., <code>minecraft:diamond_sword</code>).
+         Tab completion suggests all registered item names.</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>ItemArg example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("spawn")
+    .arg(ItemArg.of("item"))
+    .arg(IntArg.of("count").range(1, 64).optional(1))
+    .runs(ctx -> {
+        Item item = ctx.getItem("item");
+        int count = ctx.getInt("count");
+        // Give item to player...
+    })
+    .register();</code></pre>
+      </div>
+
+      <!-- PosArg -->
+      <h3>PosArg</h3>
+      <p>Parses a 3D position (<code>x y z</code>). Supports relative coordinates with <code>~</code> notation
+         (e.g., <code>~ ~5 ~</code>). Tab completion suggests <code>~ ~ ~</code>.</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>PosArg example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("teleport")
+    .permission(2)
+    .arg(PosArg.of("pos"))
+    .runs(ctx -> {
+        BlockPos pos = ctx.getPos("pos");
+        ctx.getSenderPlayer().setPositionAndUpdate(
+            pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5
+        );
+        ctx.reply("Teleported to " + pos.getX() + " " + pos.getY() + " " + pos.getZ());
+    })
+    .register();</code></pre>
+      </div>
+
+      <!-- EnumArg -->
+      <h3>EnumArg</h3>
+      <p>Parses a value from a Java enum. Tab completion suggests all enum constant names (case-insensitive).</p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>EnumArg example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">public enum GameMode { SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR }
+
+EriCommand.create("gamemode")
+    .permission(2)
+    .arg(EnumArg.of("mode", GameMode.class))
+    .runs(ctx -> {
+        GameMode mode = ctx.getEnum("mode", GameMode.class);
+        ctx.reply("Game mode set to " + mode.name());
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>Argument Summary</h3>
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Type</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Factory</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Context Getter</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Tab Completion</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>IntArg</code></td>
+              <td style="padding:8px 12px;"><code>IntArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getInt("name")</code></td>
+              <td style="padding:8px 12px;">Suggests <code>&lt;name&gt;</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>FloatArg</code></td>
+              <td style="padding:8px 12px;"><code>FloatArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getFloat("name")</code></td>
+              <td style="padding:8px 12px;">Suggests <code>&lt;name&gt;</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>StringArg</code></td>
+              <td style="padding:8px 12px;"><code>StringArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getString("name")</code></td>
+              <td style="padding:8px 12px;">Suggests <code>&lt;name&gt;</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PlayerArg</code></td>
+              <td style="padding:8px 12px;"><code>PlayerArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getPlayer("name")</code></td>
+              <td style="padding:8px 12px;">Online player names</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>ItemArg</code></td>
+              <td style="padding:8px 12px;"><code>ItemArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getItem("name")</code></td>
+              <td style="padding:8px 12px;">Registered item IDs</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PosArg</code></td>
+              <td style="padding:8px 12px;"><code>PosArg.of("name")</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getPos("name")</code></td>
+              <td style="padding:8px 12px;"><code>~ ~ ~</code></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>EnumArg</code></td>
+              <td style="padding:8px 12px;"><code>EnumArg.of("name", E.class)</code></td>
+              <td style="padding:8px 12px;"><code>ctx.getEnum("name", E.class)</code></td>
+              <td style="padding:8px 12px;">Enum constant names</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         COMMAND CONTEXT
+    ====================================================== -->
+    <section class="doc-section" id="command-context">
+      <h2>CommandContext</h2>
+      <p>
+        When your command runs, it receives a <code>CommandContext</code> object. This object gives you
+        access to the parsed arguments, the sender, the server, and utility methods for responding.
+      </p>
+
+      <h3>Available Methods</h3>
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Method</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Return Type</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Description</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getString("name")</code></td>
+              <td style="padding:8px 12px;"><code>String</code></td>
+              <td style="padding:8px 12px;">Gets a string argument value</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getInt("name")</code></td>
+              <td style="padding:8px 12px;"><code>int</code></td>
+              <td style="padding:8px 12px;">Gets an integer argument value</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getFloat("name")</code></td>
+              <td style="padding:8px 12px;"><code>float</code></td>
+              <td style="padding:8px 12px;">Gets a float argument value</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getPlayer("name")</code></td>
+              <td style="padding:8px 12px;"><code>EntityPlayerMP</code></td>
+              <td style="padding:8px 12px;">Gets the resolved player entity</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getItem("name")</code></td>
+              <td style="padding:8px 12px;"><code>Item</code></td>
+              <td style="padding:8px 12px;">Gets the resolved item</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getPos("name")</code></td>
+              <td style="padding:8px 12px;"><code>BlockPos</code></td>
+              <td style="padding:8px 12px;">Gets the parsed block position</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getEnum("name", E.class)</code></td>
+              <td style="padding:8px 12px;"><code>E</code></td>
+              <td style="padding:8px 12px;">Gets the parsed enum value</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getSender()</code></td>
+              <td style="padding:8px 12px;"><code>ICommandSender</code></td>
+              <td style="padding:8px 12px;">The entity or console that sent the command</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getSenderPlayer()</code></td>
+              <td style="padding:8px 12px;"><code>EntityPlayerMP</code></td>
+              <td style="padding:8px 12px;">The player who sent the command (throws if not a player)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>getServer()</code></td>
+              <td style="padding:8px 12px;"><code>MinecraftServer</code></td>
+              <td style="padding:8px 12px;">The server instance</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>reply(String msg)</code></td>
+              <td style="padding:8px 12px;"><code>void</code></td>
+              <td style="padding:8px 12px;">Sends a chat message to the sender</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>replyError(String msg)</code></td>
+              <td style="padding:8px 12px;"><code>void</code></td>
+              <td style="padding:8px 12px;">Sends a red error message to the sender</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>broadcastMessage(String msg)</code></td>
+              <td style="padding:8px 12px;"><code>void</code></td>
+              <td style="padding:8px 12px;">Broadcasts a message to all online players</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Usage Example</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Using CommandContext</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("info")
+    .arg(PlayerArg.of("target"))
+    .runs(ctx -> {
+        EntityPlayerMP target = ctx.getPlayer("target");
+        EntityPlayerMP sender = ctx.getSenderPlayer();
+
+        ctx.reply("Player: " + target.getName());
+        ctx.reply("Health: " + target.getHealth() + "/" + target.getMaxHealth());
+        ctx.reply("Position: " + target.getPosition().toString());
+
+        if (target.getHealth() < 5) {
+            ctx.replyError("Warning: this player is low on health!");
+        }
+    })
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SUB-COMMANDS
+    ====================================================== -->
+    <section class="doc-section" id="sub-commands">
+      <h2>Sub-commands</h2>
+      <p>
+        Use <code>.sub(name)</code> to create nested sub-commands. Each sub-command can have its own
+        arguments, permissions, description, and executor. Call <code>.end()</code> to return to the
+        parent builder.
+      </p>
+
+      <h3>Basic Sub-commands</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Sub-command tree</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("team")
+    .description("Team management commands")
+
+    .sub("create")
+        .description("Create a new team")
+        .permission(2)
+        .arg(StringArg.of("name"))
+        .runs(ctx -> {
+            String name = ctx.getString("name");
+            ctx.reply("Team '" + name + "' created!");
+        })
+    .end()
+
+    .sub("invite")
+        .description("Invite a player to your team")
+        .arg(PlayerArg.of("player"))
+        .runs(ctx -> {
+            EntityPlayerMP player = ctx.getPlayer("player");
+            ctx.reply("Invited " + player.getName());
+        })
+    .end()
+
+    .sub("leave")
+        .description("Leave your current team")
+        .runs(ctx -> ctx.reply("You left the team."))
+    .end()
+
+    .register();</code></pre>
+      </div>
+      <p>
+        This creates: <code>/team create &lt;name&gt;</code>, <code>/team invite &lt;player&gt;</code>,
+        and <code>/team leave</code>. The auto-generated <code>/team help</code> lists all three
+        sub-commands with their descriptions.
+      </p>
+
+      <h3>Nested Sub-commands</h3>
+      <p>
+        You can nest sub-commands within sub-commands to create deep command trees:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Deeply nested sub-commands</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("admin")
+    .permission(4)
+
+    .sub("config")
+        .sub("set")
+            .arg(StringArg.of("key"))
+            .arg(StringArg.of("value"))
+            .runs(ctx -> {
+                ctx.reply("Set " + ctx.getString("key") + " = " + ctx.getString("value"));
+            })
+        .end()
+
+        .sub("get")
+            .arg(StringArg.of("key"))
+            .runs(ctx -> {
+                ctx.reply("Value of " + ctx.getString("key") + ": ...");
+            })
+        .end()
+    .end()
+
+    .register();</code></pre>
+      </div>
+      <p>
+        This creates <code>/admin config set &lt;key&gt; &lt;value&gt;</code> and
+        <code>/admin config get &lt;key&gt;</code>.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Root executor is optional</div>
+          <p>A command with sub-commands does not need a <code>.runs()</code> on the root. If no root
+          executor is set and the player types just <code>/team</code>, the auto-help is shown automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PERMISSIONS & COOLDOWNS
+    ====================================================== -->
+    <section class="doc-section" id="permissions-cooldowns">
+      <h2>Permissions &amp; Cooldowns</h2>
+
+      <h3>Permission Levels</h3>
+      <p>
+        Forge uses integer permission levels. You can set a minimum level on any command or sub-command:
+      </p>
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Level</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--accent-cyan);">Who can use it</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>0</code></td>
+              <td style="padding:8px 12px;">Everyone (default)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>1</code></td>
+              <td style="padding:8px 12px;">Moderators</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>2</code></td>
+              <td style="padding:8px 12px;">Operators (op)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>3</code></td>
+              <td style="padding:8px 12px;">Operators (higher)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>4</code></td>
+              <td style="padding:8px 12px;">Server console / owner only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Permission level</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("ban")
+    .permission(2)  // Only ops can use this
+    .arg(PlayerArg.of("target"))
+    .arg(StringArg.greedy("reason").optional("No reason given"))
+    .runs(ctx -> {
+        EntityPlayerMP target = ctx.getPlayer("target");
+        String reason = ctx.getString("reason");
+        // ban logic...
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>Custom Permission Predicate</h3>
+      <p>
+        For more complex checks, use a predicate:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Custom permission</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("vip")
+    .permission(sender -> {
+        // Only allow if the sender is a player with a specific tag
+        if (sender instanceof EntityPlayerMP) {
+            return ((EntityPlayerMP) sender).getTags().contains("vip");
+        }
+        return false;
+    })
+    .runs(ctx -> ctx.reply("Welcome, VIP!"))
+    .register();</code></pre>
+      </div>
+
+      <h3>Cooldowns</h3>
+      <p>
+        Prevent command spam with per-player cooldowns. The cooldown is specified in ticks
+        (20 ticks = 1 second).
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Cooldown example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("heal")
+    .cooldown(600)  // 30 seconds (600 ticks)
+    .runs(ctx -> {
+        EntityPlayerMP player = ctx.getSenderPlayer();
+        player.setHealth(player.getMaxHealth());
+        ctx.reply("You have been healed!");
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Cooldown feedback</div>
+          <p>When a player triggers a command on cooldown, they automatically receive a message
+          telling them how many seconds remain before they can use it again.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         TAB COMPLETION
+    ====================================================== -->
+    <section class="doc-section" id="tab-completion">
+      <h2>Tab Completion</h2>
+      <p>
+        Tab completion is handled automatically based on your argument types. When the player
+        presses Tab, the framework determines which argument is being typed and provides
+        appropriate suggestions.
+      </p>
+
+      <h3>Built-in Suggestions</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">PlayerArg</strong> — suggests online player names</li>
+        <li><strong style="color:var(--text);">ItemArg</strong> — suggests all registered item identifiers</li>
+        <li><strong style="color:var(--text);">EnumArg</strong> — suggests all enum constant names</li>
+        <li><strong style="color:var(--text);">PosArg</strong> — suggests <code>~ ~ ~</code> (relative coords)</li>
+        <li><strong style="color:var(--text);">Sub-commands</strong> — suggests available sub-command names</li>
+        <li><strong style="color:var(--text);">IntArg / FloatArg / StringArg</strong> — shows <code>&lt;name&gt;</code> as a hint</li>
+      </ul>
+
+      <h3>Custom Suggestions</h3>
+      <p>
+        You can provide custom suggestions for any argument using <code>.suggests()</code>:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Custom tab suggestions</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriCommand.create("warp")
+    .arg(StringArg.of("destination")
+        .suggests(() -> Arrays.asList("spawn", "arena", "shop", "hub"))
+    )
+    .runs(ctx -> {
+        String dest = ctx.getString("destination");
+        ctx.reply("Warping to " + dest + "...");
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>Brigo Compatibility</h3>
+      <p>
+        If you use <a href="https://github.com/your-repo/brigo" style="color:var(--accent-cyan);">Brigo</a>
+        (a Brigadier bridge for 1.12.2), EriCommand's tab completion integrates seamlessly. Brigo
+        provides client-side suggestion rendering with tooltips — EriCommand supplies the suggestions,
+        and Brigo handles the presentation.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Brigo integration</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// No extra code needed — EriCommand automatically exposes
+// its argument structure to Brigo if Brigo is present.
+// The player sees Brigadier-style suggestions in the chat bar.
+
+EriCommand.create("example")
+    .arg(PlayerArg.of("target"))  // Brigo renders player names as suggestions
+    .arg(IntArg.of("amount"))     // Brigo shows &lt;amount&gt; hint
+    .runs(ctx -> { /* ... */ })
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         COMMAND REGISTRY
+    ====================================================== -->
+    <section class="doc-section" id="command-registry">
+      <h2>CommandRegistry</h2>
+      <p>
+        <code>CommandRegistry</code> is a singleton that collects all commands built with
+        <code>EriCommand</code> and registers them with the Forge server when it starts.
+      </p>
+
+      <h3>How It Works</h3>
+      <ol style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2.2;">
+        <li><strong style="color:var(--text);">Build phase</strong> — calling <code>.register()</code> on an
+            <code>EriCommand</code> adds it to <code>CommandRegistry</code>.</li>
+        <li><strong style="color:var(--text);">Server start</strong> — calling
+            <code>CommandRegistry.getInstance().onServerStarting(event)</code> registers all collected
+            commands with Forge's command manager.</li>
+      </ol>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>CommandRegistry usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Typically in your @Mod class:
+
+@EventHandler
+public void onServerStarting(FMLServerStartingEvent event) {
+    CommandRegistry.getInstance().onServerStarting(event);
+}
+
+// You can also query registered commands:
+CommandRegistry registry = CommandRegistry.getInstance();
+int count = registry.getCommandCount();
+boolean exists = registry.hasCommand("mycommand");</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Registration order does not matter</div>
+          <p>You can call <code>EriCommand.create(...).register()</code> at any time before
+          <code>onServerStarting</code>. The registry collects them and registers them all at once.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         FULL EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="full-example">
+      <h2>Full Example</h2>
+      <p>
+        Here is a complete, real-world example demonstrating most features of the Command Framework:
+        sub-commands, multiple argument types, permissions, cooldowns, and custom suggestions.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>CommandShop.java — Full example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">import fr.eri.eriapi.command.EriCommand;
+import fr.eri.eriapi.command.arg.*;
+
+public class CommandShop {
+
+    public enum Category { WEAPONS, ARMOR, TOOLS, FOOD, BLOCKS }
+
+    public static void register() {
+        EriCommand.create("shop")
+            .description("In-game item shop")
+            .rootAliases("store", "market")
+
+            // /shop buy &lt;item&gt; [amount]
+            .sub("buy")
+                .description("Buy an item from the shop")
+                .cooldown(40) // 2 second cooldown
+                .arg(ItemArg.of("item"))
+                .arg(IntArg.of("amount").range(1, 64).optional(1))
+                .runs(ctx -> {
+                    Item item = ctx.getItem("item");
+                    int amount = ctx.getInt("amount");
+                    EntityPlayerMP player = ctx.getSenderPlayer();
+
+                    // Purchase logic...
+                    ctx.reply("Bought " + amount + "x " + item.getRegistryName());
+                })
+            .end()
+
+            // /shop sell
+            .sub("sell")
+                .description("Sell the item in your hand")
+                .runs(ctx -> {
+                    EntityPlayerMP player = ctx.getSenderPlayer();
+                    ItemStack held = player.getHeldItemMainhand();
+                    if (held.isEmpty()) {
+                        ctx.replyError("You must hold an item to sell!");
+                        return;
+                    }
+                    ctx.reply("Sold " + held.getDisplayName());
+                })
+            .end()
+
+            // /shop browse &lt;category&gt;
+            .sub("browse")
+                .description("Browse items by category")
+                .arg(EnumArg.of("category", Category.class))
+                .runs(ctx -> {
+                    Category cat = ctx.getEnum("category", Category.class);
+                    ctx.reply("Browsing " + cat.name() + " category...");
+                })
+            .end()
+
+            // /shop admin set-price &lt;item&gt; &lt;price&gt; (op only)
+            .sub("admin")
+                .permission(2)
+                .description("Shop administration")
+
+                .sub("set-price")
+                    .description("Set the price of an item")
+                    .arg(ItemArg.of("item"))
+                    .arg(FloatArg.of("price").range(0, 10000))
+                    .runs(ctx -> {
+                        Item item = ctx.getItem("item");
+                        float price = ctx.getFloat("price");
+                        ctx.reply("Price of " + item.getRegistryName() + " set to " + price);
+                    })
+                .end()
+
+                .sub("reload")
+                    .description("Reload shop configuration")
+                    .permission(4)
+                    .runs(ctx -> ctx.reply("Shop config reloaded."))
+                .end()
+            .end()
+
+            .register();
+    }
+}</code></pre>
+      </div>
+
+      <p>This single registration creates the following command tree:</p>
+      <div class="card" style="font-family: monospace; line-height: 1.8; padding: 20px;">
+        <span style="color:var(--accent-cyan);">/shop</span> (or /store, /market)<br/>
+        &nbsp;&nbsp;├── <span style="color:var(--accent-green);">buy</span> &lt;item&gt; [amount] — <span style="color:var(--text-muted);">Buy an item (2s cooldown)</span><br/>
+        &nbsp;&nbsp;├── <span style="color:var(--accent-green);">sell</span> — <span style="color:var(--text-muted);">Sell held item</span><br/>
+        &nbsp;&nbsp;├── <span style="color:var(--accent-green);">browse</span> &lt;category&gt; — <span style="color:var(--text-muted);">Browse by category</span><br/>
+        &nbsp;&nbsp;├── <span style="color:var(--accent-purple);">admin</span> <span style="color:var(--text-muted);">(op only)</span><br/>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span style="color:var(--accent-green);">set-price</span> &lt;item&gt; &lt;price&gt;<br/>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span style="color:var(--accent-green);">reload</span> <span style="color:var(--text-muted);">(server only)</span><br/>
+        &nbsp;&nbsp;└── <span style="color:var(--accent-green);">help</span> — <span style="color:var(--text-muted);">Auto-generated</span>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ready to build?</div>
+          <p>The Command Framework is designed to let you focus on what your commands <em>do</em>, not
+          on boilerplate parsing and validation. Define your structure, write your logic, and let EriAPI
+          handle the rest.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

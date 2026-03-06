@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data &amp; Storage — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/data.html">FR</a>
+    <a href="data.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link active"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Overview</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#setup"><span class="nav-dot"></span>Setup</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Annotations</div>
+      <ul>
+        <li><a href="#eridata"><span class="nav-dot"></span>@EriData</a></li>
+        <li><a href="#sync"><span class="nav-dot"></span>@Sync</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">API</div>
+      <ul>
+        <li><a href="#datascope"><span class="nav-dot"></span>DataScope</a></li>
+        <li><a href="#datamanager"><span class="nav-dot"></span>DataManager</a></li>
+        <li><a href="#dataserializer"><span class="nav-dot"></span>DataSerializer</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Advanced</div>
+      <ul>
+        <li><a href="#auto-sync"><span class="nav-dot"></span>Automatic Sync</a></li>
+        <li><a href="#example"><span class="nav-dot"></span>Complete Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         HERO
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Data &amp; Storage</h1>
+        <p class="subtitle">
+          Persist player and world data with a single annotation. Fields are auto-saved to NBT and
+          automatically synchronized to the client — no boilerplate, no manual packet handling.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.data</span>
+          <span class="badge badge-purple">NBT backed</span>
+          <span class="badge badge-gray">Auto sync</span>
+          <span class="badge badge-gray">3 scopes</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        The <strong>Data &amp; Storage</strong> module lets you persist data attached to players, worlds,
+        or your entire server with almost zero configuration. You declare a plain Java class (a POJO),
+        annotate it with <code>@EriData</code>, and the framework handles everything:
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Automatic serialization</strong> — every field is read and written to NBT without any code on your part.</li>
+        <li><strong style="color:var(--text);">Selective sync</strong> — mark only the fields the client needs with <code>@Sync</code>; the rest stays server-side.</li>
+        <li><strong style="color:var(--text);">Death persistence</strong> — choose whether data survives player death via <code>persistOnDeath</code>.</li>
+        <li><strong style="color:var(--text);">Multiple scopes</strong> — store data per-player, per-world, or globally across all worlds.</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">What is a POJO?</div>
+          <p>A <em>Plain Old Java Object</em> is just a regular Java class with fields. It has no special
+          parent class and no interface to implement. EriAPI reads its fields through reflection, so your
+          class stays clean and readable.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         SETUP
+    ====================================================== -->
+    <section class="doc-section" id="setup">
+      <h2>Setup</h2>
+      <p>
+        Initialize the module during <code>preInit</code> and register each data class you want the
+        framework to manage. Registration must happen before the first world load.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Main mod class (preInit)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    // 1. Initialize the Data module
+    DataManager.init();
+
+    // 2. Register every annotated class you want to persist
+    DataManager.register(PlayerStats.class);
+    DataManager.register(WorldQuests.class);
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Order matters</div>
+          <p>Always call <code>DataManager.init()</code> first, then <code>register()</code> for each
+          class. Registering before <code>init()</code> will throw an <code>IllegalStateException</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @EriData
+    ====================================================== -->
+    <section class="doc-section" id="eridata">
+      <h2>@EriData — Class Annotation</h2>
+      <p>
+        Place <code>@EriData</code> on any POJO to make it managed by EriAPI. The annotation declares
+        where the data belongs and how it behaves.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — PlayerStats.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.data.EriData;
+import fr.eri.eriapi.data.DataScope;
+import fr.eri.eriapi.data.Sync;
+
+import java.util.*;
+
+@EriData(modId = "mymod", scope = DataScope.PLAYER, persistOnDeath = true)
+public class PlayerStats {
+
+    // Synced to the client — the player can read these in their HUD
+    @Sync public int level = 1;
+    @Sync public float xp = 0f;
+    @Sync public int coins = 0;
+
+    // Server-only — never sent to the client
+    public String lastLogin = "";
+    public List&lt;String&gt; achievements = new ArrayList&lt;&gt;();
+    public Map&lt;String, String&gt; settings = new HashMap&lt;&gt;();
+}</code></pre>
+      </div>
+
+      <h3>Parameters</h3>
+      <div style="overflow-x:auto;margin-bottom:24px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.92rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Parameter</th>
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Type</th>
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Required</th>
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Default</th>
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>modId</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">String</td>
+              <td style="padding:10px 14px;color:#FF5080;">Yes</td>
+              <td style="padding:10px 14px;color:var(--text-muted);">—</td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Your mod's ID. Used as the NBT namespace to avoid key collisions.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>scope</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">DataScope</td>
+              <td style="padding:10px 14px;color:var(--text-muted);">No</td>
+              <td style="padding:10px 14px;"><code>PLAYER</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Where the data is stored. See <a href="#datascope">DataScope</a>.</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 14px;"><code>persistOnDeath</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">boolean</td>
+              <td style="padding:10px 14px;color:var(--text-muted);">No</td>
+              <td style="padding:10px 14px;"><code>true</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">When <code>true</code>, data is copied to the respawned player via <code>PlayerEvent.Clone</code>. Set to <code>false</code> to reset on death.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Always initialize fields</div>
+          <p>Every field in your POJO must have a default value (e.g. <code>= 0</code>, <code>= ""</code>,
+          <code>= new ArrayList&lt;&gt;()</code>). EriAPI uses these defaults when a player is seen for
+          the first time and has no stored data yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         @Sync
+    ====================================================== -->
+    <section class="doc-section" id="sync">
+      <h2>@Sync — Field Annotation</h2>
+      <p>
+        All fields in an <code>@EriData</code> class are automatically saved to NBT on the server.
+        However, only fields marked <code>@Sync</code> are transmitted to the client.
+      </p>
+      <p>
+        Use <code>@Sync</code> on fields the client actively needs — typically anything displayed in
+        a HUD, GUI, or scoreboard. Keep sensitive or heavy server-only data un-annotated to avoid
+        unnecessary network traffic.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Selective sync example</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@EriData(modId = "mymod", scope = DataScope.PLAYER)
+public class PlayerData {
+
+    // Sent to the client — visible in the HUD
+    @Sync public int coins = 0;
+    @Sync public int level = 1;
+
+    // Stays on the server — not sent
+    public String lastIp = "";
+    public long lastLoginTimestamp = 0L;
+    public List&lt;String&gt; bannedWords = new ArrayList&lt;&gt;();
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Sync is one-directional</div>
+          <p><code>@Sync</code> sends data <strong>server → client</strong>. The client never modifies
+          synced fields directly. To apply a change, modify the field on the server and call
+          <code>DataManager.save()</code> — the re-sync happens automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DataScope
+    ====================================================== -->
+    <section class="doc-section" id="datascope">
+      <h2>DataScope — Enum</h2>
+      <p>
+        <code>DataScope</code> controls where the framework attaches the NBT data. Choose the scope
+        that matches the lifetime and ownership of your data.
+      </p>
+
+      <div class="quickstart-grid">
+        <div class="qs-card">
+          <div class="qs-num" style="color:var(--accent-cyan);">P</div>
+          <div class="qs-title"><code>PLAYER</code></div>
+          <p>Data is stored per-player. Each player has their own independent instance.
+          Ideal for stats, inventory addons, currencies, or any player-specific state.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num" style="color:#00C864;">W</div>
+          <div class="qs-title"><code>WORLD</code></div>
+          <p>Data is stored per-world (dimension). Different overworld / nether / end instances.
+          Use this for world-specific quests, events, or map state.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num" style="color:var(--accent-purple);">G</div>
+          <div class="qs-title"><code>GLOBAL</code></div>
+          <p>A single shared instance across all worlds and players on the server.
+          Suitable for server-wide settings, global leaderboards, or shared events.</p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — DataScope usage</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Per-player data (default)
+@EriData(modId = "mymod", scope = DataScope.PLAYER)
+public class PlayerStats { ... }
+
+// Per-world data
+@EriData(modId = "mymod", scope = DataScope.WORLD)
+public class WorldQuests { ... }
+
+// Global data (shared across all worlds)
+@EriData(modId = "mymod", scope = DataScope.GLOBAL)
+public class ServerSettings { ... }</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DataManager
+    ====================================================== -->
+    <section class="doc-section" id="datamanager">
+      <h2>DataManager — Static API</h2>
+      <p>
+        <code>DataManager</code> is the single entry point for reading, writing, and persisting your
+        data objects. All methods are static — no instance is needed.
+      </p>
+
+      <h3>Player data</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Player data (PLAYER scope)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Retrieve the data object for this player (creates a default instance on first call)
+PlayerStats stats = DataManager.get(player, PlayerStats.class);
+
+// Modify fields freely
+stats.level++;
+stats.coins += 100;
+
+// Persist changes to NBT and re-sync @Sync fields to the client
+DataManager.save(player, PlayerStats.class);</code></pre>
+      </div>
+
+      <h3>World data</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — World data (WORLD scope)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Retrieve the data object for the current world
+WorldQuests quests = DataManager.getWorld(world, WorldQuests.class);
+
+// Modify
+quests.activeQuests.add("quest1");
+
+// Persist
+DataManager.saveWorld(world, WorldQuests.class);</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+      <div style="overflow-x:auto;margin-bottom:24px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.92rem;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Method</th>
+              <th style="text-align:left;padding:10px 14px;color:var(--text-muted);font-weight:600;">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>init()</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Initializes the module. Must be called once in <code>preInit</code>.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>register(Class)</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Registers an <code>@EriData</code> class so the framework knows how to serialize it.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>get(player, Class)</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Returns the live data object for the given player (<code>PLAYER</code> scope only).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>save(player, Class)</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Persists the player's data to NBT and triggers a sync packet for <code>@Sync</code> fields.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle,rgba(255,255,255,0.05));">
+              <td style="padding:10px 14px;"><code>getWorld(world, Class)</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Returns the live data object for the given world (<code>WORLD</code> scope only).</td>
+            </tr>
+            <tr>
+              <td style="padding:10px 14px;"><code>saveWorld(world, Class)</code></td>
+              <td style="padding:10px 14px;color:var(--text-muted);">Persists world data to NBT and triggers any applicable sync.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Always call save() after modifying</div>
+          <p><code>DataManager.get()</code> returns a live reference. Changes you make are in memory only
+          until you call <code>save()</code>. Forgetting to save means data is lost on server restart
+          and the client never receives the updated values.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DataSerializer
+    ====================================================== -->
+    <section class="doc-section" id="dataserializer">
+      <h2>DataSerializer — Supported Types</h2>
+      <p>
+        EriAPI's serializer automatically handles the following Java types. Fields of any other type
+        are silently skipped during serialization.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="fi-icon" style="color:var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text"><strong>Primitives</strong> — <code>int</code>, <code>float</code>, <code>double</code>, <code>boolean</code>, <code>long</code>, <code>short</code>, <code>byte</code></div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color:var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text"><strong>String</strong> — stored as an NBT string tag.</div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color:var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text"><strong>Enum</strong> — stored as the constant name string, restored via <code>Enum.valueOf()</code>.</div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color:var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text"><strong>List&lt;String&gt;</strong> — stored as an NBT list of strings.</div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color:var(--accent-cyan);">&#10003;</div>
+          <div class="fi-text"><strong>Map&lt;String, String&gt;</strong> — stored as a flat NBT compound tag.</div>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Unsupported types are silently skipped</div>
+          <p>If you declare a field of an unsupported type (e.g. <code>ItemStack</code>, a custom object,
+          or a nested list), the serializer will skip it without throwing an error. The field retains its
+          default value on the next load. Stick to the types listed above for reliable persistence.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         AUTOMATIC SYNCHRONIZATION
+    ====================================================== -->
+    <section class="doc-section" id="auto-sync">
+      <h2>Automatic Synchronization</h2>
+      <p>
+        EriAPI hooks into Forge's event system and triggers sync automatically. You never have to
+        write a packet or an event handler yourself.
+      </p>
+
+      <div class="quickstart-grid">
+        <div class="qs-card">
+          <div class="qs-num" style="font-size:1.4rem;">&#9654;</div>
+          <div class="qs-title">Player Login</div>
+          <p>When a player joins the server, all their <code>@Sync</code> fields are sent to their client immediately.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num" style="font-size:1.4rem;">&#9762;</div>
+          <div class="qs-title">Death &amp; Respawn</div>
+          <p>On respawn, data is copied from the dead player entity to the new one (if <code>persistOnDeath = true</code>), then re-synced to the client.</p>
+        </div>
+        <div class="qs-card">
+          <div class="qs-num" style="font-size:1.4rem;">&#9680;</div>
+          <div class="qs-title">Dimension Change</div>
+          <p>When a player travels between dimensions (overworld ↔ nether ↔ end), their data is re-synced automatically after the teleport.</p>
+        </div>
+      </div>
+
+      <h3>persistOnDeath in detail</h3>
+      <p>
+        EriAPI listens to <code>PlayerEvent.Clone</code>, which Forge fires whenever a new player entity
+        replaces an old one — both on death/respawn and on dimension travel. When <code>persistOnDeath = true</code>
+        (the default), the module copies all field values from the old entity's NBT to the new one before
+        the sync packet is sent.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Resetting data on death</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// This class resets on player death (coins go back to 0)
+@EriData(modId = "mymod", scope = DataScope.PLAYER, persistOnDeath = false)
+public class DeathPenalty {
+    @Sync public int coins = 0;
+    @Sync public int streak = 0;
+}
+
+// This class survives death (level never lost)
+@EriData(modId = "mymod", scope = DataScope.PLAYER, persistOnDeath = true)
+public class Progression {
+    @Sync public int level = 1;
+    public List&lt;String&gt; unlockedSkills = new ArrayList&lt;&gt;();
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         COMPLETE EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="example">
+      <h2>Complete Example — RPG Stats</h2>
+      <p>
+        Here is a full working example of a typical RPG stats system using the Data &amp; Storage module.
+        It demonstrates class declaration, setup, reading, modifying, and saving data.
+      </p>
+
+      <h3>1. Declare the data class</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — RpgStats.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">package com.myrpg.data;
+
+import fr.eri.eriapi.data.EriData;
+import fr.eri.eriapi.data.DataScope;
+import fr.eri.eriapi.data.Sync;
+import java.util.*;
+
+@EriData(modId = "myrpg", scope = DataScope.PLAYER)
+public class RpgStats {
+
+    // Displayed in the player's HUD
+    @Sync public int level = 1;
+    @Sync public float xp = 0f;
+    @Sync public int health = 20;
+    @Sync public int mana = 100;
+
+    // Server-only history
+    public List&lt;String&gt; completedQuests = new ArrayList&lt;&gt;();
+}</code></pre>
+      </div>
+
+      <h3>2. Register in preInit</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Main mod class</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+    DataManager.init();
+    DataManager.register(RpgStats.class);
+}</code></pre>
+      </div>
+
+      <h3>3. Use in a game event</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — XP gain &amp; level-up</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@SubscribeEvent
+public void onKill(LivingDeathEvent event) {
+    if (!(event.getSource().getTrueSource() instanceof EntityPlayer)) return;
+    EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
+
+    // Retrieve the live object
+    RpgStats stats = DataManager.get(player, RpgStats.class);
+
+    // Grant XP
+    stats.xp += 50;
+
+    // Level-up logic
+    if (stats.xp >= stats.level * 100) {
+        stats.level++;
+        stats.xp = 0;
+        player.sendMessage(new TextComponentString(
+            "Level up! You are now level " + stats.level
+        ));
+    }
+
+    // Persist and sync to client
+    DataManager.save(player, RpgStats.class);
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">That's all you need</div>
+          <p>There is no NBT compound to build, no packet class to write, and no event handler to wire
+          for sync. EriAPI takes care of all of it the moment you call <code>DataManager.save()</code>.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

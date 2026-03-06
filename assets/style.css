@@ -352,7 +352,7 @@ body::after {
   flex: 1;
   margin-left: var(--sidebar-w);
   padding: 48px 60px 120px;
-  max-width: 920px;
+  min-width: 0;
 }
 
 /* ============================================================

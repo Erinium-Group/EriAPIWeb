@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keybinding Manager — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="keys.html" class="active">FR</a>
+    <a href="../en/keys.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link active"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-keys"><span class="nav-dot"></span>EriKeys</a></li>
+        <li><a href="#key-combo"><span class="nav-dot"></span>KeyCombo</a></li>
+        <li><a href="#key-context"><span class="nav-dot"></span>KeyContext</a></li>
+        <li><a href="#conflict-detector"><span class="nav-dot"></span>KeyConflictDetector</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Keybinding Manager</h1>
+        <p class="subtitle">
+          Raccourcis clavier avances pour tes mods — touches simples, combos, double-tap, callbacks, et contextes.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Package : fr.eri.eriapi.keys</span>
+          <span class="badge badge-purple">Fluent API</span>
+          <span class="badge badge-gray">Minecraft 1.12.2</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Le <strong>Keybinding Manager</strong> d'EriAPI te permet de definir des raccourcis clavier
+        avec une fluent API claire et expressive. Plus besoin de gerer manuellement les evenements
+        clavier ou les conflits — le framework s'en occupe pour toi.
+      </p>
+
+      <h3>Ce que tu peux faire</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Touche simple</strong> — appuie sur G pour ouvrir un menu</li>
+        <li><strong style="color:var(--text);">Combinaisons (combos)</strong> — Ctrl+Shift+G pour activer un mode debug</li>
+        <li><strong style="color:var(--text);">Double-tap</strong> — appuie deux fois rapidement sur W pour dasher</li>
+        <li><strong style="color:var(--text);">Hold (maintien)</strong> — maintiens R enfonce pour sprinter</li>
+        <li><strong style="color:var(--text);">Contextes</strong> — actif seulement en jeu, seulement dans un GUI, ou toujours</li>
+        <li><strong style="color:var(--text);">Detection de conflits</strong> — avertissement automatique si deux touches se chevauchent</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p>Toutes les classes du Keybinding Manager se trouvent dans le package <code>fr.eri.eriapi.keys</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EriKeys — API STATIQUE
+    ====================================================== -->
+    <section class="doc-section" id="eri-keys">
+      <h2>EriKeys — L'API statique</h2>
+      <p>
+        <code>EriKeys</code> est le point d'entree principal. Toutes les methodes sont statiques :
+        tu appelles <code>EriKeys.create(...)</code> pour demarrer la creation d'un raccourci,
+        tu enchaines les options avec la fluent API, et tu termines avec <code>.register()</code>.
+      </p>
+
+      <h3>Touche simple</h3>
+      <p>
+        La forme la plus simple : une touche, une action. Ici, appuyer sur <kbd>G</kbd> appelle
+        la methode <code>openMenu()</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Touche simple</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("open_menu")
+    .key(Keyboard.KEY_G)
+    .category("Mon Mod")
+    .onPress(() -> openMenu())
+    .register();</code></pre>
+      </div>
+
+      <h3>Combo — Ctrl+Shift+G</h3>
+      <p>
+        Pour une combinaison de touches, utilise <code>.combo(KeyCombo)</code> a la place de
+        <code>.key(int)</code>. Tu construis le combo avec <code>KeyCombo.of(...)</code>
+        puis tu chaines les modificateurs.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Combo Ctrl+Shift+G</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("debug_mode")
+    .combo(KeyCombo.of(Keyboard.KEY_G).ctrl().shift())
+    .category("Mon Mod")
+    .context(KeyContext.IN_GAME)
+    .onPress(() -> toggleDebug())
+    .register();</code></pre>
+      </div>
+
+      <h3>Double-tap</h3>
+      <p>
+        Le parametre de <code>.doubleTap(maxTicks)</code> est la fenetre de temps maximale
+        (en ticks, 20 ticks = 1 seconde) entre les deux appuis pour que le double-tap
+        soit reconnu.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Double-tap W pour dasher</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("dash")
+    .key(Keyboard.KEY_W)
+    .doubleTap(10)
+    .category("Mon Mod")
+    .onPress(() -> dash())
+    .register();</code></pre>
+      </div>
+
+      <h3>Hold — maintien de touche</h3>
+      <p>
+        <code>.onHold()</code> est appele a chaque tick tant que la touche est enfoncee.
+        <code>.onRelease()</code> est appele une seule fois quand la touche est relachee.
+        Tu peux combiner les deux.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Hold R pour sprinter</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("sprint")
+    .key(Keyboard.KEY_R)
+    .category("Mon Mod")
+    .onHold(() -> sprint())
+    .onRelease(() -> stopSprint())
+    .register();</code></pre>
+      </div>
+
+      <h3>Reference des methodes du builder</h3>
+      <div class="info-box tip">
+        <div class="ib-icon">&#9998;</div>
+        <div class="ib-body">
+          <div class="ib-title">Toutes les methodes sont chainables (fluent API)</div>
+          <p>Chaque methode retourne <code>this</code> — tu peux les enchainer dans n'importe quel ordre,
+          tant que tu termines par <code>.register()</code>.</p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Reference builder EriKeys</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create(String id)           // Identifiant unique du raccourci (ex: "mymod.open_menu")
+    .key(int keyCode)               // Touche simple (constantes Keyboard.KEY_*)
+    .combo(KeyCombo combo)          // Combinaison de touches (remplace .key())
+    .category(String category)      // Categorie affichee dans le menu Options > Touches
+    .context(KeyContext context)    // Contexte d'activation (IN_GAME / IN_GUI / ALWAYS)
+    .doubleTap(int maxTicks)        // Active la detection double-tap (fenetre en ticks)
+    .onPress(Runnable action)       // Appele une fois a chaque appui (ou double-tap confirme)
+    .onRelease(Runnable action)     // Appele une fois au relachement de la touche
+    .onHold(Runnable action)        // Appele chaque tick pendant le maintien
+    .register();                    // Enregistre le raccourci — OBLIGATOIRE a la fin</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyCombo — COMBINAISONS
+    ====================================================== -->
+    <section class="doc-section" id="key-combo">
+      <h2>KeyCombo — Combinaisons de touches</h2>
+      <p>
+        <code>KeyCombo</code> permet de definir une combinaison de touches avec un ou plusieurs
+        modificateurs. Tu commences toujours par <code>KeyCombo.of(int keyCode)</code> en passant
+        la touche principale, puis tu chaines les modificateurs souhaites.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemples KeyCombo</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">KeyCombo.of(Keyboard.KEY_G)                  // G seul (equivalent a .key(Keyboard.KEY_G))
+KeyCombo.of(Keyboard.KEY_G).ctrl()           // Ctrl+G
+KeyCombo.of(Keyboard.KEY_G).ctrl().shift()   // Ctrl+Shift+G
+KeyCombo.of(Keyboard.KEY_G).alt()            // Alt+G
+KeyCombo.of(Keyboard.KEY_G).ctrl().alt()     // Ctrl+Alt+G</code></pre>
+      </div>
+
+      <h3>Modificateurs disponibles</h3>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-cyan);">&#8679;</div>
+          <div class="fi-text">
+            <strong>.ctrl()</strong>
+            Requiert que Ctrl (gauche ou droit) soit enfonce en meme temps que la touche principale.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-purple);">&#8679;</div>
+          <div class="fi-text">
+            <strong>.shift()</strong>
+            Requiert que Shift (gauche ou droit) soit enfonce en meme temps que la touche principale.
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #FFB800;">&#8679;</div>
+          <div class="fi-text">
+            <strong>.alt()</strong>
+            Requiert que Alt (gauche ou droit) soit enfonce en meme temps que la touche principale.
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box warn">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ordre des modificateurs</div>
+          <p>L'ordre dans lequel tu chaines <code>.ctrl()</code>, <code>.shift()</code> et <code>.alt()</code>
+          n'a pas d'importance. Ce qui compte, c'est qu'ils soient tous actifs au moment de l'appui
+          sur la touche principale.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyContext — ENUM
+    ====================================================== -->
+    <section class="doc-section" id="key-context">
+      <h2>KeyContext — Contextes d'activation</h2>
+      <p>
+        Le contexte determine <em>quand</em> ton raccourci est actif. Cela evite par exemple
+        qu'un raccourci de jeu se declenche alors que le joueur est en train de taper dans un GUI.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Utilisation de KeyContext</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("my_action")
+    .key(Keyboard.KEY_F)
+    .context(KeyContext.IN_GAME)   // Seulement en jeu, pas dans un menu
+    .onPress(() -> doSomething())
+    .register();</code></pre>
+      </div>
+
+      <h3>Valeurs de l'enum</h3>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#9654;</div>
+          <div class="fi-text">
+            <strong>KeyContext.IN_GAME</strong>
+            Le raccourci est actif uniquement quand le joueur est en jeu, c'est-a-dire
+            qu'aucun GuiScreen n'est ouvert. Ideal pour les actions de gameplay
+            (capacites, dash, sprint...).
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-cyan);">&#9632;</div>
+          <div class="fi-text">
+            <strong>KeyContext.IN_GUI</strong>
+            Le raccourci est actif uniquement quand un GuiScreen est ouvert.
+            Utile pour des raccourcis specifiques a une interface (ex : fermer un panneau avec Echap personnalise,
+            valider un formulaire avec Entree...).
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: var(--accent-purple);">&#9711;</div>
+          <div class="fi-text">
+            <strong>KeyContext.ALWAYS</strong>
+            Le raccourci est toujours actif, que le joueur soit en jeu ou dans un GUI.
+            A utiliser avec precaution pour eviter les conflits avec la saisie texte.
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Contexte par defaut</div>
+          <p>Si tu n'appelles pas <code>.context()</code>, le contexte par defaut est
+          <code>KeyContext.IN_GAME</code>. C'est le comportement le plus courant et le plus sur.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyConflictDetector
+    ====================================================== -->
+    <section class="doc-section" id="conflict-detector">
+      <h2>KeyConflictDetector — Detection de conflits</h2>
+      <p>
+        Le <code>KeyConflictDetector</code> est integre automatiquement dans le processus d'enregistrement.
+        Tu n'as rien a configurer : chaque appel a <code>.register()</code> declenche une verification
+        automatique.
+      </p>
+
+      <h3>Comment ca marche</h3>
+      <p>
+        A chaque enregistrement, le systeme verifie si un raccourci deja enregistre partage
+        la meme touche (ou combo) <strong>et</strong> le meme contexte. Si c'est le cas,
+        un avertissement est emis dans la console de debug.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Console — Exemple d'avertissement de conflit</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-bash">[EriAPI/WARN] KeyConflictDetector : conflit detecte !
+  Touche     : KEY_G (context: IN_GAME)
+  Binding 1  : open_menu (Mon Mod)
+  Binding 2  : open_shop (Mon Mod)
+  Les deux bindings sont actifs dans le meme contexte avec la meme touche.</code></pre>
+      </div>
+
+      <div class="info-box warn">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Avertissement non bloquant</div>
+          <p>La detection de conflit n'empeche pas l'enregistrement du raccourci. Les deux bindings
+          restent actifs — c'est au developpeur de resoudre le conflit en changeant la touche ou le
+          contexte de l'un d'eux.</p>
+        </div>
+      </div>
+
+      <h3>Bonnes pratiques pour eviter les conflits</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li>Prefixe tes identifiants avec le nom de ton mod : <code>"mymod.action"</code></li>
+        <li>Utilise des combos plutot que des touches seules pour les actions secondaires</li>
+        <li>Specifie toujours un <code>KeyContext</code> explicite</li>
+        <li>Evite les touches que Minecraft utilise deja (W/A/S/D, E, Echap, Entree...)</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet</h2>
+      <p>
+        Voici un exemple realiste d'un mod RPG qui enregistre plusieurs raccourcis au demarrage,
+        avec des contextes differents et un combo pour l'action secondaire.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ClientProxy.java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">package fr.tonnom.tonmod.proxy;
+
+import fr.eri.eriapi.keys.EriKeys;
+import fr.eri.eriapi.keys.KeyCombo;
+import fr.eri.eriapi.keys.KeyContext;
+import org.lwjgl.input.Keyboard;
+
+public class ClientProxy extends CommonProxy {
+
+    @Override
+    public void init(FMLInitializationEvent event) {
+        super.init(event);
+        registerKeybindings();
+    }
+
+    private void registerKeybindings() {
+
+        // Capacite 1 — touche V en jeu
+        EriKeys.create("mymod.ability1")
+            .key(Keyboard.KEY_V)
+            .category("My RPG Mod")
+            .context(KeyContext.IN_GAME)
+            .onPress(() -> useAbility(1))
+            .register();
+
+        // Capacite 2 — Shift+V en jeu (combo, pas de conflit avec ability1)
+        EriKeys.create("mymod.ability2")
+            .combo(KeyCombo.of(Keyboard.KEY_V).shift())
+            .category("My RPG Mod")
+            .context(KeyContext.IN_GAME)
+            .onPress(() -> useAbility(2))
+            .register();
+
+        // Dash — double-tap W (fenetre de 10 ticks = 0.5 seconde)
+        EriKeys.create("mymod.dash")
+            .key(Keyboard.KEY_W)
+            .doubleTap(10)
+            .category("My RPG Mod")
+            .context(KeyContext.IN_GAME)
+            .onPress(() -> dash())
+            .register();
+
+        // Sprint — maintien de R
+        EriKeys.create("mymod.sprint")
+            .key(Keyboard.KEY_R)
+            .category("My RPG Mod")
+            .context(KeyContext.IN_GAME)
+            .onHold(() -> sprint())
+            .onRelease(() -> stopSprint())
+            .register();
+
+        // Ouvrir le panneau de statistiques — toujours actif (en jeu ou GUI)
+        EriKeys.create("mymod.stats_panel")
+            .combo(KeyCombo.of(Keyboard.KEY_P).ctrl())
+            .category("My RPG Mod")
+            .context(KeyContext.ALWAYS)
+            .onPress(() -> toggleStatsPanel())
+            .register();
+    }
+
+    private void useAbility(int slot) { /* ... */ }
+    private void dash()               { /* ... */ }
+    private void sprint()             { /* ... */ }
+    private void stopSprint()         { /* ... */ }
+    private void toggleStatsPanel()   { /* ... */ }
+}</code></pre>
+      </div>
+
+      <h3>Resultat</h3>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>V</strong> — Capacite 1 (en jeu uniquement)
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>Shift+V</strong> — Capacite 2 (en jeu, pas de conflit avec V)
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>W W</strong> (double-tap) — Dash (fenetre 0.5 s)
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>R</strong> (maintenu) — Sprint tant que la touche est enfoncee
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="color: #00C864;">&#10003;</div>
+          <div class="fi-text">
+            <strong>Ctrl+P</strong> — Panneau de stats (toujours actif)
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Conseil</div>
+          <p>Enregistre tous tes keybindings dans une methode dediee appelee depuis
+          <code>ClientProxy.init()</code>. Cela garde ton code organise et facilite
+          la maintenance quand ton mod grandit.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

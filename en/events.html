@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Simplifier — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/events.html">FR</a>
+    <a href="events.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link active"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-events"><span class="nav-dot"></span>EriEvents</a></li>
+        <li><a href="#event-builder"><span class="nav-dot"></span>EventBuilder</a></li>
+        <li><a href="#event-handle"><span class="nav-dot"></span>EventHandle</a></li>
+        <li><a href="#event-registry"><span class="nav-dot"></span>EventRegistry</a></li>
+        <li><a href="#complete-example"><span class="nav-dot"></span>Complete Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Event Simplifier</h1>
+        <p class="subtitle">
+          Listen to any Forge event in one line — with lambdas, filters, expiration, and one-shot support.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.event</span>
+          <span class="badge badge-purple">Forge Events</span>
+          <span class="badge badge-gray">Java 8 Lambdas</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Forge events are powerful, but registering a listener the traditional way requires creating a dedicated
+        class annotated with <code>@Mod.EventBusSubscriber</code>, writing a static method, annotating it with
+        <code>@SubscribeEvent</code>, and making sure the class is registered. That's a lot of boilerplate for
+        something as simple as "do X when a player dies."
+      </p>
+      <p>
+        The <strong>Event Simplifier</strong> module collapses all of that into a single method call. You pass a
+        lambda (an inline function) directly — no extra class, no annotations, no registration ceremony. It
+        supports optional filters, priority levels, one-shot listeners, and automatic expiration.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">What is a lambda?</div>
+          <p>
+            A lambda is a small inline function you write directly where you need it. Instead of
+            <code>new MyEventListener()</code>, you write <code>e -> doSomething(e)</code>. The
+            <code>e</code> is the event object, and the arrow <code>-></code> means "with this event, do…".
+            You don't need a separate file — the code lives right where you call it.
+          </p>
+        </div>
+      </div>
+
+      <h3>What problems does it solve?</h3>
+      <ul style="color: var(--text-muted); padding-left: 20px; margin-bottom: 20px; line-height: 2.2;">
+        <li><strong style="color: var(--text);">No boilerplate</strong> — no dedicated listener class, no annotations</li>
+        <li><strong style="color: var(--text);">Inline filters</strong> — only trigger when a condition is met</li>
+        <li><strong style="color: var(--text);">One-shot</strong> — automatically unregister after the first call</li>
+        <li><strong style="color: var(--text);">Auto-expiry</strong> — listeners that clean themselves up after N ticks</li>
+        <li><strong style="color: var(--text);">Programmatic control</strong> — unregister a listener from code at any time</li>
+        <li><strong style="color: var(--text);">Mod-scoped cleanup</strong> — unregister all listeners for a mod in one call</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERIEVENTS
+    ====================================================== -->
+    <section class="doc-section" id="eri-events">
+      <h2>EriEvents — Static API</h2>
+      <p>
+        <code>EriEvents</code> is the main entry point. It exposes a single static method, <code>on()</code>,
+        which accepts an event class and returns either a registered handle (simple form) or a builder (chainable
+        form).
+      </p>
+
+      <h3>Simple one-liner</h3>
+      <p>
+        When you don't need any options, pass the event class and a lambda together. EriEvents registers the
+        listener immediately and returns an <code>EventHandle</code> you can save if you ever want to cancel it.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Simple one-liner</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriEvents.on(LivingDeathEvent.class, e -> {
+    System.out.println(e.getEntity().getName() + " died!");
+});</code></pre>
+      </div>
+
+      <p>
+        That's it. No class, no annotation, no <code>MinecraftForge.EVENT_BUS.register()</code>. The listener
+        stays active until you explicitly unregister it or the mod unloads.
+      </p>
+
+      <h3>Builder form</h3>
+      <p>
+        When you need more control (filters, priority, one-shot, expiry), call <code>on()</code> with only the
+        event class. This returns an <code>EventBuilder</code> you can configure with chained method calls before
+        calling <code>.handle()</code> to finalize registration.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Builder form</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriEvents.on(PlayerLoggedInEvent.class)
+    .filter(e -> e.player.getName().equals("Steve"))
+    .once()
+    .handle(e -> e.player.sendMessage(new TextComponentString("Welcome Steve!")));</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Which form should I use?</div>
+          <p>
+            Use the one-liner when you just want to react to every occurrence of an event. Use the builder
+            when you need conditions, priority, or automatic cleanup. Both are equivalent under the hood —
+            the one-liner is simply a shorthand for the builder with no options.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="event-builder">
+      <h2>EventBuilder — Options</h2>
+      <p>
+        The <code>EventBuilder</code> is what <code>EriEvents.on(EventClass.class)</code> returns. Every method
+        returns <code>this</code>, so you can chain them in any order. Call <code>.handle(lambda)</code> last
+        to register the listener and get back an <code>EventHandle</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Full builder example</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity() instanceof EntityPlayer)
+    .priority(EventPriority.HIGH)
+    .once()
+    .expireAfter(6000) // 6000 ticks = 5 minutes
+    .modId("mymod")
+    .handle(e -> handleDeath(e));</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+
+      <div class="info-box info" style="margin-bottom: 28px;">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">All methods are optional</div>
+          <p>
+            You only need to call the methods relevant to your use case. Every option has a sensible default:
+            no filter (always fires), normal priority, persistent (not once), never expires, no mod ID.
+          </p>
+        </div>
+      </div>
+
+      <table style="width:100%; border-collapse: collapse; margin-bottom: 28px; font-size: 0.93em;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Method</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Parameter</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>.filter(predicate)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>Predicate&lt;T&gt;</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Only invoke the handler when the condition is true. The lambda receives the event object and must return a boolean.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>.priority(level)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>EventPriority</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Sets the Forge event priority (<code>LOWEST</code>, <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>HIGHEST</code>). Defaults to <code>NORMAL</code>.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>.once()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">—</td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Automatically unregisters the listener after it fires once. Useful for one-time initialization or waiting for a specific moment.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>.expireAfter(ticks)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>int</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Automatically unregisters the listener after the given number of server ticks (20 ticks = 1 second). The listener is removed even if it never fired.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>.modId(id)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>String</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Tags the listener with your mod ID. Allows bulk-unregistration with <code>EventRegistry.unregisterAll("mymod")</code>.</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 14px;"><code>.handle(consumer)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>Consumer&lt;T&gt;</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Finalizes the builder. Registers the listener on the Forge event bus and returns an <code>EventHandle</code>. Always call this last.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Using filter</h3>
+      <p>
+        The filter predicate receives the same event object as the handler. If the predicate returns
+        <code>false</code>, the handler is skipped entirely — the event is not cancelled, it just isn't handled
+        by your listener for that occurrence.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Filter examples</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Only react to EntityPlayer deaths (not mobs)
+EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity() instanceof EntityPlayer)
+    .handle(e -> System.out.println("A player died!"));
+
+// Only react when it's daytime
+EriEvents.on(TickEvent.ServerTickEvent.class)
+    .filter(e -> e.phase == TickEvent.Phase.END)
+    .filter(e -> someServer.getWorld(0).isDaytime())
+    .handle(e -> checkDaytimeLogic());</code></pre>
+      </div>
+
+      <h3>Using once</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — One-shot listener</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Wait for the first player to join, then do something once
+EriEvents.on(PlayerLoggedInEvent.class)
+    .once()
+    .handle(e -> System.out.println("First login: " + e.player.getName()));</code></pre>
+      </div>
+
+      <h3>Using expireAfter</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Expiring listener</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Listen for block breaks only during the next 30 seconds
+EriEvents.on(BlockEvent.BreakEvent.class)
+    .expireAfter(600) // 600 ticks = 30 seconds
+    .handle(e -> System.out.println("Block broken at " + e.getPos()));</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT HANDLE
+    ====================================================== -->
+    <section class="doc-section" id="event-handle">
+      <h2>EventHandle — Control</h2>
+      <p>
+        Every call to <code>.handle()</code> (or the one-liner form of <code>EriEvents.on()</code>) returns an
+        <code>EventHandle</code>. This object is your reference to the registered listener. Hold onto it if you
+        need to control the listener's lifecycle from elsewhere in your code.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — EventHandle usage</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EventHandle handle = EriEvents.on(TickEvent.class).handle(e -> doStuff());
+
+// Cancel the listener at any time
+handle.unregister();
+
+// Check if the listener is still active
+boolean active = handle.isActive();
+
+// Check if the listener has fired at least once
+boolean fired = handle.wasExecuted();</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+      <table style="width:100%; border-collapse: collapse; margin-bottom: 28px; font-size: 0.93em;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Method</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Returns</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>unregister()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>void</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Immediately removes this listener from the Forge event bus. Safe to call multiple times.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>isActive()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>boolean</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Returns <code>true</code> if the listener is still registered and will fire on future events. Returns <code>false</code> after <code>unregister()</code>, <code>.once()</code> firing, or expiry.</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 14px;"><code>wasExecuted()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>boolean</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Returns <code>true</code> if the handler has been called at least once. Useful for checking whether a one-shot listener already fired.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">When to save the handle</div>
+          <p>
+            If your listener is permanent and you never need to stop it, you can discard the handle — just
+            don't assign it to a variable. Only save it when you need conditional cancellation, or when you
+            want to check whether the listener is still active.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENT REGISTRY
+    ====================================================== -->
+    <section class="doc-section" id="event-registry">
+      <h2>EventRegistry — Cleanup</h2>
+      <p>
+        <code>EventRegistry</code> is a singleton that tracks every listener registered through
+        <code>EriEvents</code>. It lets you bulk-unregister listeners, which is especially useful during mod
+        unload or when switching game states.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — EventRegistry</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Unregister all listeners tagged with "mymod"
+EventRegistry.getInstance().unregisterAll("mymod");
+
+// Unregister every listener registered through EriEvents
+EventRegistry.getInstance().unregisterAll();
+
+// Get the number of currently active listeners
+int count = EventRegistry.getInstance().activeCount();</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+      <table style="width:100%; border-collapse: collapse; margin-bottom: 28px; font-size: 0.93em;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Method</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Returns</th>
+            <th style="text-align:left; padding: 10px 14px; color: var(--text-muted); font-weight: 600;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>getInstance()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>EventRegistry</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Returns the singleton instance.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>unregisterAll(modId)</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>void</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Unregisters all listeners that were tagged with the given mod ID via <code>.modId()</code>.</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 10px 14px;"><code>unregisterAll()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>void</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Unregisters every listener currently tracked by EriEvents, regardless of mod ID.</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 14px;"><code>activeCount()</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);"><code>int</code></td>
+            <td style="padding: 10px 14px; color: var(--text-muted);">Returns the number of listeners currently registered and active.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Recommended pattern for mods</h3>
+      <p>
+        Tag all your listeners with your mod ID, then unregister them cleanly during mod unload or when
+        leaving a game session:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Mod-scoped cleanup pattern</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Registration (e.g. in your @Mod init)
+EriEvents.on(LivingDeathEvent.class)
+    .modId("mymod")
+    .handle(e -> onDeath(e));
+
+EriEvents.on(PlayerLoggedInEvent.class)
+    .modId("mymod")
+    .handle(e -> onLogin(e));
+
+// Cleanup (e.g. in FMLServerStoppingEvent)
+EventRegistry.getInstance().unregisterAll("mymod");</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Always clean up on unload</div>
+          <p>
+            If your mod registers listeners during a game session (not just at startup), always unregister
+            them when the session ends. Stale listeners referencing destroyed objects can cause memory leaks
+            or NullPointerExceptions on the next login.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         COMPLETE EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="complete-example">
+      <h2>Complete Example</h2>
+      <p>
+        The following example combines several features: event filtering, the Chat Builder module for rich
+        broadcast messages, and a one-shot pattern that fires only when a specific entity is killed by a player.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Announce when a player kills the Ender Dragon</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Announce when a player kills a boss
+EriEvents.on(LivingDeathEvent.class)
+    .filter(e -> e.getEntity().getName().equals("Ender Dragon"))
+    .handle(e -> {
+        Entity source = e.getSource().getTrueSource();
+        if (source instanceof EntityPlayer) {
+            EriChat.create()
+                .text(source.getName()).color(TextFormatting.GOLD).bold()
+                .text(" killed the ").color(TextFormatting.WHITE)
+                .text("Dragon!").color(TextFormatting.RED).bold()
+                .broadcast();
+        }
+    });</code></pre>
+      </div>
+
+      <h3>Step-by-step breakdown</h3>
+      <ul style="color: var(--text-muted); padding-left: 20px; margin-bottom: 28px; line-height: 2.4;">
+        <li>
+          <code>EriEvents.on(LivingDeathEvent.class)</code> — listen to any living entity death.
+        </li>
+        <li>
+          <code>.filter(e -> e.getEntity().getName().equals("Ender Dragon"))</code> — skip every death except
+          the Ender Dragon's.
+        </li>
+        <li>
+          <code>.handle(e -> { ... })</code> — when the filter passes, run this code block.
+        </li>
+        <li>
+          <code>e.getSource().getTrueSource()</code> — get who or what caused the death. We then check it's
+          actually a player before proceeding.
+        </li>
+        <li>
+          <code>EriChat.create()...</code> — use the Chat Builder module to send a formatted broadcast message
+          to all players on the server.
+        </li>
+      </ul>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Combining modules</div>
+          <p>
+            EriAPI modules are designed to work together. Here, Event Simplifier handles the event detection
+            and Chat Builder handles the rich message formatting. You can similarly combine Event Simplifier
+            with the Scheduler module to delay a reaction, or with Notifications to show toast popups to
+            specific players.
+          </p>
+        </div>
+      </div>
+
+      <h3>More real-world patterns</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Wait for world load, then run once</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriEvents.on(WorldEvent.Load.class)
+    .filter(e -> !e.getWorld().isRemote) // server side only
+    .once()
+    .handle(e -> initServerData(e.getWorld()));</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java — Temporary 10-second damage tracker</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EventHandle tracker = EriEvents.on(LivingHurtEvent.class)
+    .filter(e -> e.getEntity() instanceof EntityPlayer)
+    .expireAfter(200) // 200 ticks = 10 seconds
+    .modId("mymod")
+    .handle(e -> {
+        EntityPlayer p = (EntityPlayer) e.getEntity();
+        System.out.println(p.getName() + " took " + e.getAmount() + " damage");
+    });
+
+// Cancel early if needed
+if (someCondition) {
+    tracker.unregister();
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+  </main>
+</div>
+
+</body>
+</html>

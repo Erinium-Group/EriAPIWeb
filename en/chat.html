@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Builder — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/chat.html">FR</a>
+    <a href="chat.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link active"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#erichat"><span class="nav-dot"></span>EriChat</a></li>
+        <li><a href="#chat-segment"><span class="nav-dot"></span>ChatSegment</a></li>
+        <li><a href="#chat-paginator"><span class="nav-dot"></span>ChatPaginator</a></li>
+        <li><a href="#complete-example"><span class="nav-dot"></span>Complete Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Chat Builder</h1>
+        <p class="subtitle">
+          Create rich, interactive chat messages with a clean fluent API — colors, formatting, clickable
+          links, commands on click, hover text, and paginated lists.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.chat</span>
+          <span class="badge badge-purple">Minecraft 1.12.2</span>
+          <span class="badge badge-gray">Fluent API</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        The <strong>Chat Builder</strong> module lets you compose rich chat messages in Minecraft without
+        wrestling with raw <code>TextComponentString</code> and <code>Style</code> objects.
+        Instead, you chain method calls in a single expression to describe exactly what each segment
+        of your message should look like and how it should behave.
+      </p>
+      <p>
+        The module is split into three focused classes:
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">EriChat</strong> — the main fluent builder for rich messages</li>
+        <li><strong style="color:var(--text);">ChatSegment</strong> — internal representation of a styled text fragment</li>
+        <li><strong style="color:var(--text);">ChatPaginator</strong> — automatic pagination with navigation buttons</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Server-side module</div>
+          <p>
+            The Chat Builder runs on the server side and sends finished
+            <code>ITextComponent</code> objects to players via normal Minecraft chat packets.
+            No client-side code is required.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERICHAT
+    ====================================================== -->
+    <section class="doc-section" id="erichat">
+      <h2>EriChat — Fluent builder</h2>
+      <p>
+        <code>EriChat</code> is the entry point for building chat messages. Call <code>EriChat.create()</code>
+        to start a new builder, chain any number of <code>.text()</code> segments with their styling, then
+        deliver the result with <code>.to(player)</code> or <code>.broadcast()</code>.
+      </p>
+
+      <h3>Simple colored message</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Simple colored message
+EriChat.create()
+    .text("[INFO] ").color(TextFormatting.GOLD).bold()
+    .text("Welcome to the server!").color(TextFormatting.WHITE)
+    .to(player);</code></pre>
+      </div>
+
+      <h3>Clickable links and commands</h3>
+      <p>
+        Each segment can carry a click action — either a chat command or a URL — and an optional hover
+        tooltip shown when the player moves their cursor over the text.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Clickable message
+EriChat.create()
+    .text("[Teleport] ").color(TextFormatting.GREEN)
+        .command("/tp spawn").hover("Click to teleport")
+    .text("[Website] ").color(TextFormatting.AQUA)
+        .url("https://example.com").hover("Open website")
+    .to(player);</code></pre>
+      </div>
+
+      <h3>Broadcasting to all players</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Broadcast to all online players
+EriChat.create()
+    .text("[Announcement] ").color(TextFormatting.RED).bold()
+    .text("Server restarting in 5 minutes.").color(TextFormatting.YELLOW)
+    .broadcast();</code></pre>
+      </div>
+
+      <h3>Method reference</h3>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Style methods apply to the current segment</div>
+          <p>
+            Every call to <code>.text()</code> starts a new segment. Formatting methods called after
+            <code>.text()</code> apply only to that segment, not to previous ones.
+          </p>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:0.92em;">
+        <thead>
+          <tr style="background:var(--bg-card);border-bottom:2px solid var(--border);">
+            <th style="padding:10px 14px;text-align:left;color:var(--text);">Method</th>
+            <th style="padding:10px 14px;text-align:left;color:var(--text);">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>create()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Static factory — starts a new builder.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>text(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Appends a new text segment and makes it current.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>color(TextFormatting)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Sets the color of the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>bold()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Applies bold formatting to the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>italic()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Applies italic formatting to the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>underline()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Underlines the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>strikethrough()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Applies strikethrough to the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>obfuscated()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Applies the obfuscated (random characters) effect.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>command(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">On click, runs the given command (e.g. <code>"/tp spawn"</code>).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>suggest(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">On click, suggests the text in the player's chat input.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>url(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">On click, opens the given URL in the browser.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>hover(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Sets the tooltip shown when hovering over the current segment.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>build()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Assembles and returns the final <code>ITextComponent</code>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>to(EntityPlayerMP)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Builds and sends the message to one player.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>to(EntityPlayerMP...)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Builds and sends the message to multiple players.</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 14px;"><code>broadcast()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Builds and sends the message to every online player.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CHAT SEGMENT
+    ====================================================== -->
+    <section class="doc-section" id="chat-segment">
+      <h2>ChatSegment — Internal segment</h2>
+      <p>
+        Every call to <code>.text()</code> on an <code>EriChat</code> builder internally creates a
+        <code>ChatSegment</code> instance. A segment holds a single string together with all the style
+        information applied after the <code>.text()</code> call: color, bold, italic, underline,
+        strikethrough, obfuscated, click event, and hover event.
+      </p>
+      <p>
+        When <code>.build()</code> or a delivery method is invoked, each <code>ChatSegment</code> is
+        converted to a <code>TextComponentString</code> with a corresponding <code>Style</code> object,
+        then appended to a parent <code>TextComponentString</code> as a sibling.
+      </p>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Internal use only</div>
+          <p>
+            <code>ChatSegment</code> is an internal class. You never instantiate it directly — the
+            <code>EriChat</code> builder manages it for you. It is documented here for contributors
+            and advanced users who wish to extend the framework.
+          </p>
+        </div>
+      </div>
+
+      <h3>Lifecycle of a segment</h3>
+      <ol style="color:var(--text-muted);padding-left:20px;line-height:2.2;margin-bottom:0;">
+        <li>You call <code>.text("some text")</code> — a new <code>ChatSegment</code> is created and set as current.</li>
+        <li>You call style methods (<code>.color()</code>, <code>.bold()</code>, <code>.command()</code>, etc.) — they mutate the current segment.</li>
+        <li>You call <code>.text()</code> again — a new segment is created; the previous one is finalized.</li>
+        <li>You call <code>.build()</code> — each segment is converted to a <code>TextComponentString</code> with a <code>Style</code> and chained as siblings.</li>
+      </ol>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CHAT PAGINATOR
+    ====================================================== -->
+    <section class="doc-section" id="chat-paginator">
+      <h2>ChatPaginator — Pagination</h2>
+      <p>
+        <code>ChatPaginator</code> splits a list of lines into pages and sends them to a player with
+        automatic <strong>&lt;&lt; Prev</strong> and <strong>Next &gt;&gt;</strong> navigation buttons.
+        Each navigation button generates a click command that re-runs your base command with the
+        appropriate page number.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">ChatPaginator paginator = ChatPaginator.create("/mycommand page")
+    .title("Player List")
+    .linesPerPage(8)
+    .headerColor(TextFormatting.GOLD);
+
+for (String name : playerNames) {
+    paginator.add(name);
+}
+
+paginator.send(player, 1); // show page 1</code></pre>
+      </div>
+
+      <p>
+        In the example above, if there are 20 players, the paginator creates 3 pages of 8, 8, and 4
+        lines respectively. The <strong>Next &gt;&gt;</strong> button on page 1 sends the click command
+        <code>/mycommand page 2</code>, and so on.
+      </p>
+
+      <h3>Navigation buttons</h3>
+      <p>
+        Navigation buttons are generated automatically by <code>send()</code>:
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
+        <li>If there is a previous page: <code>&lt;&lt; Prev</code> runs <code>/mycommand page N-1</code></li>
+        <li>If there is a next page: <code>Next &gt;&gt;</code> runs <code>/mycommand page N+1</code></li>
+        <li>Both buttons show a hover tooltip indicating the target page number.</li>
+        <li>Buttons are omitted when there is only one page.</li>
+      </ul>
+
+      <h3>Method reference</h3>
+      <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:0.92em;">
+        <thead>
+          <tr style="background:var(--bg-card);border-bottom:2px solid var(--border);">
+            <th style="padding:10px 14px;text-align:left;color:var(--text);">Method</th>
+            <th style="padding:10px 14px;text-align:left;color:var(--text);">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>create(String commandBase)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Static factory. <code>commandBase</code> is the command prefix used to build navigation click events (e.g. <code>"/mycommand page"</code>).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>title(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Sets the header title displayed at the top of each page.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>linesPerPage(int)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Number of content lines per page (default: 8).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>headerColor(TextFormatting)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Color of the title and separator line.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>lineColor(TextFormatting)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Color of regular content lines.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>navColor(TextFormatting)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Color of the navigation buttons (<code>&lt;&lt; Prev</code> / <code>Next &gt;&gt;</code>).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>add(String)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Appends a single line to the list.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>addAll(List&lt;String&gt;)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Appends all lines from a list at once.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 14px;"><code>getPageCount()</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Returns the total number of pages based on current lines and <code>linesPerPage</code>.</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 14px;"><code>send(EntityPlayerMP, int page)</code></td>
+            <td style="padding:9px 14px;color:var(--text-muted);">Sends the specified page to the player (1-indexed). Out-of-range pages are clamped silently.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         COMPLETE EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="complete-example">
+      <h2>Complete Example</h2>
+      <p>
+        The following example shows how to send a rich RPG-style level-up message to a player.
+        It combines colors, bold, underline, a click command, and a hover tooltip in a single fluent chain.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Rich RPG message</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Rich RPG message
+EriChat.create()
+    .text("&#9733; ").color(TextFormatting.GOLD)
+    .text("You reached ").color(TextFormatting.WHITE)
+    .text("Level 10").color(TextFormatting.GREEN).bold()
+    .text("! ").color(TextFormatting.WHITE)
+    .text("[Skills]").color(TextFormatting.AQUA).underline()
+        .command("/skills").hover("View your skills")
+    .to(player);</code></pre>
+      </div>
+
+      <p>
+        What the player sees in chat:
+      </p>
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Result</div>
+          <p>
+            <span style="color:#FFB800;">&#9733; </span>
+            <span style="color:var(--text);">You reached </span>
+            <span style="color:#55FF55;font-weight:bold;">Level 10</span>
+            <span style="color:var(--text);">! </span>
+            <span style="color:#55FFFF;text-decoration:underline;">[Skills]</span>
+            <span style="color:var(--text-muted);font-size:0.85em;margin-left:8px;">(hover: "View your skills" | click: /skills)</span>
+          </p>
+        </div>
+      </div>
+
+      <h3>Paginator + Command integration</h3>
+      <p>
+        A common pattern is to register a command that accepts a <code>page</code> argument and delegates
+        to <code>ChatPaginator</code>:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Command with pagination</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">public class CommandPlayerList extends CommandBase {
+
+    @Override public String getName() { return "players"; }
+    @Override public String getUsage(ICommandSender s) { return "/players [page]"; }
+
+    @Override
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+        EntityPlayerMP player = (EntityPlayerMP) sender;
+
+        int page = args.length > 1 ? Integer.parseInt(args[1]) : 1;
+
+        List&lt;String&gt; names = new ArrayList&lt;&gt;();
+        for (EntityPlayerMP p : server.getPlayerList().getPlayers()) {
+            names.add(p.getName());
+        }
+
+        ChatPaginator paginator = ChatPaginator.create("/players page")
+            .title("Online Players")
+            .linesPerPage(8)
+            .headerColor(TextFormatting.GOLD)
+            .lineColor(TextFormatting.WHITE)
+            .navColor(TextFormatting.YELLOW)
+            .addAll(names);
+
+        paginator.send(player, page);
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package import</div>
+          <p>All Chat Builder classes are in the <code>fr.eri.eriapi.chat</code> package:</p>
+          <code>import fr.eri.eriapi.chat.EriChat;</code><br/>
+          <code>import fr.eri.eriapi.chat.ChatPaginator;</code>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

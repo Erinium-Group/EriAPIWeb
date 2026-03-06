@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Command Framework (FR)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="commands.html" class="active">FR</a>
+    <a href="../en/commands.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link active"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Vue d'ensemble</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#demarrage-rapide"><span class="nav-dot"></span>Demarrage rapide</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">API de commandes</div>
+      <ul>
+        <li><a href="#ericommand"><span class="nav-dot"></span>EriCommand</a></li>
+        <li><a href="#arguments"><span class="nav-dot"></span>Types d'arguments</a></li>
+        <li><a href="#command-context"><span class="nav-dot"></span>CommandContext</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Fonctionnalites avancees</div>
+      <ul>
+        <li><a href="#sous-commandes"><span class="nav-dot"></span>Sous-commandes</a></li>
+        <li><a href="#permissions-cooldowns"><span class="nav-dot"></span>Permissions &amp; Cooldowns</a></li>
+        <li><a href="#tab-completion"><span class="nav-dot"></span>Tab-Completion</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Integration</div>
+      <ul>
+        <li><a href="#command-registry"><span class="nav-dot"></span>CommandRegistry</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Command Framework</h1>
+        <p class="subtitle">
+          Creez des commandes Minecraft puissantes avec une API fluide, des arguments type-safe,
+          de l'auto-completion, des permissions, des cooldowns et une aide generee automatiquement.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Fluent API</span>
+          <span class="badge badge-purple">Type-safe</span>
+          <span class="badge badge-gray">Auto Tab-Complete</span>
+        </div>
+      </div>
+
+      <h2>Vue d'ensemble</h2>
+      <p>
+        Le <strong>Command Framework</strong> d'EriAPI fournit une API fluide et intuitive pour creer des commandes
+        Minecraft. Fini les centaines de lignes de code pour gerer le parsing d'arguments, la tab-completion et les
+        permissions manuellement.
+      </p>
+      <p>
+        Avec <code>EriCommand</code>, tu definis ta commande en enchainant des methodes comme une phrase, et le
+        framework s'occupe de tout le reste : validation des arguments, suggestions de tab-completion, gestion
+        des permissions, cooldowns entre utilisations, et generation automatique de l'aide (<code>/macommande help</code>).
+      </p>
+
+      <h3>Points forts</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Fluent API</strong> — Enchaine les methodes pour construire ta commande de maniere lisible</li>
+        <li><strong style="color:var(--text);">Arguments type-safe</strong> — 7 types d'arguments avec validation automatique (int, float, string, player, item, position, enum)</li>
+        <li><strong style="color:var(--text);">Auto tab-completion</strong> — Chaque type d'argument fournit des suggestions intelligentes</li>
+        <li><strong style="color:var(--text);">Permissions</strong> — Par niveau OP ou par predicat personnalise</li>
+        <li><strong style="color:var(--text);">Cooldowns</strong> — Limitation du rythme d'utilisation par joueur</li>
+        <li><strong style="color:var(--text);">Aide automatique</strong> — <code>/commande help</code> genere automatiquement a partir de la structure</li>
+        <li><strong style="color:var(--text);">Compatible Brigo</strong> — Fonctionne avec Brigo pour les suggestions style Brigadier</li>
+      </ul>
+    </section>
+
+    <!-- ======================================================
+         DEMARRAGE RAPIDE
+    ====================================================== -->
+    <section class="doc-section" id="demarrage-rapide">
+      <h2>Demarrage rapide</h2>
+      <p>
+        Voici comment creer et enregistrer ta premiere commande en moins de 2 minutes.
+      </p>
+
+      <h3>1. Enregistrer les commandes</h3>
+      <p>
+        Dans ta classe principale <code>@Mod</code>, enregistre tes commandes dans l'evenement <code>FMLServerStartingEvent</code> :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Enregistrement dans @Mod</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans votre classe @Mod init :
+CommandDemo.register();
+
+// Dans serverStarting :
+@Mod.EventHandler
+public void onServerStarting(FMLServerStartingEvent event) {
+    CommandRegistry.getInstance().onServerStarting(event);
+}</code></pre>
+      </div>
+
+      <h3>2. Creer une commande simple</h3>
+      <p>
+        Cree une classe avec une methode statique <code>register()</code> qui definit ta commande :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Commande "hello"</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCommand.create("mymod")
+    .description("Mon mod")
+    .sub("hello")
+        .description("Dire bonjour")
+        .runs(ctx -> {
+            ctx.success("Hello " + ctx.getSender().getName() + " !");
+            return 1;
+        })
+    .end()
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#128161;</div>
+        <div class="ib-body">
+          <div class="ib-title">Resultat en jeu</div>
+          <p>Tape <code>/mymod hello</code> dans le chat. Tu verras le message
+          "<span style="color:var(--accent-green);">Hello Steve !</span>" (ou ton pseudo) s'afficher en vert.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ERICOMMAND
+    ====================================================== -->
+    <section class="doc-section" id="ericommand">
+      <h2>EriCommand</h2>
+      <p>
+        <code>EriCommand</code> est le point d'entree du framework. C'est un builder fluent qui te permet de
+        definir la structure complete de ta commande : nom, description, sous-commandes, arguments, permissions,
+        cooldowns et executeur.
+      </p>
+
+      <h3>Methodes du builder</h3>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Methode</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>create(name)</code></td>
+              <td style="padding:8px 12px;">Cree une nouvelle commande racine avec le nom donne</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>description(desc)</code></td>
+              <td style="padding:8px 12px;">Definit la description affichee dans l'aide</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>permission(level)</code></td>
+              <td style="padding:8px 12px;">Niveau OP requis (0-4)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>permission(predicate)</code></td>
+              <td style="padding:8px 12px;">Predicat personnalise pour les permissions</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>rootAliases(...)</code></td>
+              <td style="padding:8px 12px;">Alias alternatifs pour la commande racine</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>autoHelp(boolean)</code></td>
+              <td style="padding:8px 12px;">Active/desactive la generation automatique de l'aide (defaut: <code>true</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>sub(name)</code></td>
+              <td style="padding:8px 12px;">Ouvre un builder de sous-commande</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>arg(argument)</code></td>
+              <td style="padding:8px 12px;">Ajoute un argument type-safe</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>runs(executor)</code></td>
+              <td style="padding:8px 12px;">Definit l'action executee quand la commande est appelee</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>cooldown(ticks)</code></td>
+              <td style="padding:8px 12px;">Cooldown en ticks entre deux utilisations (20 ticks = 1 seconde)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>register()</code></td>
+              <td style="padding:8px 12px;">Enregistre la commande dans le <code>CommandRegistry</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exemple de base</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Builder EriCommand</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCommand.create("monmod")
+    .description("Commandes de MonMod")
+    .rootAliases("mm", "mmod")
+    .permission(2)           // OP level 2 minimum
+    .autoHelp(true)          // /monmod help est genere automatiquement
+    .sub("give")
+        .description("Donne un item a un joueur")
+        .arg(PlayerArg.of("cible"))
+        .arg(ItemArg.of("item"))
+        .arg(IntArg.of("quantite").range(1, 64).optional(1))
+        .runs(ctx -> {
+            EntityPlayerMP target = ctx.getPlayer("cible");
+            Item item = ctx.getItem("item");
+            int amount = ctx.getInt("quantite");
+            // ... logique de give
+            ctx.success("Donne %dx %s a %s", amount, item.getRegistryName(), target.getName());
+            return 1;
+        })
+    .end()
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         TYPES D'ARGUMENTS
+    ====================================================== -->
+    <section class="doc-section" id="arguments">
+      <h2>Types d'arguments</h2>
+      <p>
+        Le framework fournit <strong>7 types d'arguments</strong> pre-construits, chacun avec sa propre validation
+        et ses suggestions de tab-completion. Tous les arguments suivent le meme pattern : <code>TypeArg.of("nom")</code>.
+      </p>
+
+      <!-- IntArg -->
+      <h3>IntArg — Entier</h3>
+      <p>Argument de type entier avec bornes optionnelles et valeur par defaut.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — IntArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Entier simple
+.arg(IntArg.of("amount"))
+
+// Avec bornes
+.arg(IntArg.of("amount").range(1, 64))
+
+// Avec valeur par defaut (argument optionnel)
+.arg(IntArg.of("amount").range(1, 64).optional(1))
+
+// Recuperation dans l'executeur :
+int amount = ctx.getInt("amount");</code></pre>
+      </div>
+
+      <!-- FloatArg -->
+      <h3>FloatArg — Decimal</h3>
+      <p>Argument de type decimal (float) avec bornes optionnelles.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — FloatArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Decimal simple
+.arg(FloatArg.of("speed"))
+
+// Avec bornes
+.arg(FloatArg.of("speed").range(0.0f, 10.0f))
+
+// Recuperation :
+float speed = ctx.getFloat("speed");</code></pre>
+      </div>
+
+      <!-- StringArg -->
+      <h3>StringArg — Chaine de caracteres</h3>
+      <p>
+        Argument texte. Trois modes disponibles : mot simple, chaine entre guillemets, ou chaine "greedy"
+        qui capture tout le reste de la commande.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — StringArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Mot simple (s'arrete a l'espace)
+.arg(StringArg.of("name"))
+
+// Chaine entre guillemets ("mon texte avec espaces")
+.arg(StringArg.quoted("text"))
+
+// Greedy — capture tout le reste de la commande
+.arg(StringArg.greedy("message"))
+
+// Recuperation :
+String name = ctx.getString("name");</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;&#65039;</div>
+        <div class="ib-body">
+          <div class="ib-title">Attention avec greedy</div>
+          <p><code>StringArg.greedy()</code> capture tout le texte restant. Il doit donc etre le <strong>dernier argument</strong>
+          de la commande. Tout argument place apres sera ignore.</p>
+        </div>
+      </div>
+
+      <!-- PlayerArg -->
+      <h3>PlayerArg — Joueur en ligne</h3>
+      <p>Argument ciblant un joueur connecte au serveur. La tab-completion propose automatiquement tous les joueurs en ligne.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — PlayerArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">.arg(PlayerArg.of("target"))
+
+// Recuperation :
+EntityPlayerMP player = ctx.getPlayer("target");</code></pre>
+      </div>
+
+      <!-- ItemArg -->
+      <h3>ItemArg — Item du registre</h3>
+      <p>Argument pour un item Minecraft. La tab-completion propose tous les items enregistres dans le registre Forge.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ItemArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">.arg(ItemArg.of("item"))
+
+// Recuperation :
+Item item = ctx.getItem("item");</code></pre>
+      </div>
+
+      <!-- PosArg -->
+      <h3>PosArg — Position (x y z)</h3>
+      <p>
+        Argument de position 3D. Consomme 3 tokens (x, y, z). Supporte le prefixe <code>~</code> pour les
+        coordonnees relatives a la position du joueur.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — PosArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">.arg(PosArg.of("pos"))
+
+// Utilisation en jeu :
+// /mymod tp 100 64 -200       (coordonnees absolues)
+// /mymod tp ~ ~10 ~            (10 blocs au-dessus du joueur)
+
+// Recuperation :
+BlockPos blockPos = ctx.getBlockPos("pos");
+Vec3d vec = ctx.getVec3d("pos");</code></pre>
+      </div>
+
+      <!-- EnumArg -->
+      <h3>EnumArg — Valeur d'enum</h3>
+      <p>Argument pour une valeur d'enum Java. La tab-completion propose automatiquement toutes les valeurs de l'enum.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — EnumArg</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public enum GameMode {
+    SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR
+}
+
+.arg(EnumArg.of("mode", GameMode.class))
+
+// Utilisation en jeu :
+// /mymod setmode CREATIVE
+
+// Recuperation :
+GameMode mode = ctx.getEnum("mode", GameMode.class);</code></pre>
+      </div>
+
+      <h3>Resume des types</h3>
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Type</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Creation</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Tab-completion</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Recuperation</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>IntArg</code></td>
+              <td style="padding:8px 12px;"><code>IntArg.of("n").range(1, 64)</code></td>
+              <td style="padding:8px 12px;">Suggestions numeriques</td>
+              <td style="padding:8px 12px;"><code>ctx.getInt("n")</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>FloatArg</code></td>
+              <td style="padding:8px 12px;"><code>FloatArg.of("f").range(0, 10)</code></td>
+              <td style="padding:8px 12px;">Suggestions numeriques</td>
+              <td style="padding:8px 12px;"><code>ctx.getFloat("f")</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>StringArg</code></td>
+              <td style="padding:8px 12px;"><code>StringArg.of("s")</code></td>
+              <td style="padding:8px 12px;">Suggestions personnalisees</td>
+              <td style="padding:8px 12px;"><code>ctx.getString("s")</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>PlayerArg</code></td>
+              <td style="padding:8px 12px;"><code>PlayerArg.of("p")</code></td>
+              <td style="padding:8px 12px;">Joueurs en ligne</td>
+              <td style="padding:8px 12px;"><code>ctx.getPlayer("p")</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>ItemArg</code></td>
+              <td style="padding:8px 12px;"><code>ItemArg.of("i")</code></td>
+              <td style="padding:8px 12px;">Items du registre</td>
+              <td style="padding:8px 12px;"><code>ctx.getItem("i")</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>PosArg</code></td>
+              <td style="padding:8px 12px;"><code>PosArg.of("pos")</code></td>
+              <td style="padding:8px 12px;">~ ~ ~ (relatif)</td>
+              <td style="padding:8px 12px;"><code>ctx.getBlockPos("pos")</code></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>EnumArg</code></td>
+              <td style="padding:8px 12px;"><code>EnumArg.of("e", E.class)</code></td>
+              <td style="padding:8px 12px;">Valeurs de l'enum</td>
+              <td style="padding:8px 12px;"><code>ctx.getEnum("e", E.class)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         COMMAND CONTEXT
+    ====================================================== -->
+    <section class="doc-section" id="command-context">
+      <h2>CommandContext</h2>
+      <p>
+        Le <code>CommandContext</code> est l'objet passe a ton executeur (<code>runs(ctx -> ...)</code>).
+        Il contient toutes les informations sur la commande en cours : l'expediteur, le serveur, et les
+        valeurs des arguments parses.
+      </p>
+
+      <h3>Acces a l'expediteur</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Expediteur</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// L'expediteur brut (peut etre la console, un command block, etc.)
+ICommandSender sender = ctx.getSender();
+
+// L'expediteur en tant que joueur (lance une erreur si ce n'est pas un joueur)
+EntityPlayerMP player = ctx.getSenderAsPlayer();
+
+// Le serveur
+MinecraftServer server = ctx.getServer();</code></pre>
+      </div>
+
+      <h3>Recuperation des arguments</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Getters d'arguments</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Types primitifs
+int n       = ctx.getInt("amount");
+float f     = ctx.getFloat("speed");
+String s    = ctx.getString("name");
+
+// Types Minecraft
+EntityPlayerMP player = ctx.getPlayer("target");
+Item item             = ctx.getItem("item");
+BlockPos pos          = ctx.getBlockPos("position");
+Vec3d vec             = ctx.getVec3d("position");
+
+// Enum
+GameMode mode = ctx.getEnum("mode", GameMode.class);</code></pre>
+      </div>
+
+      <h3>Methodes de reponse</h3>
+      <p>
+        Le <code>CommandContext</code> fournit des methodes utilitaires pour envoyer des messages formates
+        a l'expediteur. Chaque methode supporte le formatage <code>String.format</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Reponses</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Message neutre (gris)
+ctx.reply("Traitement en cours...");
+
+// Message de succes (vert)
+ctx.success("Item donne avec succes a %s !", player.getName());
+
+// Message d'erreur (rouge)
+ctx.error("Le joueur %s est introuvable.", targetName);
+
+// Message d'information (jaune/dore)
+ctx.info("Cooldown restant : %d secondes.", remaining);</code></pre>
+      </div>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Methode</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Couleur</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Usage</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>reply(msg, args...)</code></td>
+              <td style="padding:8px 12px;">Gris (defaut)</td>
+              <td style="padding:8px 12px;">Messages generiques</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>success(msg, args...)</code></td>
+              <td style="padding:8px 12px;"><span style="color:#4ade80;">Vert</span></td>
+              <td style="padding:8px 12px;">Action reussie</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>error(msg, args...)</code></td>
+              <td style="padding:8px 12px;"><span style="color:#f87171;">Rouge</span></td>
+              <td style="padding:8px 12px;">Erreur ou echec</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>info(msg, args...)</code></td>
+              <td style="padding:8px 12px;"><span style="color:#fbbf24;">Jaune/dore</span></td>
+              <td style="padding:8px 12px;">Information, avertissement</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SOUS-COMMANDES
+    ====================================================== -->
+    <section class="doc-section" id="sous-commandes">
+      <h2>Sous-commandes</h2>
+      <p>
+        Les sous-commandes permettent d'organiser ta commande en arborescence. Utilise <code>.sub("nom")</code>
+        pour ouvrir un builder de sous-commande, et <code>.end()</code> pour revenir au niveau parent.
+      </p>
+
+      <h3>Structure en arbre</h3>
+      <p>
+        Tu peux imbriquer des sous-commandes sur plusieurs niveaux. La methode <code>.end()</code> remonte
+        toujours d'un niveau dans l'arborescence.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Sous-commandes imbriquees</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCommand.create("admin")
+    .description("Commandes d'administration")
+    .permission(3)
+
+    // /admin user
+    .sub("user")
+        .description("Gestion des joueurs")
+
+        // /admin user info &lt;joueur&gt;
+        .sub("info")
+            .description("Informations sur un joueur")
+            .arg(PlayerArg.of("target"))
+            .runs(ctx -> {
+                EntityPlayerMP p = ctx.getPlayer("target");
+                ctx.info("Joueur: %s | Pos: %s", p.getName(), p.getPosition());
+                return 1;
+            })
+        .end()
+
+        // /admin user kick &lt;joueur&gt; [raison]
+        .sub("kick")
+            .description("Expulser un joueur")
+            .arg(PlayerArg.of("target"))
+            .arg(StringArg.greedy("raison").optional("Aucune raison"))
+            .runs(ctx -> {
+                EntityPlayerMP p = ctx.getPlayer("target");
+                String reason = ctx.getString("raison");
+                p.connection.disconnect(new TextComponentString(reason));
+                ctx.success("Joueur %s expulse.", p.getName());
+                return 1;
+            })
+        .end()
+
+    .end() // fin de "user"
+
+    // /admin reload
+    .sub("reload")
+        .description("Recharger la configuration")
+        .runs(ctx -> {
+            // ... logique de reload
+            ctx.success("Configuration rechargee !");
+            return 1;
+        })
+    .end()
+
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#128161;</div>
+        <div class="ib-body">
+          <div class="ib-title">Arborescence generee</div>
+          <p>La commande ci-dessus genere cette structure :</p>
+          <pre style="margin:8px 0;color:var(--text-muted);font-size:0.9rem;">/admin
+  ├── user
+  │   ├── info &lt;target&gt;
+  │   └── kick &lt;target&gt; [raison]
+  ├── reload
+  └── help</pre>
+          <p>Le sous-commande <code>help</code> est generee automatiquement grace a <code>autoHelp(true)</code> (defaut).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PERMISSIONS & COOLDOWNS
+    ====================================================== -->
+    <section class="doc-section" id="permissions-cooldowns">
+      <h2>Permissions &amp; Cooldowns</h2>
+
+      <h3>Permissions par niveau OP</h3>
+      <p>
+        La methode <code>.permission(int level)</code> definit le niveau OP minimum requis pour executer la commande.
+        Les niveaux vont de 0 (tous les joueurs) a 4 (proprietaire du serveur).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Niveaux de permission</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Accessible a tous les joueurs
+EriCommand.create("info")
+    .permission(0)
+    ...
+
+// Operateur niveau 2 (commandes de gestion)
+EriCommand.create("manage")
+    .permission(2)
+    ...
+
+// Admin serveur
+EriCommand.create("admin")
+    .permission(4)
+    ...</code></pre>
+      </div>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Niveau</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>0</code></td>
+              <td style="padding:8px 12px;">Tous les joueurs</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>1</code></td>
+              <td style="padding:8px 12px;">Moderateurs (bypass spawn protection)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>2</code></td>
+              <td style="padding:8px 12px;">Game masters (commandes de jeu : /gamemode, /tp...)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>3</code></td>
+              <td style="padding:8px 12px;">Administrateurs (/ban, /kick, /op...)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>4</code></td>
+              <td style="padding:8px 12px;">Proprietaire serveur (/stop, /save-all...)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Permissions par predicat</h3>
+      <p>
+        Pour des permissions plus complexes (verifier un rang, une team, etc.), utilise un predicat :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Permission par predicat</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCommand.create("vip")
+    .permission(sender -> {
+        // Logique personnalisee : verifier un rank, une team, etc.
+        if (sender instanceof EntityPlayerMP) {
+            EntityPlayerMP player = (EntityPlayerMP) sender;
+            return player.getTags().contains("vip");
+        }
+        return false; // Refuse pour la console / command blocks
+    })
+    ...</code></pre>
+      </div>
+
+      <h3>Cooldowns</h3>
+      <p>
+        La methode <code>.cooldown(int ticks)</code> limite la frequence d'utilisation d'une commande par joueur.
+        20 ticks = 1 seconde. Le <code>CooldownManager</code> gere automatiquement le suivi par UUID.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Cooldowns</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCommand.create("kit")
+    .description("Recevoir un kit")
+    .sub("daily")
+        .description("Kit quotidien")
+        .cooldown(20 * 60 * 60 * 24)  // 24 heures en ticks
+        .runs(ctx -> {
+            // ... donner le kit
+            ctx.success("Kit quotidien recu !");
+            return 1;
+        })
+    .end()
+    .sub("starter")
+        .description("Kit de depart")
+        .cooldown(20 * 60 * 5)  // 5 minutes en ticks
+        .runs(ctx -> {
+            // ... donner le kit starter
+            ctx.success("Kit starter recu !");
+            return 1;
+        })
+    .end()
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#128161;</div>
+        <div class="ib-body">
+          <div class="ib-title">Message de cooldown</div>
+          <p>Quand un joueur essaie d'utiliser une commande en cooldown, un message automatique lui indique
+          le temps restant avant la prochaine utilisation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         TAB-COMPLETION
+    ====================================================== -->
+    <section class="doc-section" id="tab-completion">
+      <h2>Tab-Completion</h2>
+      <p>
+        Chaque type d'argument fournit <strong>automatiquement</strong> des suggestions lorsque le joueur
+        appuie sur <kbd>Tab</kbd> dans le chat. Aucune configuration supplementaire n'est necessaire.
+      </p>
+
+      <h3>Suggestions automatiques par type</h3>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Type d'argument</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Suggestions automatiques</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>IntArg</code></td>
+              <td style="padding:8px 12px;">Valeurs numeriques courantes, bornes min/max</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>FloatArg</code></td>
+              <td style="padding:8px 12px;">Valeurs decimales courantes</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>StringArg</code></td>
+              <td style="padding:8px 12px;">Suggestions personnalisees (voir <code>.suggests()</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>PlayerArg</code></td>
+              <td style="padding:8px 12px;">Liste des joueurs en ligne sur le serveur</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>ItemArg</code></td>
+              <td style="padding:8px 12px;">Tous les items du registre Forge (ex: <code>minecraft:diamond</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>PosArg</code></td>
+              <td style="padding:8px 12px;"><code>~ ~ ~</code> (position relative du joueur)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>EnumArg</code></td>
+              <td style="padding:8px 12px;">Toutes les valeurs de l'enum en majuscules</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Suggestions personnalisees</h3>
+      <p>
+        Tu peux ajouter des suggestions manuelles a n'importe quel argument avec <code>.suggests()</code> :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Suggestions personnalisees</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Suggestions statiques
+.arg(StringArg.of("color").suggests("red", "green", "blue", "yellow"))
+
+// Les suggestions sont filtrees automatiquement en fonction de ce que
+// le joueur a deja tape. Si le joueur tape "re", seul "red" sera propose.</code></pre>
+      </div>
+
+      <h3>Compatibilite Brigo</h3>
+      <p>
+        Le Command Framework est compatible avec <strong>Brigo</strong> pour fournir des suggestions
+        de style Brigadier (le systeme de commandes de Minecraft 1.13+). Si Brigo est present, les
+        suggestions seront affichees avec la tooltip au-dessus du champ de saisie.
+      </p>
+    </section>
+
+    <!-- ======================================================
+         COMMAND REGISTRY
+    ====================================================== -->
+    <section class="doc-section" id="command-registry">
+      <h2>CommandRegistry</h2>
+      <p>
+        Le <code>CommandRegistry</code> est le singleton central qui gere l'enregistrement de toutes les
+        commandes EriCommand dans Forge. Il est le pont entre le framework et le systeme de commandes Minecraft.
+      </p>
+
+      <h3>Methodes</h3>
+
+      <div class="card">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Methode</th>
+              <th style="text-align:left;padding:8px 12px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody style="color:var(--text-muted);">
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>getInstance()</code></td>
+              <td style="padding:8px 12px;">Retourne l'instance singleton du registre</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>register(EriCommand)</code></td>
+              <td style="padding:8px 12px;">Enregistre une commande dans le registre (appele automatiquement par <code>.register()</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:8px 12px;"><code>onServerStarting(event)</code></td>
+              <td style="padding:8px 12px;">Enregistre toutes les commandes dans Forge. A appeler dans <code>FMLServerStartingEvent</code></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;"><code>size()</code></td>
+              <td style="padding:8px 12px;">Retourne le nombre de commandes enregistrees</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Integration dans @Mod</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Integration complete dans la classe @Mod</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Mod(modid = "mymod", name = "MyMod", version = "1.0")
+public class MyMod {
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Enregistre toutes tes commandes ici
+        MyCommands.register();
+        AdminCommands.register();
+    }
+
+    @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        // Enregistre les commandes dans Forge
+        CommandRegistry.getInstance().onServerStarting(event);
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#128161;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ordre d'appel</div>
+          <p>Appelle toujours <code>register()</code> sur tes commandes <strong>avant</strong>
+          <code>CommandRegistry.getInstance().onServerStarting(event)</code>. Le registre ne detecte
+          pas les commandes ajoutees apres l'evenement serveur.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet</h2>
+      <p>
+        Voici un exemple complet qui combine toutes les fonctionnalites du Command Framework : sous-commandes,
+        arguments de tous types, permissions, cooldowns et aide automatique.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Commande complete "mygame"</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public class GameCommands {
+
+    public enum Difficulty {
+        EASY, NORMAL, HARD, EXTREME
+    }
+
+    public static void register() {
+        EriCommand.create("mygame")
+            .description("Commandes du mini-jeu")
+            .rootAliases("mg")
+            .permission(0)
+
+            // ── /mygame join ──────────────────────────────────
+            .sub("join")
+                .description("Rejoindre la partie")
+                .cooldown(20 * 30) // 30 secondes
+                .runs(ctx -> {
+                    EntityPlayerMP player = ctx.getSenderAsPlayer();
+                    ctx.success("Tu as rejoint la partie !");
+                    return 1;
+                })
+            .end()
+
+            // ── /mygame leave ─────────────────────────────────
+            .sub("leave")
+                .description("Quitter la partie")
+                .runs(ctx -> {
+                    EntityPlayerMP player = ctx.getSenderAsPlayer();
+                    ctx.info("Tu as quitte la partie.");
+                    return 1;
+                })
+            .end()
+
+            // ── /mygame settings ──────────────────────────────
+            .sub("settings")
+                .description("Parametres du jeu")
+                .permission(2)
+
+                // /mygame settings difficulty &lt;level&gt;
+                .sub("difficulty")
+                    .description("Definir la difficulte")
+                    .arg(EnumArg.of("level", Difficulty.class))
+                    .runs(ctx -> {
+                        Difficulty diff = ctx.getEnum("level", Difficulty.class);
+                        ctx.success("Difficulte definie sur %s.", diff.name());
+                        return 1;
+                    })
+                .end()
+
+                // /mygame settings maxplayers &lt;count&gt;
+                .sub("maxplayers")
+                    .description("Nombre max de joueurs")
+                    .arg(IntArg.of("count").range(2, 32))
+                    .runs(ctx -> {
+                        int count = ctx.getInt("count");
+                        ctx.success("Joueurs max : %d", count);
+                        return 1;
+                    })
+                .end()
+
+                // /mygame settings speed &lt;value&gt;
+                .sub("speed")
+                    .description("Vitesse du jeu")
+                    .arg(FloatArg.of("value").range(0.5f, 5.0f))
+                    .runs(ctx -> {
+                        float speed = ctx.getFloat("value");
+                        ctx.success("Vitesse : %.1f", speed);
+                        return 1;
+                    })
+                .end()
+
+            .end() // fin de "settings"
+
+            // ── /mygame tp &lt;target&gt; &lt;pos&gt; ─────────────────────
+            .sub("tp")
+                .description("Teleporter un joueur")
+                .permission(2)
+                .arg(PlayerArg.of("target"))
+                .arg(PosArg.of("destination"))
+                .runs(ctx -> {
+                    EntityPlayerMP target = ctx.getPlayer("target");
+                    BlockPos pos = ctx.getBlockPos("destination");
+                    target.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+                    ctx.success("Teleporte %s en %d %d %d.",
+                        target.getName(), pos.getX(), pos.getY(), pos.getZ());
+                    return 1;
+                })
+            .end()
+
+            // ── /mygame give &lt;target&gt; &lt;item&gt; [amount] ─────────
+            .sub("give")
+                .description("Donner un item")
+                .permission(2)
+                .arg(PlayerArg.of("target"))
+                .arg(ItemArg.of("item"))
+                .arg(IntArg.of("amount").range(1, 64).optional(1))
+                .runs(ctx -> {
+                    EntityPlayerMP target = ctx.getPlayer("target");
+                    Item item = ctx.getItem("item");
+                    int amount = ctx.getInt("amount");
+                    target.addItemStackToInventory(new ItemStack(item, amount));
+                    ctx.success("Donne %dx %s a %s.",
+                        amount, item.getRegistryName(), target.getName());
+                    return 1;
+                })
+            .end()
+
+            // ── /mygame broadcast &lt;message&gt; ──────────────────
+            .sub("broadcast")
+                .description("Envoyer un message a tous")
+                .permission(3)
+                .arg(StringArg.greedy("message"))
+                .runs(ctx -> {
+                    String msg = ctx.getString("message");
+                    ctx.getServer().getPlayerList().sendMessage(
+                        new TextComponentString("[MyGame] " + msg));
+                    ctx.success("Message diffuse !");
+                    return 1;
+                })
+            .end()
+
+            .register();
+    }
+}</code></pre>
+      </div>
+
+      <h3>Commandes generees</h3>
+      <p>La structure ci-dessus produit les commandes suivantes :</p>
+
+      <div class="card" style="padding:16px 24px;">
+        <pre style="margin:0;color:var(--text-muted);font-size:0.9rem;line-height:1.8;">/mygame join                                    — Rejoindre la partie (cooldown 30s)
+/mygame leave                                   — Quitter la partie
+/mygame settings difficulty &lt;level&gt;             — Definir la difficulte (OP 2)
+/mygame settings maxplayers &lt;count&gt;             — Nombre max de joueurs (OP 2)
+/mygame settings speed &lt;value&gt;                  — Vitesse du jeu (OP 2)
+/mygame tp &lt;target&gt; &lt;destination&gt;               — Teleporter un joueur (OP 2)
+/mygame give &lt;target&gt; &lt;item&gt; [amount]           — Donner un item (OP 2)
+/mygame broadcast &lt;message&gt;                     — Envoyer un message (OP 3)
+/mygame help                                    — Aide auto-generee</pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#128161;</div>
+        <div class="ib-body">
+          <div class="ib-title">Alias</div>
+          <p>Grace a <code>.rootAliases("mg")</code>, toutes ces commandes sont aussi accessibles avec
+          <code>/mg</code> (par exemple <code>/mg join</code>, <code>/mg settings difficulty HARD</code>).</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

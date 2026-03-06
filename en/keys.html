@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EriAPI — Keybinding Manager (EN)</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/keys.html">FR</a>
+    <a href="keys.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link active"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#eri-keys"><span class="nav-dot"></span>EriKeys — Static API</a></li>
+        <li><a href="#key-combo"><span class="nav-dot"></span>KeyCombo</a></li>
+        <li><a href="#key-context"><span class="nav-dot"></span>KeyContext</a></li>
+        <li><a href="#conflict-detector"><span class="nav-dot"></span>KeyConflictDetector</a></li>
+        <li><a href="#complete-example"><span class="nav-dot"></span>Complete Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Keybinding Manager</h1>
+        <p class="subtitle">
+          Create keyboard shortcuts with a fluent API: simple keys, combos, double-tap, and context-aware callbacks.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Package: fr.eri.eriapi.keys</span>
+          <span class="badge badge-purple">Fluent API</span>
+          <span class="badge badge-gray">Minecraft 1.12.2</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        The <strong>Keybinding Manager</strong> lets you create keyboard shortcuts for your mod without
+        wrestling with Forge's raw keybinding infrastructure. Using a clean fluent API, you can declare
+        simple keys, multi-key combos (e.g. <code>Ctrl+Shift+X</code>), double-tap shortcuts, and attach
+        <code>onPress</code>, <code>onRelease</code>, or <code>onHold</code> callbacks to each binding.
+      </p>
+      <p>
+        Bindings are context-aware: you can restrict a shortcut to be active only in-game, only when a
+        GUI is open, or always. Automatic conflict detection warns you at registration time if two bindings
+        share the same key and context, making debugging painless.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Where to register keybindings</div>
+          <p>Call <code>EriKeys.create(...).register()</code> inside your <code>ClientProxy.init()</code>
+          method, during the <code>FMLInitializationEvent</code>. Registering on the server side has no effect
+          — keybindings are client-only.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EriKeys — Static API
+    ====================================================== -->
+    <section class="doc-section" id="eri-keys">
+      <h2>EriKeys — Static API</h2>
+      <p>
+        <code>EriKeys</code> is the entry point for the entire Keybinding Manager. Every binding starts
+        with a call to <code>EriKeys.create(id)</code>, which returns a fluent builder. Chain the methods
+        you need, then finish with <code>.register()</code>.
+      </p>
+
+      <h3>Simple key</h3>
+      <p>
+        The most basic binding: one key, one action.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Simple key binding</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("open_menu")
+    .key(Keyboard.KEY_G)
+    .category("My Mod")
+    .onPress(() -> openMenu())
+    .register();</code></pre>
+      </div>
+
+      <h3>Combo — Ctrl+Shift+G</h3>
+      <p>
+        Use <code>.combo(KeyCombo)</code> instead of <code>.key(int)</code> to require modifier keys.
+        Combos are evaluated only when every specified modifier is held at the moment the main key is pressed.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Combo binding</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("debug_mode")
+    .combo(KeyCombo.of(Keyboard.KEY_G).ctrl().shift())
+    .category("My Mod")
+    .context(KeyContext.IN_GAME)
+    .onPress(() -> toggleDebug())
+    .register();</code></pre>
+      </div>
+
+      <h3>Double-tap</h3>
+      <p>
+        Pass a maximum tick window to <code>.doubleTap(maxTicks)</code>. The callback fires only when
+        the key is pressed twice within that window. A value of <code>10</code> equals half a second
+        at 20 ticks/second.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Double-tap binding</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("dash")
+    .key(Keyboard.KEY_W)
+    .doubleTap(10)
+    .category("My Mod")
+    .onPress(() -> dash())
+    .register();</code></pre>
+      </div>
+
+      <h3>Hold — onHold / onRelease</h3>
+      <p>
+        Use <code>.onHold(Runnable)</code> to run code every tick the key is held, and
+        <code>.onRelease(Runnable)</code> to react when the key is lifted.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Hold binding</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create("sprint")
+    .key(Keyboard.KEY_R)
+    .category("My Mod")
+    .onHold(() -> sprint())
+    .onRelease(() -> stopSprint())
+    .register();</code></pre>
+      </div>
+
+      <h3>Builder method reference</h3>
+      <p>Every method in the builder returns <code>this</code>, so they can be freely chained in any order.</p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>API — EriKeys builder methods</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriKeys.create(String id)            // Start a new binding with the given unique ID
+    .key(int keyCode)                // Bind to a single key (Keyboard.KEY_*)
+    .combo(KeyCombo combo)           // Bind to a key combination
+    .category(String category)       // Display category in the vanilla controls screen
+    .context(KeyContext context)     // Restrict activation context (default: ALWAYS)
+    .doubleTap(int maxTicks)         // Require two presses within maxTicks ticks
+    .onPress(Runnable callback)      // Called on key press (or second tap if doubleTap)
+    .onRelease(Runnable callback)    // Called when key is released
+    .onHold(Runnable callback)       // Called every tick while key is held
+    .register();                     // Finalise and register the binding</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Unique IDs are required</div>
+          <p>The string passed to <code>EriKeys.create()</code> must be unique across your entire mod.
+          A good convention is <code>"modid.action_name"</code> — for example <code>"myrpgmod.ability1"</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyCombo
+    ====================================================== -->
+    <section class="doc-section" id="key-combo">
+      <h2>KeyCombo — Combinations</h2>
+      <p>
+        <code>KeyCombo</code> describes a key together with optional modifier requirements.
+        Build one with the static factory <code>KeyCombo.of(keyCode)</code>, then chain modifiers.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — KeyCombo examples</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">KeyCombo.of(Keyboard.KEY_G)                 // G only (no modifiers)
+KeyCombo.of(Keyboard.KEY_G).ctrl()          // Ctrl + G
+KeyCombo.of(Keyboard.KEY_G).ctrl().shift()  // Ctrl + Shift + G
+KeyCombo.of(Keyboard.KEY_G).alt()           // Alt + G</code></pre>
+      </div>
+
+      <p>Modifier methods available on <code>KeyCombo</code>:</p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><code style="color:var(--text);">.ctrl()</code> — requires the Control key to be held</li>
+        <li><code style="color:var(--text);">.shift()</code> — requires the Shift key to be held</li>
+        <li><code style="color:var(--text);">.alt()</code> — requires the Alt key to be held</li>
+      </ul>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Modifiers are additive</div>
+          <p>You can chain as many modifiers as you like. <code>KeyCombo.of(KEY_G).ctrl().shift().alt()</code>
+          will only fire when all three modifiers are held simultaneously.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyContext
+    ====================================================== -->
+    <section class="doc-section" id="key-context">
+      <h2>KeyContext — Enum</h2>
+      <p>
+        <code>KeyContext</code> controls when a binding is active. Assign it with
+        <code>.context(KeyContext.XXX)</code> on the builder. If you omit it, the default is
+        <code>ALWAYS</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — KeyContext values</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">KeyContext.IN_GAME   // Active only when no GUI is open (pure gameplay)
+KeyContext.IN_GUI    // Active only when a GUI screen is open
+KeyContext.ALWAYS    // Always active, regardless of GUI state (default)</code></pre>
+      </div>
+
+      <p>
+        Choosing the right context prevents accidental triggers. For example, a dash ability bound to
+        <code>W</code> should use <code>IN_GAME</code> so it never fires while you are typing in a chat box.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">IN_GUI and EriGuiScreen</div>
+          <p><code>KeyContext.IN_GUI</code> is useful for shortcuts inside your own menus — for example
+          pressing <code>Escape</code> or <code>F</code> to trigger a specific action while a custom
+          EriAPI GUI is open.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         KeyConflictDetector
+    ====================================================== -->
+    <section class="doc-section" id="conflict-detector">
+      <h2>KeyConflictDetector</h2>
+      <p>
+        <code>KeyConflictDetector</code> runs automatically every time a binding is registered via
+        <code>.register()</code>. You do not need to call it manually.
+      </p>
+      <p>
+        At registration time it checks whether any already-registered binding shares the same effective
+        key (main key + modifiers) and the same <code>KeyContext</code>. If a conflict is found, a
+        warning is written to the game log:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Log output — conflict warning</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-text">[EriAPI/WARN] KeyConflictDetector: binding "mymod.ability2" conflicts with
+"mymod.ability1" (same key G + context IN_GAME). Both are registered but
+only the first one may fire reliably.</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Conflicts do not prevent registration</div>
+          <p>Both conflicting bindings are still registered. The warning is informational — it is up to you
+          to resolve the conflict by changing one of the keys or contexts.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         Complete Example
+    ====================================================== -->
+    <section class="doc-section" id="complete-example">
+      <h2>Complete Example</h2>
+      <p>
+        The snippet below registers two ability shortcuts for a hypothetical RPG mod. Both are restricted
+        to in-game context so they never interfere with chat or menus. The second uses a combo to avoid
+        conflicting with the first.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ClientProxy.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// In ClientProxy.init()
+EriKeys.create("mymod.ability1")
+    .key(Keyboard.KEY_V)
+    .category("My RPG Mod")
+    .context(KeyContext.IN_GAME)
+    .onPress(() -> useAbility(1))
+    .register();
+
+EriKeys.create("mymod.ability2")
+    .combo(KeyCombo.of(Keyboard.KEY_V).shift())
+    .category("My RPG Mod")
+    .context(KeyContext.IN_GAME)
+    .onPress(() -> useAbility(2))
+    .register();</code></pre>
+      </div>
+
+      <p>
+        Because <code>ability2</code> uses <code>Shift+V</code> while <code>ability1</code> uses plain
+        <code>V</code>, they do not conflict. <code>KeyConflictDetector</code> will log no warning.
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Combine with NotificationManager for feedback</div>
+          <p>Show the player a visual confirmation when an ability is triggered:
+          <code>NotificationManager.getInstance().success("Ability 1 activated!");</code></p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -42,6 +42,14 @@
         <li><a href="index.html" class="nav-page-link active"><span class="nav-dot"></span>Home</a></li>
         <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
       </ul>
     </div>
 
@@ -403,23 +411,23 @@ public void init(FMLInitializationEvent event) {
           <span class="mc-badge mc-available">Available</span>
         </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="commands.html" class="module-card" style="text-decoration:none;">
           <div class="mc-icon" style="background: rgba(170,68,255,0.12); color: var(--accent-purple);">&#9654;</div>
           <div class="mc-title">Command Framework</div>
           <p class="mc-desc">
             Fluent builder for commands. Typed arguments, tab-completion, cooldowns, permissions, auto help.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="content.html" class="module-card">
           <div class="mc-icon" style="background: rgba(0,200,100,0.12); color: #00C864;">&#9638;</div>
           <div class="mc-title">Item &amp; Block Builder</div>
           <p class="mc-desc">
             Create items and blocks with fluent API. Auto-registry, runtime models, recipes.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
         <div class="module-card" style="opacity: 0.6; cursor: default;">
           <div class="mc-icon" style="background: rgba(255,80,120,0.12); color: #FF5080;">&#9650;</div>
@@ -430,59 +438,59 @@ public void init(FMLInitializationEvent event) {
           <span class="mc-badge mc-coming">Coming soon</span>
         </div>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="data.html" class="module-card">
           <div class="mc-icon" style="background: rgba(120,120,160,0.12); color: var(--text-muted);">&#9679;</div>
           <div class="mc-title">Data &amp; Storage</div>
           <p class="mc-desc">
             Annotation-based data persistence. Annotated POJOs, auto sync, multi-scope (player/world/global).
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="scheduler.html" class="module-card">
           <div class="mc-icon" style="background: rgba(0,221,255,0.12); color: var(--accent-cyan);">&#9200;</div>
           <div class="mc-title">Scheduler</div>
           <p class="mc-desc">
             Task scheduling. Delay, repeat, async, chain, cancel.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="chat.html" class="module-card">
           <div class="mc-icon" style="background: rgba(255,180,0,0.12); color: #FFB800;">&#9993;</div>
           <div class="mc-title">Chat Builder</div>
           <p class="mc-desc">
             Rich chat messages with fluent API. Colors, clickable, hover, pagination.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="capability.html" class="module-card">
           <div class="mc-icon" style="background: rgba(170,68,255,0.12); color: var(--accent-purple);">&#9733;</div>
           <div class="mc-title">Capability Helpers</div>
           <p class="mc-desc">
             Simplified capabilities. 1 annotation instead of 6 files. Auto sync.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="events.html" class="module-card">
           <div class="mc-icon" style="background: rgba(0,200,100,0.12); color: #00C864;">&#9889;</div>
           <div class="mc-title">Event Simplifier</div>
           <p class="mc-desc">
             One-liner lambda events. Filters, priority, once, auto-expire.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
 
-        <div class="module-card" style="opacity: 0.6; cursor: default;">
+        <a href="keys.html" class="module-card">
           <div class="mc-icon" style="background: rgba(255,80,120,0.12); color: #FF5080;">&#9000;</div>
           <div class="mc-title">Keybinding Manager</div>
           <p class="mc-desc">
             Advanced keybindings. Combos, double-tap, contexts, rebind GUI.
           </p>
-          <span class="mc-badge mc-coming">Coming soon</span>
-        </div>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
       </div>
     </section>
 

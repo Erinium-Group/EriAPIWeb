@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item &amp; Block Builder — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/content.html">FR</a>
+    <a href="content.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link active"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Overview</div>
+      <ul>
+        <li><a href="#overview"><span class="nav-dot"></span>How It Works</a></li>
+        <li><a href="#content-registry"><span class="nav-dot"></span>ContentRegistry</a></li>
+        <li><a href="#action-contexts"><span class="nav-dot"></span>Action Contexts</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Items</div>
+      <ul>
+        <li><a href="#eri-item"><span class="nav-dot"></span>EriItem</a></li>
+        <li><a href="#food-builder"><span class="nav-dot"></span>FoodBuilder</a></li>
+        <li><a href="#tool-builder"><span class="nav-dot"></span>ToolBuilder</a></li>
+        <li><a href="#armor-builder"><span class="nav-dot"></span>ArmorBuilder</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Blocks</div>
+      <ul>
+        <li><a href="#eri-block"><span class="nav-dot"></span>EriBlock</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Recipes</div>
+      <ul>
+        <li><a href="#eri-recipe"><span class="nav-dot"></span>EriRecipe</a></li>
+        <li><a href="#shaped-recipe"><span class="nav-dot"></span>Shaped</a></li>
+        <li><a href="#shapeless-recipe"><span class="nav-dot"></span>Shapeless</a></li>
+        <li><a href="#smelting-recipe"><span class="nav-dot"></span>Smelting</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         OVERVIEW
+    ====================================================== -->
+    <section class="doc-section section-intro" id="overview">
+      <div class="hero">
+        <h1>Item &amp; Block Builder</h1>
+        <p class="subtitle">
+          Create Minecraft items, blocks, and recipes in a few lines of code — no boilerplate subclasses required.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">Package: fr.eri.eriapi.content</span>
+          <span class="badge badge-purple">Fluent API</span>
+          <span class="badge badge-gray">Auto-registry</span>
+        </div>
+      </div>
+
+      <h2>How It Works</h2>
+      <p>
+        In standard Forge development, creating a new item requires extending <code>Item</code>, writing a model
+        JSON, registering the item in multiple events, and wiring up recipes manually. The <strong>Item &amp; Block
+        Builder</strong> module removes all of that ceremony.
+      </p>
+      <p>
+        Instead of subclasses and boilerplate, you describe what you want using a <strong>fluent chain</strong>
+        and call <code>.register()</code> at the end. EriAPI handles everything else: Forge event registration,
+        model binding, creative tab placement, and recipe injection.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>The entire workflow — one chain</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">EriItem.create("mymod", "ruby")
+    .maxStackSize(16)
+    .rarity(EnumRarity.RARE)
+    .glowing(true)
+    .tooltip("&amp;7A precious gem")
+    .tooltip("&amp;cVery rare")
+    .onRightClick(ctx -&gt; ctx.getPlayer().heal(2f))
+    .creativeTab(CreativeTabs.MATERIALS)
+    .register();</code></pre>
+      </div>
+
+      <h3>The Fluent API — writing code like a sentence</h3>
+      <p>
+        Every method returns <code>this</code>, which means you can keep chaining. Think of it as building a
+        sentence: "Create an item named 'ruby' in 'mymod', max stack of 16, rare rarity, glowing, with two
+        tooltip lines, healing the player on right-click, in the Materials creative tab — then register."
+      </p>
+      <p>
+        You never have to extend <code>Item</code> or <code>Block</code> yourself. Sub-builders (like
+        <code>.food()</code>, <code>.tool()</code>, <code>.armor()</code>) let you describe specialised
+        behaviour inline and return you to the parent builder with <code>.done()</code>.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Call .register() last</div>
+          <p>
+            Always end every builder chain with <code>.register()</code>. Without it, the item or block is
+            never submitted to Forge and will not appear in-game.
+          </p>
+        </div>
+      </div>
+
+      <h3>Package</h3>
+      <p>
+        All classes described on this page live in the <code>fr.eri.eriapi.content</code> package. Import
+        whichever class you need at the top of your file.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Imports</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">import fr.eri.eriapi.content.EriItem;
+import fr.eri.eriapi.content.EriBlock;
+import fr.eri.eriapi.content.EriRecipe;
+import fr.eri.eriapi.content.ContentRegistry;
+import fr.eri.eriapi.content.ItemActionContext;
+import fr.eri.eriapi.content.BlockActionContext;</code></pre>
+      </div>
+
+      <h3>Where to register your content</h3>
+      <p>
+        Call your builder chains from the <code>@Mod.EventHandler</code> <code>preInit</code> phase of your
+        main mod class — before Forge fires the registry events. EriAPI queues everything internally and
+        flushes the queue at the right moment through <code>ContentRegistry</code>.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Your main mod class</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Mod(modid = "mymod", version = "1.0")
+public class MyMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        // Register your items and blocks here
+        EriItem.create("mymod", "ruby")
+            .maxStackSize(16)
+            .rarity(EnumRarity.RARE)
+            .register();
+
+        EriBlock.create("mymod", "ruby_ore")
+            .material(Material.ROCK)
+            .hardness(3.0f)
+            .register();
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ITEM
+    ====================================================== -->
+    <section class="doc-section" id="eri-item">
+      <h2>EriItem</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriItem</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-cyan">Item builder</span>
+        </div>
+        <p>
+          <code>EriItem</code> is the entry point for creating any item. Start with the static factory method
+          <code>EriItem.create(modid, name)</code> and chain the methods you need. The <code>name</code>
+          becomes the item's registry name (e.g. <code>mymod:ruby</code>) and is also used as the translation
+          key and model filename.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Full example — a glowing rare gem</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriItem.create("modid", "ruby")
+    .maxStackSize(16)
+    .rarity(EnumRarity.RARE)
+    .glowing(true)
+    .tooltip("&amp;7A precious gem")
+    .tooltip("&amp;cVery rare")
+    .onRightClick(ctx -&gt; ctx.getPlayer().heal(2f))
+    .creativeTab(CreativeTabs.MATERIALS)
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriItem.create(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Static factory. Creates a new item builder. <code>modid</code> is your mod's ID; <code>name</code> is the registry name (lowercase, underscores). Must be called first.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">maxStackSize(<span class="param">int size</span>)</div>
+              <div class="method-desc">Sets the maximum number of items that can stack in one inventory slot. Default: 64.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">maxDamage(<span class="param">int damage</span>)</div>
+              <div class="method-desc">Sets the maximum durability of the item. Items with durability automatically show the durability bar. Setting this implicitly sets maxStackSize to 1.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">rarity(<span class="param">EnumRarity rarity</span>)</div>
+              <div class="method-desc">Sets the item rarity, which controls the color of its name in tooltips. Values: <code>COMMON</code> (white), <code>UNCOMMON</code> (yellow), <code>RARE</code> (aqua), <code>EPIC</code> (light purple).</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">creativeTab(<span class="param">CreativeTabs tab</span>)</div>
+              <div class="method-desc">Places the item in a creative mode tab. Use any of Minecraft's built-in tabs (<code>CreativeTabs.MATERIALS</code>, <code>CreativeTabs.TOOLS</code>, etc.) or pass a custom tab instance.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">glowing(<span class="param">boolean glow</span>)</div>
+              <div class="method-desc">When <code>true</code>, applies the enchantment glint visual effect to the item regardless of whether it is actually enchanted.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">tooltip(<span class="param">String line</span>)</div>
+              <div class="method-desc">Adds a line to the item tooltip shown when hovering in an inventory. Supports Minecraft color codes with <code>&amp;</code> (e.g. <code>&amp;7gray text</code>). Call multiple times for multiple lines.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onRightClick(<span class="param">Consumer&lt;ItemActionContext&gt; action</span>)</div>
+              <div class="method-desc">Registers a callback fired when the player right-clicks while holding this item. Receives an <a href="#action-contexts"><code>ItemActionContext</code></a> with the player, world, hand, and position.</div>
+            </div>
+            <span class="method-badge mb-event">EVENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onLeftClick(<span class="param">Consumer&lt;ItemActionContext&gt; action</span>)</div>
+              <div class="method-desc">Registers a callback fired when the player left-clicks (attacks) while holding this item. Receives an <a href="#action-contexts"><code>ItemActionContext</code></a>.</div>
+            </div>
+            <span class="method-badge mb-event">EVENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">food()</div>
+              <div class="method-desc">Opens a <a href="#food-builder"><code>FoodBuilder</code></a> sub-builder for configuring food properties. Call <code>.done()</code> on the sub-builder to return here.</div>
+            </div>
+            <span class="method-badge mb-fluent">SUB-BUILDER</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">tool()</div>
+              <div class="method-desc">Opens a <a href="#tool-builder"><code>ToolBuilder</code></a> sub-builder for configuring tool properties. Call <code>.done()</code> to return.</div>
+            </div>
+            <span class="method-badge mb-fluent">SUB-BUILDER</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">armor()</div>
+              <div class="method-desc">Opens an <a href="#armor-builder"><code>ArmorBuilder</code></a> sub-builder for configuring armor properties. Call <code>.done()</code> to return.</div>
+            </div>
+            <span class="method-badge mb-fluent">SUB-BUILDER</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">register()</div>
+              <div class="method-desc">Finalizes the item and submits it to EriAPI's <code>ContentRegistry</code> for Forge registration. Must be the last call in every chain.</div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+
+        <div class="info-box tip">
+          <div class="ib-icon">&#10003;</div>
+          <div class="ib-body">
+            <div class="ib-title">Storing the item reference</div>
+            <p>
+              If you need to reference the item later (e.g. to use it in a recipe), assign the result of
+              <code>EriItem.create()</code> to a field <em>before</em> calling <code>.register()</code>.
+              The builder object itself doubles as a handle to the registered item.
+            </p>
+            <pre style="margin-top:10px;"><code class="language-java">public static EriItem RUBY = EriItem.create("mymod", "ruby")
+    .maxStackSize(16)
+    .register();</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FOOD BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="food-builder">
+      <h2>FoodBuilder</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">FoodBuilder</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-gray">Sub-builder of EriItem</span>
+        </div>
+        <p>
+          <code>FoodBuilder</code> is a sub-builder accessed via <code>EriItem.create(...).food()</code>.
+          It lets you define all food properties inline. When you are done, call <code>.done()</code> to
+          return to the parent <code>EriItem</code> builder and continue chaining.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Custom food item with regeneration effect</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriItem.create("modid", "golden_apple_custom")
+    .food()
+        .hunger(6)
+        .saturation(1.2f)
+        .alwaysEdible(true)
+        .effect(new PotionEffect(MobEffects.REGENERATION, 100, 1), 1.0f)
+        .done()
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">hunger(<span class="param">int amount</span>)</div>
+              <div class="method-desc">How many hunger points are restored when eaten. Each full shank icon = 2 points; a full hunger bar = 20 points.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">saturation(<span class="param">float modifier</span>)</div>
+              <div class="method-desc">The saturation modifier added on top of the hunger points. Higher values mean the player stays fed longer. Bread is ~0.6, golden apple is ~1.2.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">alwaysEdible(<span class="param">boolean value</span>)</div>
+              <div class="method-desc">When <code>true</code>, the item can be eaten even when the player's hunger bar is full (like golden apples). Default: <code>false</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">effect(<span class="param">PotionEffect effect, float probability</span>)</div>
+              <div class="method-desc">Applies a potion effect when the food is eaten. <code>probability</code> is a float from <code>0.0</code> (never) to <code>1.0</code> (always). Call multiple times for multiple effects.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">done()</div>
+              <div class="method-desc">Closes the <code>FoodBuilder</code> and returns the parent <code>EriItem</code> builder so you can continue chaining.</div>
+            </div>
+            <span class="method-badge mb-abstract">RETURN</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         TOOL BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="tool-builder">
+      <h2>ToolBuilder</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ToolBuilder</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-gray">Sub-builder of EriItem</span>
+        </div>
+        <p>
+          <code>ToolBuilder</code> is accessed via <code>EriItem.create(...).tool()</code>. It configures
+          the item as a sword, pickaxe, axe, shovel, or hoe by setting the tool type, attack damage,
+          durability, and attack speed. Call <code>.done()</code> when finished.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Custom ruby sword</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriItem.create("modid", "ruby_sword")
+    .tool()
+        .type(ToolType.SWORD)
+        .damage(8f)
+        .durability(1500)
+        .speed(1.6f)
+        .done()
+    .register();</code></pre>
+        </div>
+
+        <h3>ToolType enum values</h3>
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Value</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ToolType.SWORD</td><td>Melee weapon — increases attack damage, sweeping</td></tr>
+            <tr><td>ToolType.PICKAXE</td><td>Mines stone-type blocks faster, required harvest tool</td></tr>
+            <tr><td>ToolType.AXE</td><td>Chops wood faster, deals extra damage on first hit</td></tr>
+            <tr><td>ToolType.SHOVEL</td><td>Digs dirt/gravel faster</td></tr>
+            <tr><td>ToolType.HOE</td><td>Tills farmland</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">type(<span class="param">ToolType type</span>)</div>
+              <div class="method-desc">Determines which kind of tool behavior is applied. See table above.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">damage(<span class="param">float attackDamage</span>)</div>
+              <div class="method-desc">The amount of attack damage dealt. A stone sword deals 5.0; a diamond sword deals 7.0.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">durability(<span class="param">int uses</span>)</div>
+              <div class="method-desc">How many uses before the item breaks. A diamond sword has 1561 uses; an iron sword has 251.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">speed(<span class="param">float attackSpeed</span>)</div>
+              <div class="method-desc">The attack speed modifier. Higher values mean faster attack cooldown recovery. A sword is ~1.6; an axe is ~0.9.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">done()</div>
+              <div class="method-desc">Closes the <code>ToolBuilder</code> and returns the parent <code>EriItem</code> builder.</div>
+            </div>
+            <span class="method-badge mb-abstract">RETURN</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ARMOR BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="armor-builder">
+      <h2>ArmorBuilder</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ArmorBuilder</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-gray">Sub-builder of EriItem</span>
+        </div>
+        <p>
+          <code>ArmorBuilder</code> is accessed via <code>EriItem.create(...).armor()</code>. It configures
+          which armor slot the item occupies, how much protection it provides, and which material name to
+          use for the armor texture. Call <code>.done()</code> when finished.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Custom ruby chestplate</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriItem.create("modid", "ruby_chestplate")
+    .armor()
+        .slot(ArmorSlot.CHEST)
+        .protection(8)
+        .toughness(2.0f)
+        .materialName("ruby")
+        .done()
+    .register();</code></pre>
+        </div>
+
+        <h3>ArmorSlot enum values</h3>
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Value</th>
+              <th>Slot</th>
+              <th>Standard protection (diamond)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ArmorSlot.HEAD</td><td>Helmet (head)</td><td>3</td></tr>
+            <tr><td>ArmorSlot.CHEST</td><td>Chestplate (torso)</td><td>8</td></tr>
+            <tr><td>ArmorSlot.LEGS</td><td>Leggings (legs)</td><td>6</td></tr>
+            <tr><td>ArmorSlot.FEET</td><td>Boots (feet)</td><td>3</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">slot(<span class="param">ArmorSlot slot</span>)</div>
+              <div class="method-desc">Which armor slot this item equips into. See table above.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">protection(<span class="param">int points</span>)</div>
+              <div class="method-desc">Number of armor points granted. Each full shield icon in the HUD = 2 points; maximum total from all four pieces is 20.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">toughness(<span class="param">float value</span>)</div>
+              <div class="method-desc">Armor toughness reduces the damage-scaling penalty from strong hits. Diamond armor has 2.0 per piece; most other materials have 0.0.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">materialName(<span class="param">String name</span>)</div>
+              <div class="method-desc">The base name used to look up the armor layer textures. For <code>"ruby"</code>, Minecraft will look for <code>textures/models/armor/ruby_layer_1.png</code> and <code>ruby_layer_2.png</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">done()</div>
+              <div class="method-desc">Closes the <code>ArmorBuilder</code> and returns the parent <code>EriItem</code> builder.</div>
+            </div>
+            <span class="method-badge mb-abstract">RETURN</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI BLOCK
+    ====================================================== -->
+    <section class="doc-section" id="eri-block">
+      <h2>EriBlock</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriBlock</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-cyan">Block builder</span>
+        </div>
+        <p>
+          <code>EriBlock</code> is the entry point for creating any block. Works exactly like
+          <code>EriItem</code> — start with the static factory, chain the properties you need, and end
+          with <code>.register()</code>.
+        </p>
+        <p>
+          The <code>name</code> parameter becomes the block's registry name (e.g. <code>mymod:ruby_ore</code>)
+          and is also used for the block state JSON and model filename lookups.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Full example — a mineable ore block</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriBlock.create("modid", "ruby_ore")
+    .material(Material.ROCK)
+    .hardness(3.0f)
+    .resistance(15.0f)
+    .harvestTool("pickaxe", 2)
+    .soundType(SoundType.STONE)
+    .drops(Items.DIAMOND, 1, 3)
+    .creativeTab(CreativeTabs.BUILDING_BLOCKS)
+    .onBreak(ctx -&gt; System.out.println("Broken!"))
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriBlock.create(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Static factory. Creates a new block builder. Must be called first.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">material(<span class="param">Material material</span>)</div>
+              <div class="method-desc">Sets the block's material, which determines default properties like flammability, piston behavior, and map color. Common values: <code>Material.ROCK</code>, <code>Material.WOOD</code>, <code>Material.IRON</code>, <code>Material.GROUND</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">hardness(<span class="param">float value</span>)</div>
+              <div class="method-desc">How long it takes to mine the block without the correct tool. Dirt is 0.5, stone is 1.5, obsidian is 50.0. Use <code>-1.0f</code> for unbreakable.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">resistance(<span class="param">float value</span>)</div>
+              <div class="method-desc">Explosion resistance. Stone is 10.0, obsidian is 6000.0. Generally set this higher than hardness.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">harvestTool(<span class="param">String toolClass, int level</span>)</div>
+              <div class="method-desc">Specifies which tool is required to harvest drops, and at which harvest level. Tool class values: <code>"pickaxe"</code>, <code>"axe"</code>, <code>"shovel"</code>. Levels: 0=wood, 1=stone, 2=iron, 3=diamond.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">soundType(<span class="param">SoundType soundType</span>)</div>
+              <div class="method-desc">The set of sounds played when walking on, placing, or breaking the block. Common values: <code>SoundType.STONE</code>, <code>SoundType.WOOD</code>, <code>SoundType.SAND</code>, <code>SoundType.METAL</code>, <code>SoundType.GLASS</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">drops(<span class="param">Item item, int min, int max</span>)</div>
+              <div class="method-desc">Sets what the block drops when broken. <code>min</code> and <code>max</code> define the random drop count range. For a block that drops itself, omit this method.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">creativeTab(<span class="param">CreativeTabs tab</span>)</div>
+              <div class="method-desc">Places the block's item form in a creative mode tab.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onBreak(<span class="param">Consumer&lt;BlockActionContext&gt; action</span>)</div>
+              <div class="method-desc">Registers a callback fired when a player breaks this block. Receives a <a href="#action-contexts"><code>BlockActionContext</code></a> with the world, position, and player.</div>
+            </div>
+            <span class="method-badge mb-event">EVENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">register()</div>
+              <div class="method-desc">Finalizes the block and submits it to <code>ContentRegistry</code> for Forge registration. Must be the last call.</div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+
+        <div class="info-box info">
+          <div class="ib-icon">&#8505;</div>
+          <div class="ib-body">
+            <div class="ib-title">Block items are registered automatically</div>
+            <p>
+              EriAPI automatically creates and registers the <code>ItemBlock</code> companion for every
+              <code>EriBlock</code> — the item form that appears in inventories. You do not have to create it
+              manually.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI RECIPE
+    ====================================================== -->
+    <section class="doc-section" id="eri-recipe">
+      <h2>EriRecipe</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriRecipe</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-cyan">Recipe builder</span>
+        </div>
+        <p>
+          <code>EriRecipe</code> provides fluent builders for the three main recipe types in Minecraft 1.12.2:
+          <strong>shaped crafting</strong>, <strong>shapeless crafting</strong>, and <strong>smelting</strong>.
+          Each type has its own static factory method.
+        </p>
+      </div>
+
+      <!-- SHAPED -->
+      <div class="card" id="shaped-recipe" style="margin-top: 24px;">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriRecipe.shaped()</div>
+          </div>
+          <span class="badge badge-gray">Shaped crafting</span>
+        </div>
+        <p>
+          A shaped recipe requires ingredients to be placed in a specific grid pattern. Define the pattern
+          with up to three strings of up to three characters each, then map each character to an ingredient.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>3x3 ruby block from 9 rubies</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriRecipe.shaped("modid", "ruby_block")
+    .pattern("RRR", "RRR", "RRR")
+    .key('R', myRubyItem)
+    .result(myRubyBlock, 1)
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriRecipe.shaped(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Static factory. Creates a shaped recipe builder. <code>name</code> is the recipe's registry name.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">pattern(<span class="param">String... rows</span>)</div>
+              <div class="method-desc">Defines the crafting grid pattern. Pass 1–3 strings of 1–3 characters each. Use a space character for empty slots. Each non-space character must be mapped with <code>.key()</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">key(<span class="param">char symbol, Item item</span>)</div>
+              <div class="method-desc">Maps a character used in the pattern to an ingredient item. Call once per unique character. Also accepts <code>Block</code> or <code>EriItem</code> / <code>EriBlock</code> references.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">result(<span class="param">Item item, int count</span>)</div>
+              <div class="method-desc">The item produced by this recipe and how many copies. Also accepts <code>Block</code>, <code>EriItem</code>, or <code>EriBlock</code> references.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">register()</div>
+              <div class="method-desc">Submits the recipe to Forge's recipe registry. Must be the last call.</div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- SHAPELESS -->
+      <div class="card" id="shapeless-recipe" style="margin-top: 24px;">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriRecipe.shapeless()</div>
+          </div>
+          <span class="badge badge-gray">Shapeless crafting</span>
+        </div>
+        <p>
+          A shapeless recipe can be crafted by placing the ingredients anywhere in the grid — order and
+          position do not matter.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Uncraft a ruby block back into 9 rubies</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriRecipe.shapeless("modid", "ruby_from_block")
+    .ingredient(myRubyBlock)
+    .result(myRubyItem, 9)
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriRecipe.shapeless(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Static factory. Creates a shapeless recipe builder.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ingredient(<span class="param">Item item</span>)</div>
+              <div class="method-desc">Adds a required ingredient. Call multiple times to add more. Also accepts <code>Block</code>, <code>EriItem</code>, or <code>EriBlock</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">result(<span class="param">Item item, int count</span>)</div>
+              <div class="method-desc">The item produced and how many copies.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">register()</div>
+              <div class="method-desc">Submits the recipe to Forge's recipe registry.</div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- SMELTING -->
+      <div class="card" id="smelting-recipe" style="margin-top: 24px;">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriRecipe.smelting()</div>
+          </div>
+          <span class="badge badge-gray">Furnace smelting</span>
+        </div>
+        <p>
+          A smelting recipe defines what a furnace produces when a given input item is cooked.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Smelt ruby ore into a ruby</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriRecipe.smelting("modid", "ruby_smelt")
+    .input(myRubyOre)
+    .result(myRubyItem)
+    .xp(1.0f)
+    .register();</code></pre>
+        </div>
+
+        <h3>Methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriRecipe.smelting(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Static factory. Creates a smelting recipe builder.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">input(<span class="param">Item item</span>)</div>
+              <div class="method-desc">The item that goes into the furnace input slot. Also accepts <code>Block</code>, <code>EriItem</code>, or <code>EriBlock</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">result(<span class="param">Item item</span>)</div>
+              <div class="method-desc">The item produced by smelting. Always produces exactly one copy.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">xp(<span class="param">float amount</span>)</div>
+              <div class="method-desc">How much XP the player earns each time they smelt this recipe. Ores typically give 0.7–1.0; food gives 0.1–0.35.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">register()</div>
+              <div class="method-desc">Submits the smelting recipe to Forge.</div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONTENT REGISTRY
+    ====================================================== -->
+    <section class="doc-section" id="content-registry">
+      <h2>ContentRegistry</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ContentRegistry</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-purple">Auto-managed</span>
+        </div>
+        <p>
+          <code>ContentRegistry</code> is the internal engine that connects EriAPI builders to the Forge
+          event system. You do <strong>not</strong> need to interact with it directly — it is fully
+          automatic.
+        </p>
+
+        <h3>What it does</h3>
+        <p>
+          When you call <code>.register()</code> on any builder, EriAPI adds the entry to an internal
+          queue managed by <code>ContentRegistry</code>. The registry listens for Forge's
+          <code>RegistryEvent.Register&lt;Item&gt;</code> and <code>RegistryEvent.Register&lt;Block&gt;</code>
+          events and automatically flushes the queue at the correct moment during the mod loading lifecycle.
+        </p>
+
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Forge Event</th>
+              <th>What ContentRegistry does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>RegistryEvent.Register&lt;Block&gt;</code></td>
+              <td>Registers all queued <code>EriBlock</code> instances</td>
+            </tr>
+            <tr>
+              <td><code>RegistryEvent.Register&lt;Item&gt;</code></td>
+              <td>Registers all queued <code>EriItem</code> instances and auto-generates <code>ItemBlock</code> companions</td>
+            </tr>
+            <tr>
+              <td><code>ModelRegistryEvent</code></td>
+              <td>Binds default item models using the registry name as the model path</td>
+            </tr>
+            <tr>
+              <td><code>FMLInitializationEvent</code></td>
+              <td>Injects all queued <code>EriRecipe</code> entries into Forge's recipe registry</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="info-box warning">
+          <div class="ib-icon">&#9888;</div>
+          <div class="ib-body">
+            <div class="ib-title">Register during preInit — not later</div>
+            <p>
+              Call your builder chains during <code>FMLPreInitializationEvent</code> (the <code>preInit</code>
+              phase). Calling <code>.register()</code> after Forge has already fired the registry events will
+              silently do nothing — your content will not appear in-game.
+            </p>
+          </div>
+        </div>
+
+        <h3>Model resolution</h3>
+        <p>
+          By default, EriAPI looks for item models at
+          <code>assets/&lt;modid&gt;/models/item/&lt;name&gt;.json</code> and block states at
+          <code>assets/&lt;modid&gt;/blockstates/&lt;name&gt;.json</code>. Place your JSON files there and
+          EriAPI will pick them up automatically — no manual <code>ModelLoader.setCustomModelResourceLocation()</code>
+          calls required.
+        </p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ACTION CONTEXTS
+    ====================================================== -->
+    <section class="doc-section" id="action-contexts">
+      <h2>Action Contexts</h2>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ItemActionContext &amp; BlockActionContext</div>
+            <div class="package-path">fr.eri.eriapi.content</div>
+          </div>
+          <span class="badge badge-gray">Callback parameter</span>
+        </div>
+        <p>
+          When you register a callback with <code>.onRightClick()</code>, <code>.onLeftClick()</code>, or
+          <code>.onBreak()</code>, your lambda receives a <em>context object</em> that gives you access to
+          everything relevant to the interaction. You never need to construct these objects yourself — EriAPI
+          creates and passes them automatically.
+        </p>
+
+        <h3>ItemActionContext</h3>
+        <p>Passed to <code>.onRightClick()</code> and <code>.onLeftClick()</code> callbacks on <code>EriItem</code>.</p>
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Return type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>getPlayer()</code></td><td><code>EntityPlayer</code></td><td>The player who interacted with the item</td></tr>
+            <tr><td><code>getWorld()</code></td><td><code>World</code></td><td>The world in which the interaction occurred</td></tr>
+            <tr><td><code>getHand()</code></td><td><code>EnumHand</code></td><td><code>MAIN_HAND</code> or <code>OFF_HAND</code></td></tr>
+            <tr><td><code>getStack()</code></td><td><code>ItemStack</code></td><td>The <code>ItemStack</code> the player was holding</td></tr>
+            <tr><td><code>getHitPosition()</code></td><td><code>BlockPos</code></td><td>The block position the player was looking at, or <code>null</code> if targeting air</td></tr>
+            <tr><td><code>isRemote()</code></td><td><code>boolean</code></td><td><code>true</code> if running on the client side; use to avoid running server logic twice</td></tr>
+          </tbody>
+        </table>
+
+        <h3>BlockActionContext</h3>
+        <p>Passed to <code>.onBreak()</code> callbacks on <code>EriBlock</code>.</p>
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Return type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>getPlayer()</code></td><td><code>EntityPlayer</code></td><td>The player who broke the block (may be <code>null</code> if broken by explosion or other means)</td></tr>
+            <tr><td><code>getWorld()</code></td><td><code>World</code></td><td>The world containing the block</td></tr>
+            <tr><td><code>getPos()</code></td><td><code>BlockPos</code></td><td>The position of the block that was broken</td></tr>
+            <tr><td><code>getState()</code></td><td><code>IBlockState</code></td><td>The block state at the moment of breaking</td></tr>
+            <tr><td><code>isRemote()</code></td><td><code>boolean</code></td><td><code>true</code> on the client side</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Using context in a callback</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriItem.create("mymod", "teleport_staff")
+    .onRightClick(ctx -&gt; {
+        // Guard: only run on the server
+        if (ctx.isRemote()) return;
+
+        EntityPlayer player = ctx.getPlayer();
+        BlockPos target = ctx.getHitPosition();
+
+        if (target != null) {
+            // Teleport the player to the clicked block
+            player.setPositionAndUpdate(
+                target.getX() + 0.5,
+                target.getY() + 1.0,
+                target.getZ() + 0.5
+            );
+        }
+    })
+    .register();</code></pre>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label"><span>Using BlockActionContext</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">EriBlock.create("mymod", "alarm_block")
+    .material(Material.ROCK)
+    .hardness(1.5f)
+    .onBreak(ctx -&gt; {
+        if (ctx.isRemote()) return;
+
+        World world = ctx.getWorld();
+        BlockPos pos = ctx.getPos();
+        EntityPlayer player = ctx.getPlayer();
+
+        // Broadcast a chat message to all players
+        world.getMinecraftServer().getPlayerList()
+            .sendMessage(new TextComponentString(
+                (player != null ? player.getName() : "Someone")
+                + " broke the alarm block at " + pos
+            ));
+    })
+    .register();</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         COMPLETE EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="complete-example">
+      <h2>Complete Example</h2>
+      <p>
+        The following shows a self-contained preInit method that registers a full set of ruby content:
+        an ore block, a gem item, a sword, a chestplate, a food item, and the corresponding recipes.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Full ruby content module</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">@Mod.EventHandler
+public void preInit(FMLPreInitializationEvent event) {
+
+    // --- Blocks ---
+    EriBlock rubyOre = EriBlock.create("mymod", "ruby_ore")
+        .material(Material.ROCK)
+        .hardness(3.0f)
+        .resistance(15.0f)
+        .harvestTool("pickaxe", 2)
+        .soundType(SoundType.STONE)
+        .creativeTab(CreativeTabs.BUILDING_BLOCKS)
+        .register();
+
+    EriBlock rubyBlock = EriBlock.create("mymod", "ruby_block")
+        .material(Material.IRON)
+        .hardness(5.0f)
+        .resistance(30.0f)
+        .harvestTool("pickaxe", 2)
+        .soundType(SoundType.METAL)
+        .creativeTab(CreativeTabs.BUILDING_BLOCKS)
+        .register();
+
+    // --- Items ---
+    EriItem ruby = EriItem.create("mymod", "ruby")
+        .maxStackSize(64)
+        .rarity(EnumRarity.RARE)
+        .glowing(false)
+        .tooltip("&amp;7A rare gemstone")
+        .creativeTab(CreativeTabs.MATERIALS)
+        .register();
+
+    EriItem.create("mymod", "ruby_sword")
+        .tool()
+            .type(ToolType.SWORD)
+            .damage(8f)
+            .durability(1500)
+            .speed(1.6f)
+            .done()
+        .creativeTab(CreativeTabs.COMBAT)
+        .register();
+
+    EriItem.create("mymod", "ruby_chestplate")
+        .armor()
+            .slot(ArmorSlot.CHEST)
+            .protection(8)
+            .toughness(2.0f)
+            .materialName("ruby")
+            .done()
+        .creativeTab(CreativeTabs.COMBAT)
+        .register();
+
+    EriItem.create("mymod", "ruby_candy")
+        .food()
+            .hunger(4)
+            .saturation(0.8f)
+            .alwaysEdible(false)
+            .effect(new PotionEffect(MobEffects.SPEED, 200, 1), 1.0f)
+            .done()
+        .tooltip("&amp;aTastes like victory")
+        .creativeTab(CreativeTabs.FOOD)
+        .register();
+
+    // --- Recipes ---
+    // Smelt ore → gem
+    EriRecipe.smelting("mymod", "ruby_from_ore")
+        .input(rubyOre)
+        .result(ruby)
+        .xp(1.0f)
+        .register();
+
+    // 9 gems → block
+    EriRecipe.shaped("mymod", "ruby_block_craft")
+        .pattern("RRR", "RRR", "RRR")
+        .key('R', ruby)
+        .result(rubyBlock, 1)
+        .register();
+
+    // Uncraft block → 9 gems
+    EriRecipe.shapeless("mymod", "ruby_from_block")
+        .ingredient(rubyBlock)
+        .result(ruby, 9)
+        .register();
+}</code></pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
