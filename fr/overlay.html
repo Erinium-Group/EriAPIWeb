@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overlay HUD — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="overlay.html" class="active">FR</a>
+    <a href="../en/overlay.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link active"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Introduction</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Qu'est-ce qu'un overlay</a></li>
+        <li><a href="#vs-gui"><span class="nav-dot"></span>Overlay vs GUI</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">API Principale</div>
+      <ul>
+        <li><a href="#eri-overlay"><span class="nav-dot"></span>EriOverlay</a></li>
+        <li><a href="#overlay-manager"><span class="nav-dot"></span>OverlayManager</a></li>
+        <li><a href="#anchor"><span class="nav-dot"></span>Anchor</a></li>
+        <li><a href="#overlay-layer"><span class="nav-dot"></span>OverlayLayer</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Composants</div>
+      <ul>
+        <li><a href="#composants-disponibles"><span class="nav-dot"></span>Composants utilisables</a></li>
+        <li><a href="#effets-visuels"><span class="nav-dot"></span>Effets visuels</a></li>
+        <li><a href="#animations-overlay"><span class="nav-dot"></span>Animations &amp; scope</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Exemples</div>
+      <ul>
+        <li><a href="#exemple-barre-mana"><span class="nav-dot"></span>Barre de mana</a></li>
+        <li><a href="#exemple-hud-faction"><span class="nav-dot"></span>HUD faction</a></li>
+        <li><a href="#exemple-animation"><span class="nav-dot"></span>Overlay animé</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Notes techniques</div>
+      <ul>
+        <li><a href="#notes-techniques"><span class="nav-dot"></span>Scope, hideInGui, F1</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Overlay HUD</h1>
+        <p class="subtitle">
+          Affiche des informations en permanence sur le HUD du joueur — barres de vie, stats de faction, effets visuels — sans bloquer le jeu.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.overlay</span>
+          <span class="badge badge-purple">Client-side</span>
+          <span class="badge badge-gray">1920x1080 design</span>
+        </div>
+      </div>
+
+      <h2>Qu'est-ce qu'un overlay ?</h2>
+      <p>
+        Un <strong>overlay</strong> est un element graphique affiche en permanence sur l'ecran du joueur,
+        par-dessus le jeu et le HUD vanilla de Minecraft. Contrairement a un GUI (<code>EriGuiScreen</code>)
+        qui prend le controle de l'ecran, un overlay reste affiché en permanence pendant que le joueur joue.
+      </p>
+      <p>
+        Cas d'usage typiques :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Barres de ressources</strong> — mana, endurance, energie, chaleur</li>
+        <li><strong style="color:var(--text);">HUD de faction</strong> — nom de faction, grade, points de territoire</li>
+        <li><strong style="color:var(--text);">Indicateurs de statut</strong> — effets actifs, buffs/debuffs</li>
+        <li><strong style="color:var(--text);">Minimap ou boussole</strong> personnalisee</li>
+        <li><strong style="color:var(--text);">Effets decoratifs</strong> — particules, aurora, fumee ambiante</li>
+      </ul>
+
+      <div class="section-divider"></div>
+
+      <h2 id="vs-gui">Overlay vs GUI — quelle difference ?</h2>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Caracteristique</th>
+            <th>EriGuiScreen (GUI)</th>
+            <th>EriOverlay (HUD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ouverture</td>
+            <td>Sur action du joueur (touche, commande)</td>
+            <td>Permanent (enregistre une fois)</td>
+          </tr>
+          <tr>
+            <td>Bloque le jeu</td>
+            <td>Oui — le joueur ne peut pas bouger</td>
+            <td>Non — le joueur joue normalement</td>
+          </tr>
+          <tr>
+            <td>Interactions</td>
+            <td>Clavier, souris, clics</td>
+            <td>Aucune (rendu uniquement)</td>
+          </tr>
+          <tr>
+            <td>Coordonnees</td>
+            <td>1920x1080 design pixels</td>
+            <td>1920x1080 design pixels (identique)</td>
+          </tr>
+          <tr>
+            <td>Composants</td>
+            <td>Tous les composants EriAPI</td>
+            <td>Composants visuels seulement (pas d'input)</td>
+          </tr>
+          <tr>
+            <td>Cycle de vie</td>
+            <td>Ouvert / ferme</td>
+            <td>Register / unregister + show / hide</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Meme systeme de composants</div>
+          <p>Les overlays utilisent exactement les memes composants, le meme systeme de coordonnees
+          1920x1080 et les memes animations qu'un GUI classique. Si tu sais creer un <code>EriGuiScreen</code>,
+          tu sais deja creer un overlay.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EriOverlay
+    ====================================================== -->
+    <section class="doc-section" id="eri-overlay">
+      <h2>EriOverlay</h2>
+      <p>
+        <code>EriOverlay</code> est la classe de base abstraite pour tous les overlays HUD.
+        Tu crees une sous-classe, tu definis les composants dans <code>buildOverlay()</code>,
+        et tu l'enregistres dans <code>OverlayManager</code>.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">CLASS ABSTRACT</div>
+        <div>
+          <div class="class-name">EriOverlay</div>
+          <div class="package-path">fr.eri.eriapi.overlay.EriOverlay</div>
+        </div>
+      </div>
+
+      <h3>Creation d'un overlay</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Overlay minimal</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
+import fr.eri.eriapi.gui.components.*;
+
+public class HealthOverlay extends EriOverlay {
+
+    public HealthOverlay() {
+        // id unique, largeur et hauteur en design pixels
+        super("health_hud", 200, 60);
+
+        setAnchor(Anchor.BOTTOM_LEFT);   // coin inferieur gauche
+        setOffset(10, -10);              // decalage depuis l'ancrage
+    }
+
+    @Override
+    protected void buildOverlay() {
+        getRoot().add(
+            new Rectangle(0, 0, 200, 60)
+                .fillColor(0x80000000)
+                .cornerRadius(8),
+            new Label(10, 20, 180, 20, "HP : 20")
+                .color(0xFFFF5555)
+        );
+    }
+}
+
+// Enregistrement (une fois, dans ClientProxy.init() par exemple) :
+OverlayManager.getInstance().register(new HealthOverlay());</code></pre>
+      </div>
+
+      <h3>Cycle de vie</h3>
+      <p>
+        La methode <code>buildOverlay()</code> est appelee <strong>une seule fois</strong> au premier rendu
+        (lazy initialization). Les appels suivants a <code>render()</code> reutilisent les composants deja
+        construits. Si tu veux forcer une reconstruction (donnees qui changent), appelle <code>rebuild()</code>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriOverlay — methodes</div>
+            <div class="package-path">fr.eri.eriapi.overlay.EriOverlay</div>
+          </div>
+          <span class="badge badge-cyan">API publique</span>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">EriOverlay(<span class="param">String id, int designWidth, int designHeight</span>)</div>
+              <div class="method-desc">Constructeur. <code>id</code> est l'identifiant unique utilise par <code>OverlayManager</code>. <code>designWidth</code> et <code>designHeight</code> definissent la zone de l'overlay en pixels de design (1920x1080).</div>
+            </div>
+            <span class="method-badge mb-constructor">Constructeur</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> buildOverlay()</div>
+              <div class="method-desc">Methode abstraite a implementer. Appelle <code>getRoot().add(...)</code> pour ajouter des composants. Appelee une seule fois au premier rendu.</div>
+            </div>
+            <span class="method-badge mb-abstract">A implementer</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">ContainerComponent</span> getRoot()</div>
+              <div class="method-desc">Retourne le conteneur racine. A utiliser depuis <code>buildOverlay()</code> pour ajouter des composants.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> rebuild()</div>
+              <div class="method-desc">Force la reconstruction de l'overlay au prochain rendu. Utile pour rafraichir l'affichage apres un changement de donnees important.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> setAnchor(<span class="param">Anchor anchor</span>)</div>
+              <div class="method-desc">Definit le point d'ancrage de l'overlay sur l'ecran. Voir la section <a href="#anchor">Anchor</a>. Defaut : <code>TOP_LEFT</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> setOffset(<span class="param">int offsetX, int offsetY</span>)</div>
+              <div class="method-desc">Decalage en pixels de design depuis l'ancrage. Positif = bas/droite, negatif = haut/gauche.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> setLayer(<span class="param">OverlayLayer layer</span>)</div>
+              <div class="method-desc">Definit le layer de rendu (moment dans le pipeline HUD). Defaut : <code>POST_ALL</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> hideInGui(<span class="param">boolean hide</span>)</div>
+              <div class="method-desc">Si <code>true</code> (defaut), l'overlay disparait quand un GUI est ouvert. Mettre a <code>false</code> pour toujours afficher l'overlay meme dans les menus.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> hideOnF1(<span class="param">boolean hide</span>)</div>
+              <div class="method-desc">Si <code>true</code> (defaut), l'overlay disparait quand le joueur appuie sur F1 (masquer le HUD). Mettre a <code>false</code> pour ignorer F1.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> show() / hide() / toggle()</div>
+              <div class="method-desc">Controle direct de la visibilite de cet overlay. Equivalent a <code>OverlayManager.getInstance().show("id")</code>.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         OverlayManager
+    ====================================================== -->
+    <section class="doc-section" id="overlay-manager">
+      <h2>OverlayManager</h2>
+      <p>
+        <code>OverlayManager</code> est le singleton qui centralise tous les overlays enregistres.
+        Il gere automatiquement le rendu et les ticks via les events Forge — tu n'as rien a configurer
+        au-dela de l'enregistrement initial.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">SINGLETON</div>
+        <div>
+          <div class="class-name">OverlayManager</div>
+          <div class="package-path">fr.eri.eriapi.overlay.OverlayManager</div>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Enregistrement et controle</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.overlay.OverlayManager;
+
+OverlayManager om = OverlayManager.getInstance();
+
+// Enregistrer des overlays (une fois, en init)
+om.register(new HealthOverlay());
+om.register(new ManaOverlay());
+om.register(new FactionHudOverlay());
+
+// Controle de la visibilite par ID
+om.show("health_hud");
+om.hide("health_hud");
+om.toggle("health_hud");
+
+// Controle global
+om.hideAll();
+om.showAll();
+
+// Recuperer un overlay pour le modifier
+EriOverlay overlay = om.get("health_hud");
+if (overlay != null) {
+    overlay.rebuild(); // Forcer une reconstruction
+}
+
+// Desenregistrer un overlay
+om.unregister("health_hud");</code></pre>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">OverlayManager — methodes</div>
+            <div class="package-path">fr.eri.eriapi.overlay.OverlayManager</div>
+          </div>
+          <span class="badge badge-gray">Singleton</span>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static OverlayManager</span> getInstance()</div>
+              <div class="method-desc">Retourne l'instance unique du gestionnaire.</div>
+            </div>
+            <span class="method-badge mb-static">Statique</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> register(<span class="param">EriOverlay overlay</span>)</div>
+              <div class="method-desc">Enregistre un overlay. Si un overlay avec le meme ID existe deja, il est remplace. L'ordre d'enregistrement determine l'ordre de rendu.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> unregister(<span class="param">String id</span>)</div>
+              <div class="method-desc">Supprime un overlay enregistre. Sans effet si l'ID est inconnu.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriOverlay</span> get(<span class="param">String id</span>)</div>
+              <div class="method-desc">Retourne l'overlay correspondant a l'ID, ou <code>null</code> s'il n'existe pas.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> show(<span class="param">String id</span>) / hide(<span class="param">String id</span>) / toggle(<span class="param">String id</span>)</div>
+              <div class="method-desc">Controle la visibilite d'un overlay par son ID. Sans effet si l'ID est inconnu.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> showAll() / hideAll()</div>
+              <div class="method-desc">Affiche ou masque tous les overlays enregistres.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ou enregistrer les overlays ?</div>
+          <p>Enregistre tes overlays dans <code>ClientProxy.init()</code> (ou <code>postInit()</code> si
+          tu as besoin que les items/blocs soient charges en premier). Ne les enregistre pas dans un
+          constructeur de GUI ou dans un event qui se declenche souvent — le register est fait une seule fois.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         Anchor
+    ====================================================== -->
+    <section class="doc-section" id="anchor">
+      <h2>Anchor</h2>
+      <p>
+        L'enum <code>Anchor</code> definit les neuf points d'ancrage possibles pour un overlay.
+        L'ancrage est le coin ou le bord de l'ecran depuis lequel l'overlay est positionne.
+        Combine avec <code>setOffset(x, y)</code> pour affiner le positionnement.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">ENUM</div>
+        <div>
+          <div class="class-name">Anchor</div>
+          <div class="package-path">fr.eri.eriapi.overlay.Anchor</div>
+        </div>
+      </div>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Position sur l'ecran</th>
+            <th>Cas d'usage typique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>TOP_LEFT</code></td>
+            <td>Coin superieur gauche (0, 0)</td>
+            <td>Minimap, logo de mod</td>
+          </tr>
+          <tr>
+            <td><code>TOP_CENTER</code></td>
+            <td>Centre du bord superieur</td>
+            <td>Titre de zone, boss bar</td>
+          </tr>
+          <tr>
+            <td><code>TOP_RIGHT</code></td>
+            <td>Coin superieur droit</td>
+            <td>Horloge, coordonnees, ping</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_LEFT</code></td>
+            <td>Centre du bord gauche</td>
+            <td>Barre de statut laterale</td>
+          </tr>
+          <tr>
+            <td><code>CENTER</code></td>
+            <td>Centre absolu de l'ecran</td>
+            <td>Reticule custom, alerte centrale</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_RIGHT</code></td>
+            <td>Centre du bord droit</td>
+            <td>Liste de buffs/debuffs</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_LEFT</code></td>
+            <td>Coin inferieur gauche</td>
+            <td>Barre de mana/endurance</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_CENTER</code></td>
+            <td>Centre du bord inferieur</td>
+            <td>Barre d'action, raccourcis</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_RIGHT</code></td>
+            <td>Coin inferieur droit</td>
+            <td>Stats de faction, nom de faction</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Utilisation de l'ancrage avec offset</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Overlay en bas a droite avec 15px de marge
+new MonOverlay()
+    .setAnchor(Anchor.BOTTOM_RIGHT)
+    .setOffset(-15, -15);  // negatif = vers le haut/gauche
+
+// Overlay centre en haut avec 20px de marge du bord
+new BossBarOverlay()
+    .setAnchor(Anchor.TOP_CENTER)
+    .setOffset(0, 20);     // positif = vers le bas</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Coordonnees de design</div>
+          <p>Les offsets sont en pixels de design (espace 1920x1080), comme pour les composants GUI.
+          EriAPI les convertit automatiquement vers la resolution reelle du joueur. Un offset de
+          <code>(-15, -15)</code> representera la meme marge visuelle sur un ecran 1080p ou 4K.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         OverlayLayer
+    ====================================================== -->
+    <section class="doc-section" id="overlay-layer">
+      <h2>OverlayLayer</h2>
+      <p>
+        <code>OverlayLayer</code> definit <strong>a quel moment</strong> dans le pipeline de rendu HUD
+        de Minecraft ton overlay est dessine. Cela determine ce qui est affiche par-dessus ou par-dessous.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">ENUM</div>
+        <div>
+          <div class="class-name">OverlayLayer</div>
+          <div class="package-path">fr.eri.eriapi.overlay.OverlayLayer</div>
+        </div>
+      </div>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Moment du rendu</th>
+            <th>Consequence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PRE_ALL</code></td>
+            <td>Avant tous les elements HUD vanilla</td>
+            <td>Ton overlay est affiche <strong>sous</strong> la barre de vie, l'inventaire rapide, etc.</td>
+          </tr>
+          <tr>
+            <td><code>POST_HOTBAR</code></td>
+            <td>Apres la barre d'items (hotbar)</td>
+            <td>S'affiche par-dessus la hotbar mais sous la barre de vie</td>
+          </tr>
+          <tr>
+            <td><code>POST_EXPERIENCE</code></td>
+            <td>Apres la barre d'experience</td>
+            <td>S'affiche apres l'XP bar, avant les autres elements</td>
+          </tr>
+          <tr>
+            <td><code>POST_ALL</code></td>
+            <td>Apres tous les elements HUD vanilla <em>(defaut)</em></td>
+            <td>Ton overlay est affiche <strong>par-dessus tout</strong> le HUD vanilla</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Changer le layer de rendu</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Afficher l'overlay par-dessus tout le HUD (comportement par defaut)
+overlay.setLayer(OverlayLayer.POST_ALL);
+
+// Afficher juste apres la hotbar
+overlay.setLayer(OverlayLayer.POST_HOTBAR);
+
+// Fond ambiant sous tout le HUD
+overlay.setLayer(OverlayLayer.PRE_ALL);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         COMPOSANTS DISPONIBLES
+    ====================================================== -->
+    <section class="doc-section" id="composants-disponibles">
+      <h2>Composants utilisables dans les overlays</h2>
+      <p>
+        Les overlays reutilisent exactement les memes composants que les GUIs. La seule difference :
+        <strong>les composants interactifs (TextField, ScrollList, TabView, etc.) n'ont aucune utilite</strong>
+        dans un overlay car il n'y a pas d'interaction clavier/souris avec le HUD.
+      </p>
+
+      <h3>Formes et fonds</h3>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Rectangle</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Rectangle</div>
+          </div>
+          <span class="badge badge-gray">Forme</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Rectangle uni avec option coins arrondis et bordure. Parfait pour les fonds de panneau HUD.</p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new Rectangle(0, 0, 200, 60)
+    .fillColor(0x80000000)   // fond semi-transparent
+    .borderColor(0x40FFFFFF) // bordure subtile
+    .cornerRadius(8);</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">GradientRectangle</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.GradientRectangle</div>
+          </div>
+          <span class="badge badge-gray">Forme</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Rectangle avec degrade lineaire (vertical ou horizontal). Ideal pour les barres d'ambiance ou les fonds degrades.</p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">// Degrade vertical violet → bleu
+new GradientRectangle()
+    .originalPos(0, 0).originalSize(200, 60)
+    .vertical(0xFF6B2FA0, 0xFF00E5FF)
+    .cornerRadius(8);
+
+// Degrade horizontal
+new GradientRectangle()
+    .originalPos(0, 0).originalSize(300, 8)
+    .horizontal(0xFF00E5FF, 0x00000000); // fondu vers transparent</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Circle / Triangle</div>
+            <div class="package-path">fr.eri.eriapi.gui.components</div>
+          </div>
+          <span class="badge badge-gray">Forme</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Cercle plein ou triangle (indicateur directionnel). Utiles pour des icones ou fleches de navigation.</p>
+      </div>
+
+      <h3>Texte</h3>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Label</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Label</div>
+          </div>
+          <span class="badge badge-cyan">Texte</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Affichage de texte avec scale, alignement et ombre. Le composant texte de base pour tous les HUD.</p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new Label(10, 10, 180, 20, "Faction : Erinien")
+    .color(0xFFFFD700)
+    .scale(1.2f)
+    .shadow(true);</code></pre>
+        </div>
+      </div>
+
+      <h3>Controles de progression</h3>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ProgressBar</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ProgressBar</div>
+          </div>
+          <span class="badge badge-purple">Controle</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Barre de progression avec fill anime, couleurs et coins arrondis. Le composant ideal pour afficher des ressources (mana, vie, exp).</p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">ProgressBar manaBar = new ProgressBar(0, 0, 180, 14)
+    .progress(0.75f)                // 75% de mana
+    .fillColor(0xFF6B2FA0)          // couleur du remplissage
+    .backgroundColor(0x40000000)   // fond
+    .cornerRadius(7)
+    .showText(false);               // pas de texte en overlay</code></pre>
+        </div>
+      </div>
+
+      <h3>Conteneurs</h3>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ContainerComponent</div>
+            <div class="package-path">fr.eri.eriapi.gui.core.ContainerComponent</div>
+          </div>
+          <span class="badge badge-gray">Layout</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
+          Conteneur pour imbriquer des composants. Permet de grouper des elements et d'appliquer
+          une opacity ou des animations collectives. La methode <code>getRoot()</code> de <code>EriOverlay</code>
+          retourne deja un <code>ContainerComponent</code> racine — utilise des sous-conteneurs pour
+          organiser ton HUD en sections logiques.
+        </p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EFFETS VISUELS
+    ====================================================== -->
+    <section class="doc-section" id="effets-visuels">
+      <h2>Effets visuels decoratifs</h2>
+      <p>
+        Ces composants sont particulierement adaptes aux overlays : ils s'animent en continu,
+        consomment peu de ressources et apportent une ambiance visuelle sans necessiter de
+        configuration de l'<code>AnimationManager</code>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Aurora</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Aurora</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
+          Bandes d'aurore boreale ondulantes avec degrade vertical. Jusqu'a 10 bandes superposables,
+          chacune avec sa propre couleur, frequence, amplitude et vitesse. Anime en continu via
+          <code>System.currentTimeMillis()</code> — pas besoin d'animation EriAPI.
+        </p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java — Aurora en overlay de fond</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new Aurora()
+    .originalPos(0, 0).originalSize(1920, 400)
+    .addBand(0x406B2FA0, 0.3f, 1.2f, 80, 50)   // violet
+    .addBand(0x3000E5FF, 0.5f, 0.8f, 60, 120)  // cyan
+    .addBand(0x20FF6B6B, 0.7f, 0.6f, 50, 200)  // rose subtil
+    .speed(0.02f);
+// Parametres addBand : couleur, frequence, amplitude, hauteur, offsetY</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Starfield</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Starfield</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
+          Champ d'etoiles avec scintillement sinusoidal et etoiles filantes aleatoires.
+          Jusqu'a 3 etoiles filantes simultanees.
+        </p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new Starfield()
+    .originalPos(0, 0).originalSize(600, 400)
+    .starCount(80)
+    .starColor(0xFFF0F2FF)
+    .shootingStarChance(0.003f); // 0 = jamais, 0.01 = frequent</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ParticleSystem</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ParticleSystem</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
+          Systeme de particules soft (cercles avec gradient radial) qui naissent, derivent et
+          s'estompent. Blending additif pour un effet lumineux. Parfait pour une ambiance magique.
+        </p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new ParticleSystem()
+    .originalPos(0, 0).originalSize(300, 100)
+    .maxParticles(20)
+    .spawnRate(0.3f)
+    .particleLife(2000, 4000)
+    .particleSize(20, 60)
+    .particleColor(0x306B2FA0)
+    .drift(0, -0.008f)     // monte doucement
+    .spread(0.01f)
+    .fadeIn(0.2f).fadeOut(0.4f);</code></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">SmokeFog</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.SmokeFog</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
+          Brouillard organique base sur du bruit Simplex fractal (FBM). Anime en continu,
+          le brouillard coule et se deforme naturellement. Tres subtil a faible intensite.
+        </p>
+        <div class="code-wrapper">
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <pre><code class="language-java">new SmokeFog()
+    .originalPos(0, 0).originalSize(400, 200)
+    .color(0x6B2FA0)      // couleur RGB
+    .intensity(0.08f)     // alpha max (tres subtil)
+    .scale(0.006f)        // taille des volutes
+    .speed(0.0003f)
+    .octaves(3)
+    .cellSize(12);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANIMATIONS DANS LES OVERLAYS
+    ====================================================== -->
+    <section class="doc-section" id="animations-overlay">
+      <h2>Animations et scope "overlay"</h2>
+      <p>
+        Toutes les animations EriAPI fonctionnent dans les overlays. Cependant, il y a une subtilite
+        importante : quand un GUI est ferme, <code>EriGuiScreen.onGuiClosed()</code> appelle
+        <code>AnimationManager.getInstance().stopGuiAnimations()</code> — cela arrete toutes les
+        animations qui n'ont <strong>pas de scope</strong>.
+      </p>
+      <p>
+        Pour proteger les animations d'overlay contre cet arret, utilise <code>.scope("overlay")</code> :
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Animation d'overlay protegee avec .scope()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public class ManaOverlay extends EriOverlay {
+
+    private Label manaLabel;
+    private ProgressBar manaBar;
+
+    public ManaOverlay() {
+        super("mana_hud", 200, 40);
+        setAnchor(Anchor.BOTTOM_LEFT);
+        setOffset(10, -70); // au-dessus de la barre de vie vanilla
+    }
+
+    @Override
+    protected void buildOverlay() {
+        manaLabel = new Label(10, 5, 100, 15, "Mana")
+            .color(0xFF9B59B6);
+
+        manaBar = new ProgressBar(10, 22, 180, 10)
+            .progress(1f)
+            .fillColor(0xFF6B2FA0)
+            .backgroundColor(0x40000000)
+            .cornerRadius(5);
+
+        getRoot().add(manaLabel, manaBar);
+
+        // Animation respirante — scope "overlay" pour ne pas etre arretee
+        // quand le joueur ouvre/ferme un GUI
+        Animation anim = Animation.create(0.6f, 1f, 30)
+            .pingPong()
+            .scope("overlay")
+            .easing(Easing.EASE_IN_OUT)
+            .onUpdate(v -> manaLabel.setOpacity(v));
+        AnimationManager.getInstance().play(anim);
+    }
+
+    // Methode publique pour mettre a jour la valeur de mana
+    public void setMana(float ratio) {
+        if (manaBar != null) {
+            manaBar.progress(ratio);
+        }
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Toujours utiliser .scope("overlay") pour les animations loopees</div>
+          <p>Sans ce scope, tes animations <code>pingPong()</code> ou <code>loop()</code> seront
+          interrompues chaque fois que le joueur ferme un GUI (inventaire, etc.). Avec
+          <code>.scope("overlay")</code>, elles continuent de tourner independamment.</p>
+        </div>
+      </div>
+
+      <h3>Helpers d'animation sur les composants</h3>
+      <p>
+        Les methodes pré-faites de <code>Component</code> (<code>fadeIn</code>, <code>breathe</code>, <code>pulse</code>, etc.)
+        fonctionnent aussi dans les overlays, mais elles ne definissent pas de scope automatiquement.
+        Pour les animations en boucle dans un overlay, cree l'animation manuellement avec <code>.scope("overlay")</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Comparaison : avec et sans scope</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// ❌ Sera arrete quand le joueur ferme un GUI
+label.breathe(40); // helper interne, pas de scope
+
+// ✅ Continue meme quand un GUI est ouvert puis ferme
+Animation.create(0.4f, 1f, 20)
+    .pingPong()
+    .scope("overlay")
+    .easing(Easing.EASE_IN_OUT)
+    .onUpdate(v -> label.setOpacity(v));
+AnimationManager.getInstance().play(breatheAnim);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE 1 : BARRE DE MANA
+    ====================================================== -->
+    <section class="doc-section" id="exemple-barre-mana">
+      <h2>Exemple 1 — Barre de mana</h2>
+      <p>
+        Un overlay simple avec une barre de progression et un label, ancre en bas a gauche.
+        La barre peut etre mise a jour depuis n'importe ou dans le code.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ManaOverlay complet</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
+import fr.eri.eriapi.gui.components.*;
+
+public class ManaOverlay extends EriOverlay {
+
+    private ProgressBar manaBar;
+    private Label manaLabel;
+
+    public ManaOverlay() {
+        super("mana_overlay", 210, 50);
+        setAnchor(Anchor.BOTTOM_LEFT);
+        setOffset(10, -80); // juste au-dessus de la barre de vie
+        hideInGui(true);    // masquer si GUI ouvert
+        hideOnF1(true);     // masquer si F1
+    }
+
+    @Override
+    protected void buildOverlay() {
+        // Fond
+        getRoot().add(new Rectangle(0, 0, 210, 50)
+            .fillColor(0x90000000)
+            .cornerRadius(6));
+
+        // Label "Mana"
+        manaLabel = new Label(8, 6, 60, 12, "MANA")
+            .color(0xFFBB86FC)
+            .scale(0.8f)
+            .shadow(true);
+
+        // Barre de mana
+        manaBar = new ProgressBar(8, 24, 194, 12)
+            .progress(1f)
+            .fillColor(0xFF6B2FA0)
+            .backgroundColor(0x50000000)
+            .cornerRadius(6);
+
+        // Label valeur
+        Label valueLabel = new Label(8, 38, 194, 10, "100 / 100")
+            .color(0x80FFFFFF)
+            .scale(0.75f)
+            .align(Label.Align.CENTER);
+
+        getRoot().add(manaLabel, manaBar, valueLabel);
+    }
+
+    /** Appele depuis ton systeme de mana pour mettre a jour la barre. */
+    public void setMana(int current, int max) {
+        if (manaBar != null) {
+            manaBar.progress((float) current / max);
+        }
+    }
+}
+
+// Dans ClientProxy.init() :
+ManaOverlay manaOverlay = new ManaOverlay();
+OverlayManager.getInstance().register(manaOverlay);
+
+// Depuis n'importe ou dans ton mod (cote client) :
+ManaOverlay overlay = (ManaOverlay) OverlayManager.getInstance().get("mana_overlay");
+if (overlay != null) overlay.setMana(75, 100);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE 2 : HUD FACTION
+    ====================================================== -->
+    <section class="doc-section" id="exemple-hud-faction">
+      <h2>Exemple 2 — HUD de faction</h2>
+      <p>
+        Un HUD de faction dans le coin inferieur droit avec le nom de la faction, le grade du joueur
+        et le nombre de membres en ligne.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — FactionHudOverlay</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
+import fr.eri.eriapi.gui.components.*;
+
+public class FactionHudOverlay extends EriOverlay {
+
+    private Label factionNameLabel;
+    private Label rankLabel;
+    private Label membersLabel;
+
+    public FactionHudOverlay() {
+        super("faction_hud", 220, 70);
+        setAnchor(Anchor.BOTTOM_RIGHT);
+        setOffset(-10, -10);
+    }
+
+    @Override
+    protected void buildOverlay() {
+        // Fond avec degrade
+        getRoot().add(new GradientRectangle()
+            .originalPos(0, 0).originalSize(220, 70)
+            .vertical(0x80150A2A, 0x801A0B35)
+            .cornerRadius(8));
+
+        // Bordure superieure
+        getRoot().add(new GradientRectangle()
+            .originalPos(0, 0).originalSize(220, 2)
+            .horizontal(0x00000000, 0xFF6B2FA0)
+            .cornerRadius(0));
+
+        // Icone / prefixe
+        getRoot().add(new Label(8, 10, 20, 16, "\u2726")
+            .color(0xFFFFD700)
+            .scale(1.0f));
+
+        // Nom de la faction
+        factionNameLabel = new Label(28, 8, 180, 18, "Aucune faction")
+            .color(0xFFE0E0E0)
+            .scale(1.0f)
+            .shadow(true);
+
+        // Grade
+        rankLabel = new Label(8, 30, 204, 14, "Grade : ---")
+            .color(0xFF9B8BCC)
+            .scale(0.85f);
+
+        // Membres en ligne
+        membersLabel = new Label(8, 48, 204, 14, "Membres en ligne : 0")
+            .color(0xFF6BCB77)
+            .scale(0.85f);
+
+        getRoot().add(factionNameLabel, rankLabel, membersLabel);
+    }
+
+    public void update(String faction, String rank, int onlineMembers) {
+        if (factionNameLabel != null) factionNameLabel.text(faction);
+        if (rankLabel != null) rankLabel.text("Grade : " + rank);
+        if (membersLabel != null) membersLabel.text("Membres en ligne : " + onlineMembers);
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE 3 : OVERLAY ANIME
+    ====================================================== -->
+    <section class="doc-section" id="exemple-animation">
+      <h2>Exemple 3 — Overlay avec effets visuels animes</h2>
+      <p>
+        Un overlay ambiante avec un champ d'etoiles en fond et une aurora, affiche en haut de l'ecran.
+        Ce type d'overlay est utilise pour des effets decoratifs permanents.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — AmbientOverlay avec Starfield et Aurora</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
+import fr.eri.eriapi.gui.components.*;
+import fr.eri.eriapi.gui.anim.*;
+
+public class AmbientOverlay extends EriOverlay {
+
+    public AmbientOverlay() {
+        super("ambient_overlay", 1920, 300);
+        setAnchor(Anchor.TOP_LEFT);
+        setLayer(OverlayLayer.PRE_ALL); // sous le HUD vanilla
+        hideInGui(false); // reste visible meme dans les menus
+        hideOnF1(true);
+    }
+
+    @Override
+    protected void buildOverlay() {
+        // Champ d'etoiles en fond
+        getRoot().add(new Starfield()
+            .originalPos(0, 0).originalSize(1920, 300)
+            .starCount(60)
+            .starColor(0xFFF0F2FF)
+            .shootingStarChance(0.002f));
+
+        // Aurora au-dessus
+        getRoot().add(new Aurora()
+            .originalPos(0, 0).originalSize(1920, 300)
+            .addBand(0x306B2FA0, 0.4f, 1.0f, 100, 80)
+            .addBand(0x2000E5FF, 0.6f, 0.7f, 80, 160)
+            .speed(0.015f));
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         NOTES TECHNIQUES
+    ====================================================== -->
+    <section class="doc-section" id="notes-techniques">
+      <h2>Notes techniques</h2>
+
+      <h3>Scope des animations</h3>
+      <p>
+        Quand un GUI est ferme (<code>EriGuiScreen.onGuiClosed()</code>), le framework appelle
+        <code>AnimationManager.getInstance().stopGuiAnimations()</code>. Cette methode arrete
+        <strong>toutes les animations sans scope</strong> (<code>scope == null</code>).
+        Les animations avec <code>.scope("overlay")</code> (ou tout autre scope non nul) sont preservees.
+      </p>
+      <p>
+        Regle a retenir : dans un overlay, toute animation en boucle (<code>loop()</code>,
+        <code>pingPong()</code>) doit avoir <code>.scope("overlay")</code>.
+        Les animations a usage unique (fondu d'apparition, slide) n'ont pas besoin de scope.
+      </p>
+
+      <h3>hideInGui</h3>
+      <p>
+        Par defaut, <code>hideInGui(true)</code> masque automatiquement l'overlay quand
+        <code>Minecraft.getMinecraft().currentScreen != null</code> (un GUI est ouvert).
+        Mettre a <code>false</code> si ton overlay doit rester visible dans les menus
+        (effet decoratif, information persistante).
+      </p>
+
+      <h3>hideOnF1</h3>
+      <p>
+        Par defaut, <code>hideOnF1(true)</code> masque l'overlay quand
+        <code>mc.gameSettings.hideGUI == true</code> (joueur appuie sur F1 pour cacher le HUD).
+        Mettre a <code>false</code> uniquement pour les overlays qui ont une raison forte de
+        toujours s'afficher (debug info, etc.).
+      </p>
+
+      <h3>Thread safety</h3>
+      <p>
+        Les overlays sont entierement rendus sur le thread de rendu client. Ne modifie pas
+        les composants depuis un thread async (EriScheduler.async ou autre). Utilise
+        <code>EriScheduler.delay(0, () -> overlay.setMana(...))</code> pour rappliquer sur
+        le thread principal si necessaire.
+      </p>
+
+      <h3>Performance</h3>
+      <p>
+        Les overlays sont rendus a chaque frame (60 FPS+). Evite les calculs lourds dans
+        <code>buildOverlay()</code> ou dans les lambdas <code>onUpdate</code>. Les composants
+        decoratifs (<code>SmokeFog</code>, <code>ParticleSystem</code>) ont des limites integrees
+        (<code>cellSize</code>, <code>maxParticles</code>) pour controler le cout GPU.
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Bonne pratique : mettre a jour via des methodes publiques</div>
+          <p>Stocke les references aux composants comme champs prives de ta classe overlay.
+          Expose des methodes publiques (<code>setMana()</code>, <code>update()</code>) pour
+          mettre a jour les valeurs. Ne cree pas de nouveaux composants a chaque tick —
+          modifie seulement les proprietes des composants existants (<code>.text()</code>,
+          <code>.progress()</code>, etc.).</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

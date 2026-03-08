@@ -41,6 +41,7 @@
       <ul>
         <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
         <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
@@ -263,6 +264,13 @@ public class PlayerStats {
               <td><code>true</code></td>
               <td>Si <code>true</code>, les donnees sont copiees lors de la mort du joueur via <code>PlayerEvent.Clone</code>. Si <code>false</code>, les donnees sont remises a zero a chaque mort.</td>
             </tr>
+            <tr>
+              <td><code>filename</code></td>
+              <td>String</td>
+              <td>Non</td>
+              <td><code>""</code></td>
+              <td>Nom du fichier de sauvegarde pour les scopes <code>WORLD</code> et <code>GLOBAL</code>. Si vide, les donnees sont stockees dans le fichier partage <code>eriapi_data.dat</code>. Si specifie, un fichier dedie est cree : <code>world/data/{filename}.dat</code>. Recommande pour isoler les donnees de ton mod.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -374,6 +382,11 @@ public class PlayerStats { ... }
 // Donnees par monde : l'etat des quetes depend du monde
 @EriData(modId = "myrpg", scope = DataScope.WORLD)
 public class WorldQuests { ... }
+
+// Donnees monde avec fichier dedie (recommande)
+// Cree world/data/myrpg_factions.dat au lieu du fichier partage
+@EriData(modId = "myrpg", scope = DataScope.WORLD, filename = "myrpg_factions")
+public class FactionData { ... }
 
 // Donnees globales : partagees entre tous les mondes du serveur
 @EriData(modId = "myrpg", scope = DataScope.GLOBAL)

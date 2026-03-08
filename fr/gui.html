@@ -49,6 +49,7 @@
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
         <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
         <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
         <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
       </ul>
     </div>
@@ -138,7 +139,28 @@
     </div>
 
     <div class="nav-group">
-    <div class="nav-group">      <div class="nav-group-title">Animations</div>      <ul>        <li><a href="#easing"><span class="nav-dot"></span>Easing</a></li>        <li><a href="#animation"><span class="nav-dot"></span>Animation</a></li>        <li><a href="#animation-manager"><span class="nav-dot"></span>AnimationManager</a></li>        <li><a href="#animations-prefaites"><span class="nav-dot"></span>Animations pré-faites</a></li>      </ul>    </div>
+      <div class="nav-group-title">Effets visuels</div>
+      <ul>
+        <li><a href="#gradient-rectangle"><span class="nav-dot"></span>GradientRectangle</a></li>
+        <li><a href="#aurora"><span class="nav-dot"></span>Aurora</a></li>
+        <li><a href="#starfield"><span class="nav-dot"></span>Starfield</a></li>
+        <li><a href="#particle-system"><span class="nav-dot"></span>ParticleSystem</a></li>
+        <li><a href="#smoke-fog"><span class="nav-dot"></span>SmokeFog</a></li>
+        <li><a href="#page-view"><span class="nav-dot"></span>PageView</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Animations</div>
+      <ul>
+        <li><a href="#easing"><span class="nav-dot"></span>Easing</a></li>
+        <li><a href="#animation"><span class="nav-dot"></span>Animation</a></li>
+        <li><a href="#animation-manager"><span class="nav-dot"></span>AnimationManager</a></li>
+        <li><a href="#animation-sequence"><span class="nav-dot"></span>AnimationSequence</a></li>
+        <li><a href="#animation-group"><span class="nav-dot"></span>AnimationGroup</a></li>
+        <li><a href="#animations-prefaites"><span class="nav-dot"></span>Animations pré-faites</a></li>
+      </ul>
+    </div>
     <div class="nav-group">
       <div class="nav-group-title">Tooltips & Notifications</div>
       <ul>
@@ -148,6 +170,7 @@
       </ul>
     </div>
 
+    <div class="nav-group">
       <div class="nav-group-title">Réseau</div>
       <ul>
         <li><a href="#reseau-intro"><span class="nav-dot"></span>Introduction réseau</a></li>
@@ -221,42 +244,66 @@ Button b = new Button(100, 100, 200, 50)
 
       <h3>Les coordonnées — où placer les composants</h3>
       <p>
-        Quand tu crées un composant, les quatre premiers paramètres sont toujours : <strong>x, y, largeur, hauteur</strong>.
+        Quand tu crées un composant, tu spécifies sa position avec <code>.originalPos(x, y)</code> et sa taille avec <code>.originalSize(largeur, hauteur)</code>.
       </p>
       <p>
-        <code>x</code> et <code>y</code> sont la position du coin supérieur gauche du composant.
-        <code>x=0, y=0</code> est le coin supérieur gauche de l'écran.
-        Les valeurs augmentent vers la droite (x) et vers le bas (y).
+        <strong>Les coordonnées sont relatives au conteneur parent</strong> (comme les <code>div</code> en HTML/CSS).
+        Un composant avec <code>.originalPos(20, 30)</code> dans un conteneur à <code>.originalPos(100, 200)</code>
+        sera affiché à la position <strong>(120, 230)</strong> en design pixels sur l'écran.
+      </p>
+      <p>
+        Pour les composants ajoutés directement au <code>root</code> (le conteneur racine à position 0,0),
+        les coordonnées sont de facto absolues sur l'écran.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Comprendre les coordonnées</span>
+          <span>Java — Comprendre les coordonnées relatives</span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">// Dans un espace de 1920x1080 (défini dans super(1920, 1080)) :
+        <pre><code class="language-java">// Espace de design : 1920x1080
 
-// Un bouton centré au milieu de l'écran :
-// x = (1920 - largeur) / 2 = (1920 - 400) / 2 = 760
-// y = (1080 - hauteur) / 2 = (1080 -  50) / 2 = 515
-new Button(760, 515, 400, 50).text("Centré !");
+// Un panneau centré de 600x400
+ContainerComponent panel = new ContainerComponent()
+    .originalPos(660, 340)   // position absolue (ajouté au root)
+    .originalSize(600, 400)
+    .backgroundColor(0xCC1A1A2E)
+    .cornerRadius(12);
 
-// Un label en haut à gauche :
-new Label(20, 20, 300, 30).text("Coin supérieur gauche");
+// Ce label est à (20, 20) DANS le panneau
+// Position écran finale : (660+20, 340+20) = (680, 360)
+panel.add(new Label("Titre")
+    .originalPos(20, 20)
+    .originalSize(560, 30)
+    .color(0xFFFFFFFF)
+    .scale(2.0f));
 
-// Un bouton en bas à droite :
-// x = 1920 - largeur - marge = 1920 - 200 - 20 = 1700
-// y = 1080 - hauteur - marge = 1080 -  40 - 20 = 1020
-new Button(1700, 1020, 200, 40).text("Coin bas droit");</code></pre>
+// Ce bouton est en bas du panneau
+// Position écran finale : (660+200, 340+340) = (860, 680)
+panel.add(new Button("Valider")
+    .originalPos(200, 340)
+    .originalSize(200, 40)
+    .onClick(() -> action()));
+
+root.add(panel);</code></pre>
       </div>
 
       <div class="info-box info">
-        <div class="ib-icon">ℹ</div>
+        <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
           <div class="ib-title">Le scaling automatique</div>
-          <p>Tu dessines toujours dans un espace de 1920×1080 (ou la taille que tu passes à <code>super()</code>).
+          <p>Tu dessines toujours dans un espace de 1920x1080 (ou la taille que tu passes à <code>super()</code>).
           EriAPI convertit automatiquement ces coordonnées pour s'adapter à la vraie résolution du joueur
-          (1280×720, 2560×1440, etc.). Tu n'as rien à faire de spécial — c'est géré pour toi.</p>
+          (1280x720, 2560x1440, etc.). Tu n'as rien à faire de spécial.</p>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Coordonnées relatives = facilité</div>
+          <p>Grâce aux coordonnées relatives, si tu déplaces un conteneur, tous ses enfants suivent automatiquement.
+          Tu n'as jamais besoin de recalculer les positions des composants enfants. Pense à ça comme des <code>div</code> imbriquées en HTML.</p>
         </div>
       </div>
 
@@ -4261,6 +4308,553 @@ menu.add("Option B", () -> choixB());</code></pre>
     <div class="section-divider"></div>
 
     <!-- ======================================================
+         GRADIENT RECTANGLE
+    ====================================================== -->
+    <section class="doc-section" id="gradient-rectangle">
+      <h2>GradientRectangle</h2>
+      <p>
+        <code>GradientRectangle</code> est un rectangle avec un degrade lineaire (vertical ou horizontal)
+        et des coins arrondis optionnels. Il remplace avantageusement <code>Rectangle</code> quand tu veux
+        des fonds degrades (panneau, barre de statut, separateur).
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">GradientRectangle</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.GradientRectangle</div>
+          </div>
+          <span class="badge badge-gray">Forme</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Dégradé vertical et horizontal</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.GradientRectangle;
+
+// Degrade vertical (haut -> bas) violet -> bleu
+new GradientRectangle()
+    .originalPos(100, 100).originalSize(400, 200)
+    .vertical(0xFF6B2FA0, 0xFF00E5FF)
+    .cornerRadius(12);
+
+// Degrade horizontal (gauche -> droite) cyan -> transparent
+new GradientRectangle()
+    .originalPos(0, 0).originalSize(1920, 4)
+    .horizontal(0xFF00E5FF, 0x0000E5FF); // fondu vers transparent
+
+// Degrade vertical avec alpha (fond semi-transparent)
+new GradientRectangle()
+    .originalPos(660, 340).originalSize(600, 400)
+    .vertical(0xCC1A1A2E, 0xCC2A1A3E)
+    .cornerRadius(16);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">vertical(<span class="param">int topColor, int bottomColor</span>)</div>
+              <div class="method-desc">Definit un degrade de haut en bas. Les deux couleurs sont en format ARGB (<code>0xAARRGGBB</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">horizontal(<span class="param">int leftColor, int rightColor</span>)</div>
+              <div class="method-desc">Definit un degrade de gauche a droite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">cornerRadius(<span class="param">int radius</span>)</div>
+              <div class="method-desc">Arrondit les coins en pixels de design. Le degrade est correctement applique aux coins arrondis.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         AURORA
+    ====================================================== -->
+    <section class="doc-section" id="aurora">
+      <h2>Aurora</h2>
+      <p>
+        <code>Aurora</code> est un composant decoratif qui dessine des bandes d'aurore boreale — des vagues
+        sinusoidales superposees avec un degrade vertical, animees en continu. Jusqu'a <strong>10 bandes</strong>
+        independantes peuvent etre configurees, chacune avec sa propre couleur, frequence et vitesse.
+      </p>
+      <p>
+        Ce composant s'anime automatiquement via <code>System.currentTimeMillis()</code> — aucune
+        configuration d'<code>AnimationManager</code> n'est requise.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Aurora</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Aurora</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Aurora avec plusieurs bandes</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Aurora;
+
+// Aurora en fond de GUI (pleine largeur, haut de l'ecran)
+Aurora aurora = new Aurora()
+    .originalPos(0, 0)
+    .originalSize(1920, 500)
+    .addBand(0x406B2FA0, 0.3f, 1.2f, 80, 50)   // violet, 1 vague, amplitude 1.2, hauteur 80px, yOffset 50
+    .addBand(0x3000E5FF, 0.5f, 0.8f, 60, 120)  // cyan, 1.5 vagues, amplitude 0.8
+    .addBand(0x20FF6B6B, 0.7f, 0.6f, 50, 200)  // rose subtil
+    .speed(0.02f)    // vitesse des vagues (defaut: 0.015)
+    .segments(80);   // lisse (defaut: 64)
+
+root.add(aurora);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">addBand(<span class="param">int color, float frequency, float amplitude, int height, int yOffset</span>)</div>
+              <div class="method-desc">Ajoute une bande d'aurore. <b>color</b> : couleur ARGB (le bas sera transparent). <b>frequency</b> : nombre de cycles sinusoidaux sur la largeur (ex : 0.5 = une demi-vague, 1.0 = une vague complete). <b>amplitude</b> : hauteur de l'ondulation en design pixels. <b>height</b> : epaisseur du degrade de la bande en design pixels. <b>yOffset</b> : position Y de la bande relative au composant. Max 10 bandes.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">speed(<span class="param">float speed</span>)</div>
+              <div class="method-desc">Vitesse de deplacement des vagues. Defaut : <code>0.015f</code>. Plus grand = plus rapide.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">segments(<span class="param">int segments</span>)</div>
+              <div class="method-desc">Nombre de segments par bande pour la fluidite. Defaut : <code>64</code>. Minimum : <code>16</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         STARFIELD
+    ====================================================== -->
+    <section class="doc-section" id="starfield">
+      <h2>Starfield</h2>
+      <p>
+        <code>Starfield</code> est un champ d'etoiles decoratif avec scintillement sinusoidal et etoiles filantes
+        aleatoires. Les etoiles ont des tailles, phases et vitesses de scintillement variees pour un rendu naturel.
+        Jusqu'a 3 etoiles filantes peuvent etre actives simultanement.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Starfield</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Starfield</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Champ d'étoiles</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Starfield;
+
+new Starfield()
+    .originalPos(0, 0)
+    .originalSize(1920, 1080)
+    .starCount(80)                  // nombre d'etoiles statiques
+    .starColor(0xFFF0F2FF)          // couleur (blanc legerement bleu)
+    .shootingStarChance(0.003f);    // probabilite d'etoile filante par frame
+                                    // 0 = jamais, 0.01 = tres frequent</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">starCount(<span class="param">int count</span>)</div>
+              <div class="method-desc">Nombre d'etoiles statiques a generer. Defaut : <code>50</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">starColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Couleur des etoiles. Defaut : <code>0xFFF0F2FF</code> (blanc casse).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">shootingStarChance(<span class="param">float chance</span>)</div>
+              <div class="method-desc">Probabilite par frame qu'une etoile filante apparaisse. Defaut : <code>0.002f</code>. <code>0</code> = jamais. Max 3 simultanees.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         PARTICLE SYSTEM
+    ====================================================== -->
+    <section class="doc-section" id="particle-system">
+      <h2>ParticleSystem</h2>
+      <p>
+        <code>ParticleSystem</code> est un systeme de particules GPU-friendly. Les particules sont
+        des cercles soft (gradient radial du centre vers transparent) qui naissent, grandissent,
+        derivent et s'estompent progressivement. Le blending est additif — les particules
+        qui se chevauchent fusionnent et s'eclaircissent.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ParticleSystem</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ParticleSystem</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Systeme de particules magiques</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ParticleSystem;
+
+// Particules qui montent doucement (fumee legere)
+new ParticleSystem()
+    .originalPos(0, 600).originalSize(1920, 480)
+    .maxParticles(40)
+    .spawnRate(0.6f)           // ~0.6 particule par frame (36/s a 60fps)
+    .particleLife(3000, 6000)  // duree de vie : 3 a 6 secondes
+    .particleSize(30, 100)     // grossit de 30 a 100 design px au cours de sa vie
+    .particleColor(0x206B2FA0) // violet tres transparent (blending additif)
+    .drift(0, -0.008f)         // monte lentement
+    .spread(0.012f)            // dispersion aleatoire legere
+    .fadeIn(0.15f)             // fondu entrant sur 15% de la vie
+    .fadeOut(0.35f);           // fondu sortant sur 35% de la vie
+
+// Particules sur les bords uniquement
+new ParticleSystem()
+    .originalPos(0, 0).originalSize(1920, 1080)
+    .maxParticles(20)
+    .spawnOnEdges(true)        // spawn sur les bords de la zone
+    .drift(0.005f, 0.002f)
+    .particleColor(0x3000E5FF);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">maxParticles(<span class="param">int max</span>)</div>
+              <div class="method-desc">Nombre maximum de particules simultanees (cap a 200). Defaut : <code>30</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">spawnRate(<span class="param">float rate</span>)</div>
+              <div class="method-desc">Particules emises par frame. <code>0.5</code> = 1 particule toutes les 2 frames. Defaut : <code>0.5f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">particleLife(<span class="param">int minMs, int maxMs</span>)</div>
+              <div class="method-desc">Duree de vie min/max des particules en millisecondes. Defaut : <code>3000, 6000</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">particleSize(<span class="param">int startPx, int endPx</span>)</div>
+              <div class="method-desc">Taille de la particule en design pixels (debut de vie, fin de vie). La particule grossit progressivement. Defaut : <code>40, 120</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">particleColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Couleur ARGB des particules. L'alpha de la couleur est multiplie par les facteurs de fade. Defaut : <code>0x20FFFFFF</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">drift(<span class="param">float dx, float dy</span>)</div>
+              <div class="method-desc">Derive constante en px/ms. <code>dy</code> negatif = monte. Defaut : <code>0, -0.008f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">spread(<span class="param">float s</span>)</div>
+              <div class="method-desc">Vitesse aleatoire ajoutee a la derive (dispersion). Plus grand = plus chaotique. Defaut : <code>0.015f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">fadeIn(<span class="param">float ratio</span>) / fadeOut(<span class="param">float ratio</span>)</div>
+              <div class="method-desc">Fraction de la vie utilisee pour le fondu d'apparition / disparition (0-1). Defaut : <code>0.15f, 0.3f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">spawnOnEdges(<span class="param">boolean edges</span>)</div>
+              <div class="method-desc">Si <code>true</code>, les particules naissent sur les bords de la zone plutot qu'a l'interieur.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         SMOKE FOG
+    ====================================================== -->
+    <section class="doc-section" id="smoke-fog">
+      <h2>SmokeFog</h2>
+      <p>
+        <code>SmokeFog</code> est un brouillard organique base sur du bruit Simplex fractal (FBM —
+        Fractional Brownian Motion). Il dessine une grille de quads dont l'alpha est module par le bruit,
+        anime dans le temps. Le resultat est un brouillard qui coule et se deforme naturellement.
+      </p>
+      <p>
+        Contrairement a <code>ParticleSystem</code>, <code>SmokeFog</code> est completement continu —
+        pas de particules individuelles, juste une texture procedurale qui evolue.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">SmokeFog</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.SmokeFog</div>
+          </div>
+          <span class="badge badge-purple">Effet visuel</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Brouillard ambiant</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.SmokeFog;
+
+// Brouillard violet subtil en fond de GUI
+new SmokeFog()
+    .originalPos(0, 0).originalSize(1920, 1080)
+    .color(0x6B2FA0)       // couleur RGB (sans alpha — l'alpha est gere par intensity)
+    .intensity(0.08f)      // alpha max (0-1). 0.05-0.15 = tres subtil, 0.3+ = visible
+    .scale(0.006f)         // echelle du bruit. Petit = grands motifs
+    .speed(0.0003f)        // vitesse d'evolution du bruit
+    .wind(0.0001f, -0.00005f) // derive legere
+    .octaves(3)            // detail fractal (2-6). Plus = plus de detail mais plus couteux
+    .persistence(0.5f)     // persistence FBM (0-1). 0.5 = standard
+    .cellSize(12);         // taille de chaque cellule en px ecran. Plus petit = plus lisse</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">color(<span class="param">int rgb</span>)</div>
+              <div class="method-desc">Couleur RGB du brouillard sans alpha (ex : <code>0x6B2FA0</code>). L'alpha est controle par <code>intensity()</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">intensity(<span class="param">float i</span>)</div>
+              <div class="method-desc">Alpha maximum du brouillard (0-1). <code>0.05-0.12</code> = tres subtil, <code>0.2-0.35</code> = bien visible. Defaut : <code>0.10f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">scale(<span class="param">float s</span>)</div>
+              <div class="method-desc">Echelle spatiale du bruit. Plus petit = motifs plus grands et organiques. Defaut : <code>0.007f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">speed(<span class="param">float s</span>)</div>
+              <div class="method-desc">Vitesse d'evolution temporelle du bruit (animation). Defaut : <code>0.0003f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">wind(<span class="param">float wx, float wy</span>)</div>
+              <div class="method-desc">Derive constante du brouillard (px/ms). Cree un effet de vent. Defaut : <code>0.0001f, -0.00008f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">octaves(<span class="param">int o</span>)</div>
+              <div class="method-desc">Octaves FBM — nombre de couches de bruit superposees (1-6). Plus = plus de detail mais plus couteux. Defaut : <code>3</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">persistence(<span class="param">float p</span>)</div>
+              <div class="method-desc">Persistence FBM (0-1). Controle l'influence des octaves hautes. Defaut : <code>0.5f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">cellSize(<span class="param">int s</span>)</div>
+              <div class="method-desc">Taille de chaque cellule de la grille en pixels ecran. Plus petit = rendu plus lisse mais plus couteux. Minimum : <code>4</code>. Defaut : <code>10</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         PAGE VIEW
+    ====================================================== -->
+    <section class="doc-section" id="page-view">
+      <h2>PageView</h2>
+      <p>
+        <code>PageView</code> est un conteneur a pages avec transitions animees. Quand tu changes de page,
+        le contenu actuel glisse vers le haut en disparaissant (fade out) pendant que le nouveau contenu
+        arrive depuis le bas (fade in). Le deplacement est court et subtil — le contenu ne sort pas
+        visuellement du conteneur.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">PageView</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.PageView</div>
+          </div>
+          <span class="badge badge-cyan">Layout</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — PageView avec navigation</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.PageView;
+import fr.eri.eriapi.gui.core.ContainerComponent;
+
+// Creer le PageView
+PageView pageView = new PageView()
+    .originalPos(300, 100)
+    .originalSize(800, 600)
+    .transitionDuration(10)         // transition en 10 ticks (0.5s)
+    .transitionEasing(Easing.EASE_OUT_CUBIC)
+    .slideDistance(40);             // le contenu glisse de 40 design px
+
+// Creer les pages (des ContainerComponent)
+ContainerComponent page1 = new ContainerComponent()
+    .originalPos(0, 0).originalSize(800, 600);
+page1.add(new Label(20, 20, 760, 30, "Page 1 — Profil"));
+
+ContainerComponent page2 = new ContainerComponent()
+    .originalPos(0, 0).originalSize(800, 600);
+page2.add(new Label(20, 20, 760, 30, "Page 2 — Stats"));
+
+// Definir la page initiale (sans animation)
+pageView.setContent(page1);
+
+// Naviguer vers une autre page (avec transition)
+new Button("Stats").onClick(() -> pageView.switchTo(page2));
+
+root.add(pageView);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">transitionDuration(<span class="param">int ticks</span>)</div>
+              <div class="method-desc">Duree de la transition en ticks. Defaut : <code>10</code> (0.5 seconde).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">transitionEasing(<span class="param">Easing easing</span>)</div>
+              <div class="method-desc">Easing de la transition. Defaut : <code>EASE_OUT_CUBIC</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">slideDistance(<span class="param">int designPx</span>)</div>
+              <div class="method-desc">Distance de glissement en design pixels. Plus petit = plus subtil. Defaut : <code>50</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setContent(<span class="param">ContainerComponent content</span>)</div>
+              <div class="method-desc">Definit le contenu initial <strong>sans animation</strong>. A appeler lors du premier affichage.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> switchTo(<span class="param">ContainerComponent newContent</span>)</div>
+              <div class="method-desc">Change de page <strong>avec animation</strong> slide + fade. Si une transition est deja en cours, elle est terminee immediatement avant de lancer la nouvelle.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> isTransitioning()</div>
+              <div class="method-desc">Retourne <code>true</code> si une transition est en cours.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">ContainerComponent</span> getCurrentContent()</div>
+              <div class="method-desc">Retourne le contenu actuellement affiche (<code>null</code> si aucun).</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
          ANIMATIONS — EASING
     ====================================================== -->
     <section class="doc-section" id="easing">
@@ -4278,20 +4872,46 @@ menu.add("Option B", () -> choixB());</code></pre>
         </div>
       </div>
 
-      <div class="code-block">
-        <div class="code-label"><span>Java — Fonctions d'easing disponibles</span><button class="copy-btn">Copier</button></div>
-        <pre><code class="language-java">// Fonctions disponibles :
-Easing.LINEAR        // t → progression linéaire
-Easing.EASE_IN       // t² → démarrage lent
-Easing.EASE_OUT      // t(2-t) → fin lente
-Easing.EASE_IN_OUT   // smoothstep → lent aux deux bouts
-Easing.EASE_IN_CUBIC // t³ → démarrage très lent
-Easing.EASE_OUT_CUBIC // (t-1)³+1 → fin très lente
-Easing.BOUNCE        // rebond décroissant
-Easing.ELASTIC       // oscillation amortie
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Description</th>
+            <th>Usage typique</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>LINEAR</code></td><td>Progression lineaire constante</td><td>Barres de progression, compteurs</td></tr>
+          <tr><td><code>EASE_IN</code></td><td>Demarrage lent (t²)</td><td>Disparitions, fermetures</td></tr>
+          <tr><td><code>EASE_OUT</code></td><td>Fin lente, easing par defaut</td><td>Apparitions, ouvertures</td></tr>
+          <tr><td><code>EASE_IN_OUT</code></td><td>Lent aux deux bouts (smoothstep)</td><td>Transitions bidirectionnelles, breathe</td></tr>
+          <tr><td><code>EASE_IN_CUBIC</code></td><td>Demarrage tres lent (t³)</td><td>Disparitions dramatiques</td></tr>
+          <tr><td><code>EASE_OUT_CUBIC</code></td><td>Fin tres lente ((t-1)³+1)</td><td>Slides, deplacements naturels</td></tr>
+          <tr><td><code>BOUNCE</code></td><td>Rebond decroissant a l'arrivee</td><td>Elements qui "tombent" a leur place</td></tr>
+          <tr><td><code>ELASTIC</code></td><td>Oscillation amortie (ressort)</td><td>Effets playful, notifications</td></tr>
+          <tr><td><code>EASE_IN_BACK</code></td><td>Recul puis avance (overshoot entree)</td><td>Disparitions avec effet "tirage"</td></tr>
+          <tr><td><code>EASE_OUT_BACK</code></td><td>Avance puis stabilisation (overshoot sortie)</td><td>Effet "pop" satisfaisant, apparitions</td></tr>
+          <tr><td><code>EASE_IN_EXPO</code></td><td>Tres lent puis explosion exponentielle</td><td>Transitions de scene percutantes</td></tr>
+          <tr><td><code>EASE_OUT_EXPO</code></td><td>Explosion puis freinage exponentiel</td><td>Menus qui s'ouvrent rapidement</td></tr>
+          <tr><td><code>SPRING</code></td><td>Simulation de ressort (oscillations amorties)</td><td>Animations "physiques", sliders</td></tr>
+        </tbody>
+      </table>
 
-// Usage direct :
-float result = Easing.EASE_OUT.apply(0.5f); // → 0.75</code></pre>
+      <div class="code-block">
+        <div class="code-label"><span>Java — Utilisation des easings</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">// Appliquer un easing a une animation
+Animation.create(0, 1, 20)
+    .easing(Easing.EASE_OUT_BACK)  // overshoot puis stabilisation
+    .onUpdate(v -> composant.setOpacity(v));
+
+// Usage direct de la fonction :
+float result = Easing.BOUNCE.apply(0.5f);
+
+// Easings les plus utilises en pratique :
+// EASE_OUT_CUBIC  → slides et deplacements (naturel, rapide)
+// EASE_IN_OUT     → animations pingpong / breathe (symétrique)
+// EASE_OUT_BACK   → apparitions avec "pop" (satisfaisant)
+// SPRING          → boutons ou composants avec physique de ressort</code></pre>
       </div>
     </section>
 
@@ -4317,25 +4937,54 @@ float result = Easing.EASE_OUT.apply(0.5f); // → 0.75</code></pre>
         <div class="code-label"><span>Java — Créer une animation</span><button class="copy-btn">Copier</button></div>
         <pre><code class="language-java">import fr.eri.eriapi.gui.anim.*;
 
-// Animation de 0 à 1 en 20 ticks (1 seconde)
+// Animation simple : 0 → 1 en 20 ticks (1 seconde)
 Animation anim = Animation.create(0, 1, 20)
     .easing(Easing.EASE_OUT)
-    .delay(5) // attendre 5 ticks avant de démarrer
-    .onUpdate(value -> {
-        // Appelé chaque frame avec la valeur interpolée
-        monComposant.setOpacity(value);
-    })
-    .onComplete(() -> {
-        System.out.println("Animation terminée !");
-    });
-
-// Lancer l'animation
+    .delay(5)                   // attendre 5 ticks avant de demarrer
+    .onUpdate(value -> monComposant.setOpacity(value))
+    .onComplete(() -> System.out.println("Termine !"));
 AnimationManager.getInstance().play(anim);
 
-// Contrôle
+// Animation en millisecondes (timing precis, independant du tick rate)
+Animation.createMs(0, 1, 500L)  // 500 millisecondes exactes
+    .easing(Easing.EASE_OUT)
+    .onUpdate(v -> comp.setOpacity(v));
+
+// Animation de couleur (interpolation ARGB canal par canal)
+Animation.createColor(0xFF6B2FA0, 0xFF00E5FF, 30)
+    .pingPong()
+    .scope("overlay")
+    .onColorUpdate(color -> rect.fillColor(color));
+
+// Boucle infinie (from → to → from → to...)
+Animation.create(0, 1, 10)
+    .pingPong()                 // aller-retour infini
+    .easing(Easing.EASE_IN_OUT)
+    .onUpdate(v -> label.setOpacity(v));
+
+// Boucle N fois
+Animation.create(0, 100, 15)
+    .loop(3)                    // repete 3 fois puis s'arrete
+    .onUpdate(v -> bar.progress(v / 100f));
+
+// PingPong N cycles (1 cycle = aller + retour)
+Animation.create(0.4f, 1f, 20)
+    .pingPong(3)                // 3 aller-retours puis s'arrete
+    .easing(Easing.EASE_IN_OUT)
+    .onUpdate(v -> comp.setOpacity(v));
+
+// Scope pour proteger l'animation de stopGuiAnimations()
+Animation.create(0, 1, 30)
+    .loop()
+    .scope("overlay")           // ne sera pas arrete a la fermeture d'un GUI
+    .onUpdate(v -> hudComp.setOpacity(v));
+
+// Controle
 anim.pause();
 anim.resume();
-anim.stop();</code></pre>
+anim.stop();
+anim.isFinished();
+anim.isPaused();</code></pre>
       </div>
     </section>
 
@@ -4368,10 +5017,231 @@ manager.play(Animation.create(0, 100, 20).easing(Easing.BOUNCE));
 // Nombre d'animations actives
 int count = manager.activeCount();
 
-// Arrêter toutes les animations
+// Arreter toutes les animations SANS scope (les animations GUI)
+// Appele automatiquement par EriGuiScreen.onGuiClosed()
+manager.stopGuiAnimations();
+
+// Arreter TOUTES les animations (y compris celles avec scope)
 manager.stopAll();</code></pre>
       </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">stopGuiAnimations() vs stopAll()</div>
+          <p><code>stopGuiAnimations()</code> arrete uniquement les animations dont le scope est <code>null</code>
+          (animations GUI standard). Les animations avec <code>.scope("overlay")</code> ou tout autre scope
+          non nul sont preservees. C'est ce qui est appele automatiquement quand un GUI est ferme.<br>
+          <code>stopAll()</code> arrete absolutement toutes les animations actives, quel que soit leur scope.</p>
+        </div>
+      </div>
     </section>
+
+    <!-- ======================================================
+         ANIMATIONS — ANIMATION SEQUENCE
+    ====================================================== -->
+    <section class="doc-section" id="animation-sequence">
+      <h2>AnimationSequence</h2>
+      <p>
+        <code>AnimationSequence</code> enchaine des animations sequentiellement — chaque animation
+        demarre quand la precedente se termine. Tu peux aussi ajouter des pauses entre les etapes.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">CLASS</div>
+        <div>
+          <div class="class-name">AnimationSequence</div>
+          <div class="package-path">fr.eri.eriapi.gui.anim.AnimationSequence</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label"><span>Java — Séquence d'animations</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">import fr.eri.eriapi.gui.anim.AnimationSequence;
+
+// Compte a rebours 3... 2... 1... Go !
+AnimationSequence.create()
+    .then(Animation.create(0, 1, 5)
+        .onComplete(() -> titleLabel.text("3...")))
+    .thenDelay(20)  // pause 20 ticks (1 seconde)
+    .then(Animation.create(0, 1, 5)
+        .onComplete(() -> titleLabel.text("2...")))
+    .thenDelay(20)
+    .then(Animation.create(0, 1, 5)
+        .onComplete(() -> titleLabel.text("1...")))
+    .thenDelay(20)
+    .then(Animation.create(1, 0, 10)
+        .easing(Easing.EASE_IN)
+        .onUpdate(v -> titleLabel.setOpacity(v)))
+    .onComplete(() -> startGame())
+    .play();
+
+// Sequence de slides d'entree
+AnimationSequence.create()
+    .then(Animation.create(0, 1, 12)
+        .easing(Easing.EASE_OUT_CUBIC)
+        .onUpdate(v -> panel1.setOpacity(v)))
+    .then(Animation.create(0, 1, 12)
+        .easing(Easing.EASE_OUT_CUBIC)
+        .onUpdate(v -> panel2.setOpacity(v)))
+    .then(Animation.create(0, 1, 12)
+        .easing(Easing.EASE_OUT_CUBIC)
+        .onUpdate(v -> panel3.setOpacity(v)))
+    .play();</code></pre>
+      </div>
+
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">static AnimationSequence</span> create()</div>
+            <div class="method-desc">Cree une nouvelle sequence vide.</div>
+          </div>
+          <span class="method-badge mb-static">Statique</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">then(<span class="param">Animation anim</span>)</div>
+            <div class="method-desc">Ajoute une animation a la fin de la sequence.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">thenDelay(<span class="param">int ticks</span>)</div>
+            <div class="method-desc">Ajoute une pause (en ticks) dans la sequence. Pratique pour les comptes a rebours et les enchaînements rythmes.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">onComplete(<span class="param">Runnable callback</span>)</div>
+            <div class="method-desc">Callback appele quand toute la sequence est terminee.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">AnimationSequence</span> play()</div>
+            <div class="method-desc">Demarre la sequence depuis le debut. Les animations sont enregistrees dans <code>AnimationManager</code> automatiquement.</div>
+          </div>
+          <span class="method-badge mb-method">Methode</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">void</span> stop()</div>
+            <div class="method-desc">Arrete la sequence et l'animation en cours.</div>
+          </div>
+          <span class="method-badge mb-method">Methode</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">boolean</span> isFinished()</div>
+            <div class="method-desc">Retourne <code>true</code> si la sequence est terminee.</div>
+          </div>
+          <span class="method-badge mb-getter">Getter</span>
+        </li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANIMATIONS — ANIMATION GROUP
+    ====================================================== -->
+    <section class="doc-section" id="animation-group">
+      <h2>AnimationGroup</h2>
+      <p>
+        <code>AnimationGroup</code> joue plusieurs animations <strong>en parallele</strong>
+        et declenche un callback quand <em>toutes</em> sont terminees. C'est complementaire
+        a <code>AnimationSequence</code> — tu peux combiner les deux pour des choreographies complexes.
+      </p>
+
+      <div class="class-header">
+        <div class="class-badge">CLASS</div>
+        <div>
+          <div class="class-name">AnimationGroup</div>
+          <div class="package-path">fr.eri.eriapi.gui.anim.AnimationGroup</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label"><span>Java — Animations en parallèle</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">import fr.eri.eriapi.gui.anim.AnimationGroup;
+
+// Lancer 3 animations en meme temps, callback quand toutes finissent
+AnimationGroup.of(
+    Animation.create(0, 1, 15).easing(Easing.EASE_OUT)
+        .onUpdate(v -> panelA.setOpacity(v)),
+    Animation.create(0, 1, 20).easing(Easing.EASE_OUT)
+        .onUpdate(v -> panelB.setOpacity(v)),
+    Animation.create(-50, 0, 18).easing(Easing.EASE_OUT_CUBIC)
+        .onUpdate(v -> panelC.setAnimOffsetX(v))
+)
+.onAllComplete(() -> System.out.println("Toutes les animations terminees !"))
+.play();
+
+// Combinaison : sequence de groupes
+AnimationSequence.create()
+    .then(Animation.create(0, 1, 5).onUpdate(v -> title.setOpacity(v)))
+    .thenDelay(5)
+    // Il n'est pas possible d'imbriquer un groupe dans une sequence directement,
+    // mais tu peux utiliser onComplete() de la sequence pour lancer un groupe :
+    .onComplete(() -> {
+        AnimationGroup.of(
+            Animation.create(0, 1, 10).onUpdate(v -> btn1.setOpacity(v)),
+            Animation.create(0, 1, 10).onUpdate(v -> btn2.setOpacity(v))
+        ).play();
+    })
+    .play();</code></pre>
+      </div>
+
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">static AnimationGroup</span> of(<span class="param">Animation... anims</span>)</div>
+            <div class="method-desc">Cree un groupe a partir d'animations passees en arguments.</div>
+          </div>
+          <span class="method-badge mb-static">Statique</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">static AnimationGroup</span> of(<span class="param">List&lt;Animation&gt; anims</span>)</div>
+            <div class="method-desc">Cree un groupe a partir d'une liste d'animations.</div>
+          </div>
+          <span class="method-badge mb-static">Statique</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">onAllComplete(<span class="param">Runnable callback</span>)</div>
+            <div class="method-desc">Callback appele quand <strong>toutes</strong> les animations du groupe sont terminees.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">AnimationGroup</span> play()</div>
+            <div class="method-desc">Lance toutes les animations du groupe en parallele via <code>AnimationManager</code>.</div>
+          </div>
+          <span class="method-badge mb-method">Methode</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">void</span> stop()</div>
+            <div class="method-desc">Arrete toutes les animations du groupe.</div>
+          </div>
+          <span class="method-badge mb-method">Methode</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig"><span class="ret">boolean</span> isFinished()</div>
+            <div class="method-desc">Retourne <code>true</code> si toutes les animations du groupe sont terminees.</div>
+          </div>
+          <span class="method-badge mb-getter">Getter</span>
+        </li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
 
     <!-- ======================================================
          ANIMATIONS — ANIMATIONS PRE-FAITES
@@ -4406,14 +5276,37 @@ label.slideOut(Component.Direction.RIGHT, 80, 10);</code></pre>
 
       <div class="code-block">
         <div class="code-label"><span>Java — scaleIn / scaleOut / shake</span><button class="copy-btn">Copier</button></div>
-        <pre><code class="language-java">// Apparition avec mise à l'échelle (0 → 1)
+        <pre><code class="language-java">// Apparition avec mise à l'echelle (0 → 1)
 button.scaleIn(10);
 
-// Disparition avec réduction (1 → 0)
+// Disparition avec reduction (1 → 0)
 panel.scaleOut(8);
 
 // Tremblement (oscillation horizontale amortie)
 button.shake(10);</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label"><span>Java — pulse / breathe</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">// Pulse "pop" : le composant grossit brievement puis revient a sa taille
+// Ideal pour attirer l'attention (succes, clic confirme, notification)
+button.pulse(12); // duree totale en ticks
+
+// Breathe : opacity oscille en boucle infinie (effet "respiration")
+// Parfait pour les composants qui attendent une interaction
+label.breathe(40);  // cycle complet de 40 ticks (2 secondes)
+
+// Breathe avec opacity min/max personnalises
+icon.breathe(30, 0.3f, 1.0f); // oscille entre 30% et 100% d'opacite
+
+// Note : breathe() dans un EriGuiScreen sera arrete a la fermeture du GUI.
+// Dans un overlay, utilise une animation manuelle avec .scope("overlay") :
+Animation.create(0.4f, 1f, 20)
+    .pingPong()
+    .scope("overlay")
+    .easing(Easing.EASE_IN_OUT)
+    .onUpdate(v -> overlayLabel.setOpacity(v));
+AnimationManager.getInstance().play(breatheAnim);</code></pre>
       </div>
 
       <div class="code-block">
