@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,8 +23,8 @@
   <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
 
   <div class="lang-switch">
-    <a href="overlay.html" class="active">FR</a>
-    <a href="../en/overlay.html">EN</a>
+    <a href="../fr/overlay.html">FR</a>
+    <a href="overlay.html" class="active">EN</a>
   </div>
 
   <button class="menu-toggle" aria-label="Menu">&#9776;</button>
@@ -34,12 +34,12 @@
 <div class="page-layout">
 
   <!-- ===== SIDEBAR ===== -->
-  <nav class="sidebar" aria-label="Navigation principale">
+  <nav class="sidebar" aria-label="Main navigation">
 
     <div class="nav-group nav-pages">
       <div class="nav-group-title">Modules</div>
       <ul>
-        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
         <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
         <li><a href="overlay.html" class="nav-page-link active"><span class="nav-dot"></span>Overlay HUD</a></li>
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
@@ -55,19 +55,19 @@
     </div>
 
     <div class="nav-search">
-      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
     </div>
 
     <div class="nav-group">
       <div class="nav-group-title">Introduction</div>
       <ul>
-        <li><a href="#introduction"><span class="nav-dot"></span>Qu'est-ce qu'un overlay</a></li>
+        <li><a href="#introduction"><span class="nav-dot"></span>What is an overlay</a></li>
         <li><a href="#vs-gui"><span class="nav-dot"></span>Overlay vs GUI</a></li>
       </ul>
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">API Principale</div>
+      <div class="nav-group-title">Core API</div>
       <ul>
         <li><a href="#eri-overlay"><span class="nav-dot"></span>EriOverlay</a></li>
         <li><a href="#overlay-manager"><span class="nav-dot"></span>OverlayManager</a></li>
@@ -77,40 +77,40 @@
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">Composants</div>
+      <div class="nav-group-title">Components</div>
       <ul>
-        <li><a href="#composants-disponibles"><span class="nav-dot"></span>Composants utilisables</a></li>
-        <li><a href="#effets-visuels"><span class="nav-dot"></span>Effets visuels</a></li>
+        <li><a href="#composants-disponibles"><span class="nav-dot"></span>Available components</a></li>
+        <li><a href="#effets-visuels"><span class="nav-dot"></span>Visual effects</a></li>
         <li><a href="#animations-overlay"><span class="nav-dot"></span>Animations &amp; scope</a></li>
       </ul>
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">Exemples</div>
+      <div class="nav-group-title">Examples</div>
       <ul>
-        <li><a href="#exemple-barre-mana"><span class="nav-dot"></span>Barre de mana</a></li>
-        <li><a href="#exemple-hud-faction"><span class="nav-dot"></span>HUD faction</a></li>
-        <li><a href="#exemple-animation"><span class="nav-dot"></span>Overlay animé</a></li>
+        <li><a href="#exemple-barre-mana"><span class="nav-dot"></span>Mana bar</a></li>
+        <li><a href="#exemple-hud-faction"><span class="nav-dot"></span>Faction HUD</a></li>
+        <li><a href="#exemple-animation"><span class="nav-dot"></span>Animated overlay</a></li>
       </ul>
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">Notes techniques</div>
+      <div class="nav-group-title">Technical Notes</div>
       <ul>
         <li><a href="#notes-techniques"><span class="nav-dot"></span>Scope, hideInGui, F1</a></li>
       </ul>
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">Systeme Modulaire</div>
+      <div class="nav-group-title">Modular System</div>
       <ul>
         <li><a href="#overlay-mod"><span class="nav-dot"></span>OverlayMod</a></li>
         <li><a href="#mod-settings"><span class="nav-dot"></span>ModSettings</a></li>
         <li><a href="#overlay-hub"><span class="nav-dot"></span>GuiOverlayHub</a></li>
         <li><a href="#frame-vs-tick"><span class="nav-dot"></span>onFrame vs onTick</a></li>
-        <li><a href="#positioning"><span class="nav-dot"></span>Positionnement design-pixels</a></li>
-        <li><a href="#persistence"><span class="nav-dot"></span>Persistance JSON</a></li>
-        <li><a href="#exemple-debug"><span class="nav-dot"></span>Exemple : Debug Overlay</a></li>
+        <li><a href="#positioning"><span class="nav-dot"></span>Design-pixel positioning</a></li>
+        <li><a href="#persistence"><span class="nav-dot"></span>JSON Persistence</a></li>
+        <li><a href="#exemple-debug"><span class="nav-dot"></span>Example: Debug Overlay</a></li>
       </ul>
     </div>
 
@@ -126,7 +126,7 @@
       <div class="hero">
         <h1>Overlay HUD</h1>
         <p class="subtitle">
-          Affiche des informations en permanence sur le HUD du joueur — barres de vie, stats de faction, effets visuels — sans bloquer le jeu.
+          Permanently display information on the player's HUD — health bars, faction stats, visual effects — without interrupting gameplay.
         </p>
         <div class="badge-row">
           <span class="badge badge-cyan">fr.eri.eriapi.overlay</span>
@@ -135,64 +135,64 @@
         </div>
       </div>
 
-      <h2>Qu'est-ce qu'un overlay ?</h2>
+      <h2>What is an overlay?</h2>
       <p>
-        Un <strong>overlay</strong> est un element graphique affiche en permanence sur l'ecran du joueur,
-        par-dessus le jeu et le HUD vanilla de Minecraft. Contrairement a un GUI (<code>EriGuiScreen</code>)
-        qui prend le controle de l'ecran, un overlay reste affiché en permanence pendant que le joueur joue.
+        An <strong>overlay</strong> is a graphical element displayed permanently on the player's screen,
+        on top of the game and Minecraft's vanilla HUD. Unlike a GUI (<code>EriGuiScreen</code>)
+        which takes control of the screen, an overlay stays visible at all times while the player is playing.
       </p>
       <p>
-        Cas d'usage typiques :
+        Typical use cases:
       </p>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><strong style="color:var(--text);">Barres de ressources</strong> — mana, endurance, energie, chaleur</li>
-        <li><strong style="color:var(--text);">HUD de faction</strong> — nom de faction, grade, points de territoire</li>
-        <li><strong style="color:var(--text);">Indicateurs de statut</strong> — effets actifs, buffs/debuffs</li>
-        <li><strong style="color:var(--text);">Minimap ou boussole</strong> personnalisee</li>
-        <li><strong style="color:var(--text);">Effets decoratifs</strong> — particules, aurora, fumee ambiante</li>
+        <li><strong style="color:var(--text);">Resource bars</strong> — mana, stamina, energy, heat</li>
+        <li><strong style="color:var(--text);">Faction HUD</strong> — faction name, rank, territory points</li>
+        <li><strong style="color:var(--text);">Status indicators</strong> — active effects, buffs/debuffs</li>
+        <li><strong style="color:var(--text);">Custom minimap or compass</strong></li>
+        <li><strong style="color:var(--text);">Decorative effects</strong> — particles, aurora, ambient fog</li>
       </ul>
 
       <div class="section-divider"></div>
 
-      <h2 id="vs-gui">Overlay vs GUI — quelle difference ?</h2>
+      <h2 id="vs-gui">Overlay vs GUI — what is the difference?</h2>
 
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Caracteristique</th>
+            <th>Characteristic</th>
             <th>EriGuiScreen (GUI)</th>
             <th>EriOverlay (HUD)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Ouverture</td>
-            <td>Sur action du joueur (touche, commande)</td>
-            <td>Permanent (enregistre une fois)</td>
+            <td>Opening</td>
+            <td>On player action (key, command)</td>
+            <td>Permanent (registered once)</td>
           </tr>
           <tr>
-            <td>Bloque le jeu</td>
-            <td>Oui — le joueur ne peut pas bouger</td>
-            <td>Non — le joueur joue normalement</td>
+            <td>Blocks gameplay</td>
+            <td>Yes — the player cannot move</td>
+            <td>No — the player plays normally</td>
           </tr>
           <tr>
             <td>Interactions</td>
-            <td>Clavier, souris, clics</td>
-            <td>Aucune (rendu uniquement)</td>
+            <td>Keyboard, mouse, clicks</td>
+            <td>None (render only)</td>
           </tr>
           <tr>
-            <td>Coordonnees</td>
+            <td>Coordinates</td>
             <td>1920x1080 design pixels</td>
-            <td>1920x1080 design pixels (identique)</td>
+            <td>1920x1080 design pixels (identical)</td>
           </tr>
           <tr>
-            <td>Composants</td>
-            <td>Tous les composants EriAPI</td>
-            <td>Composants visuels seulement (pas d'input)</td>
+            <td>Components</td>
+            <td>All EriAPI components</td>
+            <td>Visual components only (no input)</td>
           </tr>
           <tr>
-            <td>Cycle de vie</td>
-            <td>Ouvert / ferme</td>
+            <td>Lifecycle</td>
+            <td>Open / close</td>
             <td>Register / unregister + show / hide</td>
           </tr>
         </tbody>
@@ -201,10 +201,10 @@
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Meme systeme de composants</div>
-          <p>Les overlays utilisent exactement les memes composants, le meme systeme de coordonnees
-          1920x1080 et les memes animations qu'un GUI classique. Si tu sais creer un <code>EriGuiScreen</code>,
-          tu sais deja creer un overlay.</p>
+          <div class="ib-title">Same component system</div>
+          <p>Overlays use exactly the same components, the same 1920x1080 coordinate system
+          and the same animations as a regular GUI. If you know how to create an <code>EriGuiScreen</code>,
+          you already know how to create an overlay.</p>
         </div>
       </div>
     </section>
@@ -217,9 +217,9 @@
     <section class="doc-section" id="eri-overlay">
       <h2>EriOverlay</h2>
       <p>
-        <code>EriOverlay</code> est la classe de base abstraite pour tous les overlays HUD.
-        Tu crees une sous-classe, tu definis les composants dans <code>buildOverlay()</code>,
-        et tu l'enregistres dans <code>OverlayManager</code>.
+        <code>EriOverlay</code> is the abstract base class for all HUD overlays.
+        You create a subclass, define the components in <code>buildOverlay()</code>,
+        and register it with <code>OverlayManager</code>.
       </p>
 
       <div class="class-header">
@@ -230,12 +230,12 @@
         </div>
       </div>
 
-      <h3>Creation d'un overlay</h3>
+      <h3>Creating an overlay</h3>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Overlay minimal</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Minimal overlay</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
 import fr.eri.eriapi.gui.components.*;
@@ -243,11 +243,11 @@ import fr.eri.eriapi.gui.components.*;
 public class HealthOverlay extends EriOverlay {
 
     public HealthOverlay() {
-        // id unique, largeur et hauteur en design pixels
+        // unique id, width and height in design pixels
         super("health_hud", 200, 60);
 
-        setAnchor(Anchor.BOTTOM_LEFT);   // coin inferieur gauche
-        setOffset(10, -10);              // decalage depuis l'ancrage
+        setAnchor(Anchor.BOTTOM_LEFT);   // bottom-left corner
+        setOffset(10, -10);              // offset from the anchor
     }
 
     @Override
@@ -262,96 +262,96 @@ public class HealthOverlay extends EriOverlay {
     }
 }
 
-// Enregistrement (une fois, dans ClientProxy.init() par exemple) :
+// Registration (once, in ClientProxy.init() for example):
 OverlayManager.getInstance().register(new HealthOverlay());</code></pre>
       </div>
 
-      <h3>Cycle de vie</h3>
+      <h3>Lifecycle</h3>
       <p>
-        La methode <code>buildOverlay()</code> est appelee <strong>une seule fois</strong> au premier rendu
-        (lazy initialization). Les appels suivants a <code>render()</code> reutilisent les composants deja
-        construits. Si tu veux forcer une reconstruction (donnees qui changent), appelle <code>rebuild()</code>.
+        The <code>buildOverlay()</code> method is called <strong>only once</strong> on the first render
+        (lazy initialization). Subsequent calls to <code>render()</code> reuse the already-built components.
+        If you want to force a rebuild (data that changes), call <code>rebuild()</code>.
       </p>
 
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="class-name">EriOverlay — methodes</div>
+            <div class="class-name">EriOverlay — methods</div>
             <div class="package-path">fr.eri.eriapi.overlay.EriOverlay</div>
           </div>
-          <span class="badge badge-cyan">API publique</span>
+          <span class="badge badge-cyan">Public API</span>
         </div>
 
         <ul class="method-list">
           <li class="method-item">
             <div>
               <div class="method-sig">EriOverlay(<span class="param">String id, int designWidth, int designHeight</span>)</div>
-              <div class="method-desc">Constructeur. <code>id</code> est l'identifiant unique utilise par <code>OverlayManager</code>. <code>designWidth</code> et <code>designHeight</code> definissent la zone de l'overlay en pixels de design (1920x1080).</div>
+              <div class="method-desc">Constructor. <code>id</code> is the unique identifier used by <code>OverlayManager</code>. <code>designWidth</code> and <code>designHeight</code> define the overlay area in design pixels (1920x1080).</div>
             </div>
-            <span class="method-badge mb-constructor">Constructeur</span>
+            <span class="method-badge mb-constructor">Constructor</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> buildOverlay()</div>
-              <div class="method-desc">Methode abstraite a implementer. Appelle <code>getRoot().add(...)</code> pour ajouter des composants. Appelee une seule fois au premier rendu.</div>
+              <div class="method-desc">Abstract method to implement. Call <code>getRoot().add(...)</code> to add components. Called only once on first render.</div>
             </div>
-            <span class="method-badge mb-abstract">A implementer</span>
+            <span class="method-badge mb-abstract">To implement</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">ContainerComponent</span> getRoot()</div>
-              <div class="method-desc">Retourne le conteneur racine. A utiliser depuis <code>buildOverlay()</code> pour ajouter des composants.</div>
+              <div class="method-desc">Returns the root container. Use from <code>buildOverlay()</code> to add components.</div>
             </div>
             <span class="method-badge mb-getter">Getter</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> rebuild()</div>
-              <div class="method-desc">Force la reconstruction de l'overlay au prochain rendu. Utile pour rafraichir l'affichage apres un changement de donnees important.</div>
+              <div class="method-desc">Forces the overlay to be rebuilt on the next render. Useful to refresh the display after a significant data change.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> setAnchor(<span class="param">Anchor anchor</span>)</div>
-              <div class="method-desc">Definit le point d'ancrage de l'overlay sur l'ecran. Voir la section <a href="#anchor">Anchor</a>. Defaut : <code>TOP_LEFT</code>.</div>
+              <div class="method-desc">Sets the anchor point of the overlay on screen. See the <a href="#anchor">Anchor</a> section. Default: <code>TOP_LEFT</code>.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> setOffset(<span class="param">int offsetX, int offsetY</span>)</div>
-              <div class="method-desc">Decalage en pixels de design depuis l'ancrage. Positif = bas/droite, negatif = haut/gauche.</div>
+              <div class="method-desc">Offset in design pixels from the anchor. Positive = down/right, negative = up/left.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> setLayer(<span class="param">OverlayLayer layer</span>)</div>
-              <div class="method-desc">Definit le layer de rendu (moment dans le pipeline HUD). Defaut : <code>POST_ALL</code>.</div>
+              <div class="method-desc">Sets the render layer (moment in the HUD pipeline). Default: <code>POST_ALL</code>.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> hideInGui(<span class="param">boolean hide</span>)</div>
-              <div class="method-desc">Si <code>true</code> (defaut), l'overlay disparait quand un GUI est ouvert. Mettre a <code>false</code> pour toujours afficher l'overlay meme dans les menus.</div>
+              <div class="method-desc">If <code>true</code> (default), the overlay disappears when a GUI is open. Set to <code>false</code> to always display the overlay even in menus.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> hideOnF1(<span class="param">boolean hide</span>)</div>
-              <div class="method-desc">Si <code>true</code> (defaut), l'overlay disparait quand le joueur appuie sur F1 (masquer le HUD). Mettre a <code>false</code> pour ignorer F1.</div>
+              <div class="method-desc">If <code>true</code> (default), the overlay disappears when the player presses F1 (hide HUD). Set to <code>false</code> to ignore F1.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> show() / hide() / toggle()</div>
-              <div class="method-desc">Controle direct de la visibilite de cet overlay. Equivalent a <code>OverlayManager.getInstance().show("id")</code>.</div>
+              <div class="method-desc">Direct visibility control for this overlay. Equivalent to <code>OverlayManager.getInstance().show("id")</code>.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
         </ul>
       </div>
@@ -365,9 +365,9 @@ OverlayManager.getInstance().register(new HealthOverlay());</code></pre>
     <section class="doc-section" id="overlay-manager">
       <h2>OverlayManager</h2>
       <p>
-        <code>OverlayManager</code> est le singleton qui centralise tous les overlays enregistres.
-        Il gere automatiquement le rendu et les ticks via les events Forge — tu n'as rien a configurer
-        au-dela de l'enregistrement initial.
+        <code>OverlayManager</code> is the singleton that centralizes all registered overlays.
+        It automatically handles rendering and ticks via Forge events — you have nothing to configure
+        beyond the initial registration.
       </p>
 
       <div class="class-header">
@@ -380,41 +380,41 @@ OverlayManager.getInstance().register(new HealthOverlay());</code></pre>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Enregistrement et controle</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Registration and control</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.OverlayManager;
 
 OverlayManager om = OverlayManager.getInstance();
 
-// Enregistrer des overlays (une fois, en init)
+// Register overlays (once, during init)
 om.register(new HealthOverlay());
 om.register(new ManaOverlay());
 om.register(new FactionHudOverlay());
 
-// Controle de la visibilite par ID
+// Visibility control by ID
 om.show("health_hud");
 om.hide("health_hud");
 om.toggle("health_hud");
 
-// Controle global
+// Global control
 om.hideAll();
 om.showAll();
 
-// Recuperer un overlay pour le modifier
+// Retrieve an overlay to modify it
 EriOverlay overlay = om.get("health_hud");
 if (overlay != null) {
-    overlay.rebuild(); // Forcer une reconstruction
+    overlay.rebuild(); // Force a rebuild
 }
 
-// Desenregistrer un overlay
+// Unregister an overlay
 om.unregister("health_hud");</code></pre>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="class-name">OverlayManager — methodes</div>
+            <div class="class-name">OverlayManager — methods</div>
             <div class="package-path">fr.eri.eriapi.overlay.OverlayManager</div>
           </div>
           <span class="badge badge-gray">Singleton</span>
@@ -424,44 +424,44 @@ om.unregister("health_hud");</code></pre>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">static OverlayManager</span> getInstance()</div>
-              <div class="method-desc">Retourne l'instance unique du gestionnaire.</div>
+              <div class="method-desc">Returns the unique manager instance.</div>
             </div>
-            <span class="method-badge mb-static">Statique</span>
+            <span class="method-badge mb-static">Static</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> register(<span class="param">EriOverlay overlay</span>)</div>
-              <div class="method-desc">Enregistre un overlay. Si un overlay avec le meme ID existe deja, il est remplace. L'ordre d'enregistrement determine l'ordre de rendu.</div>
+              <div class="method-desc">Registers an overlay. If an overlay with the same ID already exists, it is replaced. Registration order determines render order.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> unregister(<span class="param">String id</span>)</div>
-              <div class="method-desc">Supprime un overlay enregistre. Sans effet si l'ID est inconnu.</div>
+              <div class="method-desc">Removes a registered overlay. No effect if the ID is unknown.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriOverlay</span> get(<span class="param">String id</span>)</div>
-              <div class="method-desc">Retourne l'overlay correspondant a l'ID, ou <code>null</code> s'il n'existe pas.</div>
+              <div class="method-desc">Returns the overlay matching the ID, or <code>null</code> if it does not exist.</div>
             </div>
             <span class="method-badge mb-getter">Getter</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> show(<span class="param">String id</span>) / hide(<span class="param">String id</span>) / toggle(<span class="param">String id</span>)</div>
-              <div class="method-desc">Controle la visibilite d'un overlay par son ID. Sans effet si l'ID est inconnu.</div>
+              <div class="method-desc">Controls the visibility of an overlay by its ID. No effect if the ID is unknown.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> showAll() / hideAll()</div>
-              <div class="method-desc">Affiche ou masque tous les overlays enregistres.</div>
+              <div class="method-desc">Shows or hides all registered overlays.</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
         </ul>
       </div>
@@ -469,10 +469,10 @@ om.unregister("health_hud");</code></pre>
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Ou enregistrer les overlays ?</div>
-          <p>Enregistre tes overlays dans <code>ClientProxy.init()</code> (ou <code>postInit()</code> si
-          tu as besoin que les items/blocs soient charges en premier). Ne les enregistre pas dans un
-          constructeur de GUI ou dans un event qui se declenche souvent — le register est fait une seule fois.</p>
+          <div class="ib-title">Where to register overlays?</div>
+          <p>Register your overlays in <code>ClientProxy.init()</code> (or <code>postInit()</code> if
+          you need items/blocks to be loaded first). Do not register them in a GUI constructor or in an
+          event that fires frequently — registration is done only once.</p>
         </div>
       </div>
     </section>
@@ -485,9 +485,9 @@ om.unregister("health_hud");</code></pre>
     <section class="doc-section" id="anchor">
       <h2>Anchor</h2>
       <p>
-        L'enum <code>Anchor</code> definit les neuf points d'ancrage possibles pour un overlay.
-        L'ancrage est le coin ou le bord de l'ecran depuis lequel l'overlay est positionne.
-        Combine avec <code>setOffset(x, y)</code> pour affiner le positionnement.
+        The <code>Anchor</code> enum defines the nine possible anchor points for an overlay.
+        The anchor is the corner or edge of the screen from which the overlay is positioned.
+        Combine with <code>setOffset(x, y)</code> to fine-tune the positioning.
       </p>
 
       <div class="class-header">
@@ -501,83 +501,83 @@ om.unregister("health_hud");</code></pre>
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Valeur</th>
-            <th>Position sur l'ecran</th>
-            <th>Cas d'usage typique</th>
+            <th>Value</th>
+            <th>Position on screen</th>
+            <th>Typical use case</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><code>TOP_LEFT</code></td>
-            <td>Coin superieur gauche (0, 0)</td>
-            <td>Minimap, logo de mod</td>
+            <td>Top-left corner (0, 0)</td>
+            <td>Minimap, mod logo</td>
           </tr>
           <tr>
             <td><code>TOP_CENTER</code></td>
-            <td>Centre du bord superieur</td>
-            <td>Titre de zone, boss bar</td>
+            <td>Center of the top edge</td>
+            <td>Zone title, boss bar</td>
           </tr>
           <tr>
             <td><code>TOP_RIGHT</code></td>
-            <td>Coin superieur droit</td>
-            <td>Horloge, coordonnees, ping</td>
+            <td>Top-right corner</td>
+            <td>Clock, coordinates, ping</td>
           </tr>
           <tr>
             <td><code>CENTER_LEFT</code></td>
-            <td>Centre du bord gauche</td>
-            <td>Barre de statut laterale</td>
+            <td>Center of the left edge</td>
+            <td>Side status bar</td>
           </tr>
           <tr>
             <td><code>CENTER</code></td>
-            <td>Centre absolu de l'ecran</td>
-            <td>Reticule custom, alerte centrale</td>
+            <td>Absolute center of the screen</td>
+            <td>Custom crosshair, central alert</td>
           </tr>
           <tr>
             <td><code>CENTER_RIGHT</code></td>
-            <td>Centre du bord droit</td>
-            <td>Liste de buffs/debuffs</td>
+            <td>Center of the right edge</td>
+            <td>Buff/debuff list</td>
           </tr>
           <tr>
             <td><code>BOTTOM_LEFT</code></td>
-            <td>Coin inferieur gauche</td>
-            <td>Barre de mana/endurance</td>
+            <td>Bottom-left corner</td>
+            <td>Mana/stamina bar</td>
           </tr>
           <tr>
             <td><code>BOTTOM_CENTER</code></td>
-            <td>Centre du bord inferieur</td>
-            <td>Barre d'action, raccourcis</td>
+            <td>Center of the bottom edge</td>
+            <td>Action bar, shortcuts</td>
           </tr>
           <tr>
             <td><code>BOTTOM_RIGHT</code></td>
-            <td>Coin inferieur droit</td>
-            <td>Stats de faction, nom de faction</td>
+            <td>Bottom-right corner</td>
+            <td>Faction stats, faction name</td>
           </tr>
         </tbody>
       </table>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Utilisation de l'ancrage avec offset</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Using anchor with offset</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// Overlay en bas a droite avec 15px de marge
+        <pre><code class="language-java">// Overlay in bottom-right with 15px margin
 new MonOverlay()
     .setAnchor(Anchor.BOTTOM_RIGHT)
-    .setOffset(-15, -15);  // negatif = vers le haut/gauche
+    .setOffset(-15, -15);  // negative = toward top/left
 
-// Overlay centre en haut avec 20px de marge du bord
+// Overlay centered at top with 20px margin from edge
 new BossBarOverlay()
     .setAnchor(Anchor.TOP_CENTER)
-    .setOffset(0, 20);     // positif = vers le bas</code></pre>
+    .setOffset(0, 20);     // positive = toward bottom</code></pre>
       </div>
 
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Coordonnees de design</div>
-          <p>Les offsets sont en pixels de design (espace 1920x1080), comme pour les composants GUI.
-          EriAPI les convertit automatiquement vers la resolution reelle du joueur. Un offset de
-          <code>(-15, -15)</code> representera la meme marge visuelle sur un ecran 1080p ou 4K.</p>
+          <div class="ib-title">Design coordinates</div>
+          <p>Offsets are in design pixels (1920x1080 space), just like GUI components.
+          EriAPI automatically converts them to the player's actual resolution. An offset of
+          <code>(-15, -15)</code> will represent the same visual margin on a 1080p or 4K screen.</p>
         </div>
       </div>
     </section>
@@ -590,8 +590,8 @@ new BossBarOverlay()
     <section class="doc-section" id="overlay-layer">
       <h2>OverlayLayer</h2>
       <p>
-        <code>OverlayLayer</code> definit <strong>a quel moment</strong> dans le pipeline de rendu HUD
-        de Minecraft ton overlay est dessine. Cela determine ce qui est affiche par-dessus ou par-dessous.
+        <code>OverlayLayer</code> defines <strong>at which point</strong> in Minecraft's HUD render
+        pipeline your overlay is drawn. This determines what is displayed above or below it.
       </p>
 
       <div class="class-header">
@@ -605,47 +605,47 @@ new BossBarOverlay()
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Valeur</th>
-            <th>Moment du rendu</th>
-            <th>Consequence</th>
+            <th>Value</th>
+            <th>Render moment</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><code>PRE_ALL</code></td>
-            <td>Avant tous les elements HUD vanilla</td>
-            <td>Ton overlay est affiche <strong>sous</strong> la barre de vie, l'inventaire rapide, etc.</td>
+            <td>Before all vanilla HUD elements</td>
+            <td>Your overlay is drawn <strong>beneath</strong> the health bar, hotbar, etc.</td>
           </tr>
           <tr>
             <td><code>POST_HOTBAR</code></td>
-            <td>Apres la barre d'items (hotbar)</td>
-            <td>S'affiche par-dessus la hotbar mais sous la barre de vie</td>
+            <td>After the item bar (hotbar)</td>
+            <td>Drawn above the hotbar but below the health bar</td>
           </tr>
           <tr>
             <td><code>POST_EXPERIENCE</code></td>
-            <td>Apres la barre d'experience</td>
-            <td>S'affiche apres l'XP bar, avant les autres elements</td>
+            <td>After the experience bar</td>
+            <td>Drawn after the XP bar, before other elements</td>
           </tr>
           <tr>
             <td><code>POST_ALL</code></td>
-            <td>Apres tous les elements HUD vanilla <em>(defaut)</em></td>
-            <td>Ton overlay est affiche <strong>par-dessus tout</strong> le HUD vanilla</td>
+            <td>After all vanilla HUD elements <em>(default)</em></td>
+            <td>Your overlay is drawn <strong>on top of everything</strong> in the vanilla HUD</td>
           </tr>
         </tbody>
       </table>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Changer le layer de rendu</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Changing the render layer</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// Afficher l'overlay par-dessus tout le HUD (comportement par defaut)
+        <pre><code class="language-java">// Display the overlay on top of the entire HUD (default behavior)
 overlay.setLayer(OverlayLayer.POST_ALL);
 
-// Afficher juste apres la hotbar
+// Display just after the hotbar
 overlay.setLayer(OverlayLayer.POST_HOTBAR);
 
-// Fond ambiant sous tout le HUD
+// Ambient background beneath the entire HUD
 overlay.setLayer(OverlayLayer.PRE_ALL);</code></pre>
       </div>
     </section>
@@ -656,28 +656,28 @@ overlay.setLayer(OverlayLayer.PRE_ALL);</code></pre>
          COMPOSANTS DISPONIBLES
     ====================================================== -->
     <section class="doc-section" id="composants-disponibles">
-      <h2>Composants utilisables dans les overlays</h2>
+      <h2>Components available in overlays</h2>
       <p>
-        Les overlays reutilisent exactement les memes composants que les GUIs. La seule difference :
-        <strong>les composants interactifs (TextField, ScrollList, TabView, etc.) n'ont aucune utilite</strong>
-        dans un overlay car il n'y a pas d'interaction clavier/souris avec le HUD.
+        Overlays reuse exactly the same components as GUIs. The only difference:
+        <strong>interactive components (TextField, ScrollList, TabView, etc.) serve no purpose</strong>
+        in an overlay since there is no keyboard/mouse interaction with the HUD.
       </p>
 
-      <h3>Formes et fonds</h3>
+      <h3>Shapes and backgrounds</h3>
       <div class="card">
         <div class="card-header">
           <div>
             <div class="class-name">Rectangle</div>
             <div class="package-path">fr.eri.eriapi.gui.components.Rectangle</div>
           </div>
-          <span class="badge badge-gray">Forme</span>
+          <span class="badge badge-gray">Shape</span>
         </div>
-        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Rectangle uni avec option coins arrondis et bordure. Parfait pour les fonds de panneau HUD.</p>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Solid rectangle with optional rounded corners and border. Perfect for HUD panel backgrounds.</p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">new Rectangle(0, 0, 200, 60)
-    .fillColor(0x80000000)   // fond semi-transparent
-    .borderColor(0x40FFFFFF) // bordure subtile
+    .fillColor(0x80000000)   // semi-transparent background
+    .borderColor(0x40FFFFFF) // subtle border
     .cornerRadius(8);</code></pre>
         </div>
       </div>
@@ -688,21 +688,21 @@ overlay.setLayer(OverlayLayer.PRE_ALL);</code></pre>
             <div class="class-name">GradientRectangle</div>
             <div class="package-path">fr.eri.eriapi.gui.components.GradientRectangle</div>
           </div>
-          <span class="badge badge-gray">Forme</span>
+          <span class="badge badge-gray">Shape</span>
         </div>
-        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Rectangle avec degrade lineaire (vertical ou horizontal). Ideal pour les barres d'ambiance ou les fonds degrades.</p>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Rectangle with a linear gradient (vertical or horizontal). Ideal for ambient bars or gradient backgrounds.</p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
-          <pre><code class="language-java">// Degrade vertical violet → bleu
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">// Vertical gradient purple -> blue
 new GradientRectangle()
     .originalPos(0, 0).originalSize(200, 60)
     .vertical(0xFF6B2FA0, 0xFF00E5FF)
     .cornerRadius(8);
 
-// Degrade horizontal
+// Horizontal gradient
 new GradientRectangle()
     .originalPos(0, 0).originalSize(300, 8)
-    .horizontal(0xFF00E5FF, 0x00000000); // fondu vers transparent</code></pre>
+    .horizontal(0xFF00E5FF, 0x00000000); // fade to transparent</code></pre>
         </div>
       </div>
 
@@ -712,52 +712,52 @@ new GradientRectangle()
             <div class="class-name">Circle / Triangle</div>
             <div class="package-path">fr.eri.eriapi.gui.components</div>
           </div>
-          <span class="badge badge-gray">Forme</span>
+          <span class="badge badge-gray">Shape</span>
         </div>
-        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Cercle plein ou triangle (indicateur directionnel). Utiles pour des icones ou fleches de navigation.</p>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Filled circle or triangle (directional indicator). Useful for icons or navigation arrows.</p>
       </div>
 
-      <h3>Texte</h3>
+      <h3>Text</h3>
       <div class="card">
         <div class="card-header">
           <div>
             <div class="class-name">Label</div>
             <div class="package-path">fr.eri.eriapi.gui.components.Label</div>
           </div>
-          <span class="badge badge-cyan">Texte</span>
+          <span class="badge badge-cyan">Text</span>
         </div>
-        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Affichage de texte avec scale, alignement et ombre. Le composant texte de base pour tous les HUD.</p>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Text display with scale, alignment and shadow. The basic text component for all HUDs.</p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
-          <pre><code class="language-java">new Label(10, 10, 180, 20, "Faction : Erinien")
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-java">new Label(10, 10, 180, 20, "Faction: Erinium")
     .color(0xFFFFD700)
     .scale(1.2f)
     .shadow(true);</code></pre>
         </div>
       </div>
 
-      <h3>Controles de progression</h3>
+      <h3>Progress controls</h3>
       <div class="card">
         <div class="card-header">
           <div>
             <div class="class-name">ProgressBar</div>
             <div class="package-path">fr.eri.eriapi.gui.components.ProgressBar</div>
           </div>
-          <span class="badge badge-purple">Controle</span>
+          <span class="badge badge-purple">Control</span>
         </div>
-        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Barre de progression avec fill anime, couleurs et coins arrondis. Le composant ideal pour afficher des ressources (mana, vie, exp).</p>
+        <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">Progress bar with animated fill, colors and rounded corners. The ideal component for displaying resources (mana, health, exp).</p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">ProgressBar manaBar = new ProgressBar(0, 0, 180, 14)
-    .progress(0.75f)                // 75% de mana
-    .fillColor(0xFF6B2FA0)          // couleur du remplissage
-    .backgroundColor(0x40000000)   // fond
+    .progress(0.75f)                // 75% mana
+    .fillColor(0xFF6B2FA0)          // fill color
+    .backgroundColor(0x40000000)   // background
     .cornerRadius(7)
-    .showText(false);               // pas de texte en overlay</code></pre>
+    .showText(false);               // no text in overlay</code></pre>
         </div>
       </div>
 
-      <h3>Conteneurs</h3>
+      <h3>Containers</h3>
       <div class="card">
         <div class="card-header">
           <div>
@@ -767,10 +767,10 @@ new GradientRectangle()
           <span class="badge badge-gray">Layout</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
-          Conteneur pour imbriquer des composants. Permet de grouper des elements et d'appliquer
-          une opacity ou des animations collectives. La methode <code>getRoot()</code> de <code>EriOverlay</code>
-          retourne deja un <code>ContainerComponent</code> racine — utilise des sous-conteneurs pour
-          organiser ton HUD en sections logiques.
+          Container for nesting components. Allows grouping elements and applying a collective
+          opacity or animations. The <code>getRoot()</code> method of <code>EriOverlay</code>
+          already returns a root <code>ContainerComponent</code> — use sub-containers to
+          organize your HUD into logical sections.
         </p>
       </div>
     </section>
@@ -781,11 +781,11 @@ new GradientRectangle()
          EFFETS VISUELS
     ====================================================== -->
     <section class="doc-section" id="effets-visuels">
-      <h2>Effets visuels decoratifs</h2>
+      <h2>Decorative visual effects</h2>
       <p>
-        Ces composants sont particulierement adaptes aux overlays : ils s'animent en continu,
-        consomment peu de ressources et apportent une ambiance visuelle sans necessiter de
-        configuration de l'<code>AnimationManager</code>.
+        These components are particularly suited to overlays: they animate continuously,
+        consume few resources and provide visual ambiance without requiring any
+        <code>AnimationManager</code> configuration.
       </p>
 
       <div class="card">
@@ -794,22 +794,22 @@ new GradientRectangle()
             <div class="class-name">Aurora</div>
             <div class="package-path">fr.eri.eriapi.gui.components.Aurora</div>
           </div>
-          <span class="badge badge-purple">Effet visuel</span>
+          <span class="badge badge-purple">Visual effect</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
-          Bandes d'aurore boreale ondulantes avec degrade vertical. Jusqu'a 10 bandes superposables,
-          chacune avec sa propre couleur, frequence, amplitude et vitesse. Anime en continu via
-          <code>System.currentTimeMillis()</code> — pas besoin d'animation EriAPI.
+          Undulating northern-lights bands with a vertical gradient. Up to 10 stackable bands,
+          each with its own color, frequency, amplitude and speed. Animated continuously via
+          <code>System.currentTimeMillis()</code> — no EriAPI animation needed.
         </p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java — Aurora en overlay de fond</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java — Aurora as background overlay</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">new Aurora()
     .originalPos(0, 0).originalSize(1920, 400)
-    .addBand(0x406B2FA0, 0.3f, 1.2f, 80, 50)   // violet
+    .addBand(0x406B2FA0, 0.3f, 1.2f, 80, 50)   // purple
     .addBand(0x3000E5FF, 0.5f, 0.8f, 60, 120)  // cyan
-    .addBand(0x20FF6B6B, 0.7f, 0.6f, 50, 200)  // rose subtil
+    .addBand(0x20FF6B6B, 0.7f, 0.6f, 50, 200)  // subtle pink
     .speed(0.02f);
-// Parametres addBand : couleur, frequence, amplitude, hauteur, offsetY</code></pre>
+// addBand parameters: color, frequency, amplitude, height, offsetY</code></pre>
         </div>
       </div>
 
@@ -819,19 +819,19 @@ new GradientRectangle()
             <div class="class-name">Starfield</div>
             <div class="package-path">fr.eri.eriapi.gui.components.Starfield</div>
           </div>
-          <span class="badge badge-purple">Effet visuel</span>
+          <span class="badge badge-purple">Visual effect</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
-          Champ d'etoiles avec scintillement sinusoidal et etoiles filantes aleatoires.
-          Jusqu'a 3 etoiles filantes simultanees.
+          Star field with sinusoidal twinkle and random shooting stars.
+          Up to 3 simultaneous shooting stars.
         </p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">new Starfield()
     .originalPos(0, 0).originalSize(600, 400)
     .starCount(80)
     .starColor(0xFFF0F2FF)
-    .shootingStarChance(0.003f); // 0 = jamais, 0.01 = frequent</code></pre>
+    .shootingStarChance(0.003f); // 0 = never, 0.01 = frequent</code></pre>
         </div>
       </div>
 
@@ -841,14 +841,14 @@ new GradientRectangle()
             <div class="class-name">ParticleSystem</div>
             <div class="package-path">fr.eri.eriapi.gui.components.ParticleSystem</div>
           </div>
-          <span class="badge badge-purple">Effet visuel</span>
+          <span class="badge badge-purple">Visual effect</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
-          Systeme de particules soft (cercles avec gradient radial) qui naissent, derivent et
-          s'estompent. Blending additif pour un effet lumineux. Parfait pour une ambiance magique.
+          Soft particle system (circles with radial gradient) that spawn, drift and
+          fade out. Additive blending for a glowing effect. Perfect for a magical ambiance.
         </p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">new ParticleSystem()
     .originalPos(0, 0).originalSize(300, 100)
     .maxParticles(20)
@@ -856,7 +856,7 @@ new GradientRectangle()
     .particleLife(2000, 4000)
     .particleSize(20, 60)
     .particleColor(0x306B2FA0)
-    .drift(0, -0.008f)     // monte doucement
+    .drift(0, -0.008f)     // rises gently
     .spread(0.01f)
     .fadeIn(0.2f).fadeOut(0.4f);</code></pre>
         </div>
@@ -868,19 +868,19 @@ new GradientRectangle()
             <div class="class-name">SmokeFog</div>
             <div class="package-path">fr.eri.eriapi.gui.components.SmokeFog</div>
           </div>
-          <span class="badge badge-purple">Effet visuel</span>
+          <span class="badge badge-purple">Visual effect</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0 0.75rem;">
-          Brouillard organique base sur du bruit Simplex fractal (FBM). Anime en continu,
-          le brouillard coule et se deforme naturellement. Tres subtil a faible intensite.
+          Organic fog based on fractal Simplex noise (FBM). Animated continuously,
+          the fog flows and deforms naturally. Very subtle at low intensity.
         </p>
         <div class="code-wrapper">
-          <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+          <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
           <pre><code class="language-java">new SmokeFog()
     .originalPos(0, 0).originalSize(400, 200)
-    .color(0x6B2FA0)      // couleur RGB
-    .intensity(0.08f)     // alpha max (tres subtil)
-    .scale(0.006f)        // taille des volutes
+    .color(0x6B2FA0)      // RGB color
+    .intensity(0.08f)     // max alpha (very subtle)
+    .scale(0.006f)        // wisp size
     .speed(0.0003f)
     .octaves(3)
     .cellSize(12);</code></pre>
@@ -894,21 +894,21 @@ new GradientRectangle()
          ANIMATIONS DANS LES OVERLAYS
     ====================================================== -->
     <section class="doc-section" id="animations-overlay">
-      <h2>Animations et scope "overlay"</h2>
+      <h2>Animations and the "overlay" scope</h2>
       <p>
-        Toutes les animations EriAPI fonctionnent dans les overlays. Cependant, il y a une subtilite
-        importante : quand un GUI est ferme, <code>EriGuiScreen.onGuiClosed()</code> appelle
-        <code>AnimationManager.getInstance().stopGuiAnimations()</code> — cela arrete toutes les
-        animations qui n'ont <strong>pas de scope</strong>.
+        All EriAPI animations work in overlays. However, there is an important subtlety:
+        when a GUI is closed, <code>EriGuiScreen.onGuiClosed()</code> calls
+        <code>AnimationManager.getInstance().stopGuiAnimations()</code> — this stops all
+        animations that have <strong>no scope</strong>.
       </p>
       <p>
-        Pour proteger les animations d'overlay contre cet arret, utilise <code>.scope("overlay")</code> :
+        To protect overlay animations from being stopped, use <code>.scope("overlay")</code>:
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Animation d'overlay protegee avec .scope()</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Protected overlay animation with .scope()</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">public class ManaOverlay extends EriOverlay {
 
@@ -918,7 +918,7 @@ new GradientRectangle()
     public ManaOverlay() {
         super("mana_hud", 200, 40);
         setAnchor(Anchor.BOTTOM_LEFT);
-        setOffset(10, -70); // au-dessus de la barre de vie vanilla
+        setOffset(10, -70); // above the vanilla health bar
     }
 
     @Override
@@ -934,8 +934,8 @@ new GradientRectangle()
 
         getRoot().add(manaLabel, manaBar);
 
-        // Animation respirante — scope "overlay" pour ne pas etre arretee
-        // quand le joueur ouvre/ferme un GUI
+        // Breathing animation — scope "overlay" so it is not stopped
+        // when the player opens/closes a GUI
         Animation anim = Animation.create(0.6f, 1f, 30)
             .pingPong()
             .scope("overlay")
@@ -944,7 +944,7 @@ new GradientRectangle()
         AnimationManager.getInstance().play(anim);
     }
 
-    // Methode publique pour mettre a jour la valeur de mana
+    // Public method to update the mana value
     public void setMana(float ratio) {
         if (manaBar != null) {
             manaBar.progress(ratio);
@@ -956,29 +956,29 @@ new GradientRectangle()
       <div class="info-box warning">
         <div class="ib-icon">&#9888;</div>
         <div class="ib-body">
-          <div class="ib-title">Toujours utiliser .scope("overlay") pour les animations loopees</div>
-          <p>Sans ce scope, tes animations <code>pingPong()</code> ou <code>loop()</code> seront
-          interrompues chaque fois que le joueur ferme un GUI (inventaire, etc.). Avec
-          <code>.scope("overlay")</code>, elles continuent de tourner independamment.</p>
+          <div class="ib-title">Always use .scope("overlay") for looping animations</div>
+          <p>Without this scope, your <code>pingPong()</code> or <code>loop()</code> animations will
+          be interrupted every time the player closes a GUI (inventory, etc.). With
+          <code>.scope("overlay")</code>, they keep running independently.</p>
         </div>
       </div>
 
-      <h3>Helpers d'animation sur les composants</h3>
+      <h3>Component animation helpers</h3>
       <p>
-        Les methodes pré-faites de <code>Component</code> (<code>fadeIn</code>, <code>breathe</code>, <code>pulse</code>, etc.)
-        fonctionnent aussi dans les overlays, mais elles ne definissent pas de scope automatiquement.
-        Pour les animations en boucle dans un overlay, cree l'animation manuellement avec <code>.scope("overlay")</code>.
+        The pre-built methods on <code>Component</code> (<code>fadeIn</code>, <code>breathe</code>, <code>pulse</code>, etc.)
+        also work in overlays, but they do not automatically define a scope.
+        For looping animations in an overlay, create the animation manually with <code>.scope("overlay")</code>.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Comparaison : avec et sans scope</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Comparison: with and without scope</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// ❌ Sera arrete quand le joueur ferme un GUI
-label.breathe(40); // helper interne, pas de scope
+        <pre><code class="language-java">// ❌ Will be stopped when the player closes a GUI
+label.breathe(40); // internal helper, no scope
 
-// ✅ Continue meme quand un GUI est ouvert puis ferme
+// ✅ Continues even when a GUI is opened then closed
 Animation.create(0.4f, 1f, 20)
     .pingPong()
     .scope("overlay")
@@ -994,16 +994,16 @@ AnimationManager.getInstance().play(breatheAnim);</code></pre>
          EXEMPLE 1 : BARRE DE MANA
     ====================================================== -->
     <section class="doc-section" id="exemple-barre-mana">
-      <h2>Exemple 1 — Barre de mana</h2>
+      <h2>Example 1 — Mana bar</h2>
       <p>
-        Un overlay simple avec une barre de progression et un label, ancre en bas a gauche.
-        La barre peut etre mise a jour depuis n'importe ou dans le code.
+        A simple overlay with a progress bar and a label, anchored to the bottom-left.
+        The bar can be updated from anywhere in the code.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — ManaOverlay complet</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Complete ManaOverlay</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
 import fr.eri.eriapi.gui.components.*;
@@ -1016,32 +1016,32 @@ public class ManaOverlay extends EriOverlay {
     public ManaOverlay() {
         super("mana_overlay", 210, 50);
         setAnchor(Anchor.BOTTOM_LEFT);
-        setOffset(10, -80); // juste au-dessus de la barre de vie
-        hideInGui(true);    // masquer si GUI ouvert
-        hideOnF1(true);     // masquer si F1
+        setOffset(10, -80); // just above the health bar
+        hideInGui(true);    // hide when GUI is open
+        hideOnF1(true);     // hide when F1 is pressed
     }
 
     @Override
     protected void buildOverlay() {
-        // Fond
+        // Background
         getRoot().add(new Rectangle(0, 0, 210, 50)
             .fillColor(0x90000000)
             .cornerRadius(6));
 
-        // Label "Mana"
+        // "Mana" label
         manaLabel = new Label(8, 6, 60, 12, "MANA")
             .color(0xFFBB86FC)
             .scale(0.8f)
             .shadow(true);
 
-        // Barre de mana
+        // Mana bar
         manaBar = new ProgressBar(8, 24, 194, 12)
             .progress(1f)
             .fillColor(0xFF6B2FA0)
             .backgroundColor(0x50000000)
             .cornerRadius(6);
 
-        // Label valeur
+        // Value label
         Label valueLabel = new Label(8, 38, 194, 10, "100 / 100")
             .color(0x80FFFFFF)
             .scale(0.75f)
@@ -1050,7 +1050,7 @@ public class ManaOverlay extends EriOverlay {
         getRoot().add(manaLabel, manaBar, valueLabel);
     }
 
-    /** Appele depuis ton systeme de mana pour mettre a jour la barre. */
+    /** Called from your mana system to update the bar. */
     public void setMana(int current, int max) {
         if (manaBar != null) {
             manaBar.progress((float) current / max);
@@ -1058,11 +1058,11 @@ public class ManaOverlay extends EriOverlay {
     }
 }
 
-// Dans ClientProxy.init() :
+// In ClientProxy.init():
 ManaOverlay manaOverlay = new ManaOverlay();
 OverlayManager.getInstance().register(manaOverlay);
 
-// Depuis n'importe ou dans ton mod (cote client) :
+// From anywhere in your mod (client side):
 ManaOverlay overlay = (ManaOverlay) OverlayManager.getInstance().get("mana_overlay");
 if (overlay != null) overlay.setMana(75, 100);</code></pre>
       </div>
@@ -1074,16 +1074,16 @@ if (overlay != null) overlay.setMana(75, 100);</code></pre>
          EXEMPLE 2 : HUD FACTION
     ====================================================== -->
     <section class="doc-section" id="exemple-hud-faction">
-      <h2>Exemple 2 — HUD de faction</h2>
+      <h2>Example 2 — Faction HUD</h2>
       <p>
-        Un HUD de faction dans le coin inferieur droit avec le nom de la faction, le grade du joueur
-        et le nombre de membres en ligne.
+        A faction HUD in the bottom-right corner showing the faction name, the player's rank
+        and the number of members online.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
           <span>Java — FactionHudOverlay</span>
-          <button class="copy-btn">Copier</button>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
 import fr.eri.eriapi.gui.components.*;
@@ -1102,36 +1102,36 @@ public class FactionHudOverlay extends EriOverlay {
 
     @Override
     protected void buildOverlay() {
-        // Fond avec degrade
+        // Gradient background
         getRoot().add(new GradientRectangle()
             .originalPos(0, 0).originalSize(220, 70)
             .vertical(0x80150A2A, 0x801A0B35)
             .cornerRadius(8));
 
-        // Bordure superieure
+        // Top border
         getRoot().add(new GradientRectangle()
             .originalPos(0, 0).originalSize(220, 2)
             .horizontal(0x00000000, 0xFF6B2FA0)
             .cornerRadius(0));
 
-        // Icone / prefixe
+        // Icon / prefix
         getRoot().add(new Label(8, 10, 20, 16, "\u2726")
             .color(0xFFFFD700)
             .scale(1.0f));
 
-        // Nom de la faction
-        factionNameLabel = new Label(28, 8, 180, 18, "Aucune faction")
+        // Faction name
+        factionNameLabel = new Label(28, 8, 180, 18, "No faction")
             .color(0xFFE0E0E0)
             .scale(1.0f)
             .shadow(true);
 
-        // Grade
-        rankLabel = new Label(8, 30, 204, 14, "Grade : ---")
+        // Rank
+        rankLabel = new Label(8, 30, 204, 14, "Rank: ---")
             .color(0xFF9B8BCC)
             .scale(0.85f);
 
-        // Membres en ligne
-        membersLabel = new Label(8, 48, 204, 14, "Membres en ligne : 0")
+        // Members online
+        membersLabel = new Label(8, 48, 204, 14, "Members online: 0")
             .color(0xFF6BCB77)
             .scale(0.85f);
 
@@ -1140,8 +1140,8 @@ public class FactionHudOverlay extends EriOverlay {
 
     public void update(String faction, String rank, int onlineMembers) {
         if (factionNameLabel != null) factionNameLabel.text(faction);
-        if (rankLabel != null) rankLabel.text("Grade : " + rank);
-        if (membersLabel != null) membersLabel.text("Membres en ligne : " + onlineMembers);
+        if (rankLabel != null) rankLabel.text("Rank: " + rank);
+        if (membersLabel != null) membersLabel.text("Members online: " + onlineMembers);
     }
 }</code></pre>
       </div>
@@ -1153,16 +1153,16 @@ public class FactionHudOverlay extends EriOverlay {
          EXEMPLE 3 : OVERLAY ANIME
     ====================================================== -->
     <section class="doc-section" id="exemple-animation">
-      <h2>Exemple 3 — Overlay avec effets visuels animes</h2>
+      <h2>Example 3 — Overlay with animated visual effects</h2>
       <p>
-        Un overlay ambiante avec un champ d'etoiles en fond et une aurora, affiche en haut de l'ecran.
-        Ce type d'overlay est utilise pour des effets decoratifs permanents.
+        An ambient overlay with a star field background and an aurora, displayed at the top of the screen.
+        This type of overlay is used for permanent decorative effects.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — AmbientOverlay avec Starfield et Aurora</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — AmbientOverlay with Starfield and Aurora</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.*;
 import fr.eri.eriapi.gui.components.*;
@@ -1173,21 +1173,21 @@ public class AmbientOverlay extends EriOverlay {
     public AmbientOverlay() {
         super("ambient_overlay", 1920, 300);
         setAnchor(Anchor.TOP_LEFT);
-        setLayer(OverlayLayer.PRE_ALL); // sous le HUD vanilla
-        hideInGui(false); // reste visible meme dans les menus
+        setLayer(OverlayLayer.PRE_ALL); // beneath the vanilla HUD
+        hideInGui(false); // stays visible even in menus
         hideOnF1(true);
     }
 
     @Override
     protected void buildOverlay() {
-        // Champ d'etoiles en fond
+        // Star field background
         getRoot().add(new Starfield()
             .originalPos(0, 0).originalSize(1920, 300)
             .starCount(60)
             .starColor(0xFFF0F2FF)
             .shootingStarChance(0.002f));
 
-        // Aurora au-dessus
+        // Aurora on top
         getRoot().add(new Aurora()
             .originalPos(0, 0).originalSize(1920, 300)
             .addBand(0x306B2FA0, 0.4f, 1.0f, 100, 80)
@@ -1204,61 +1204,61 @@ public class AmbientOverlay extends EriOverlay {
          NOTES TECHNIQUES
     ====================================================== -->
     <section class="doc-section" id="notes-techniques">
-      <h2>Notes techniques</h2>
+      <h2>Technical notes</h2>
 
-      <h3>Scope des animations</h3>
+      <h3>Animation scope</h3>
       <p>
-        Quand un GUI est ferme (<code>EriGuiScreen.onGuiClosed()</code>), le framework appelle
-        <code>AnimationManager.getInstance().stopGuiAnimations()</code>. Cette methode arrete
-        <strong>toutes les animations sans scope</strong> (<code>scope == null</code>).
-        Les animations avec <code>.scope("overlay")</code> (ou tout autre scope non nul) sont preservees.
+        When a GUI is closed (<code>EriGuiScreen.onGuiClosed()</code>), the framework calls
+        <code>AnimationManager.getInstance().stopGuiAnimations()</code>. This method stops
+        <strong>all animations without a scope</strong> (<code>scope == null</code>).
+        Animations with <code>.scope("overlay")</code> (or any other non-null scope) are preserved.
       </p>
       <p>
-        Regle a retenir : dans un overlay, toute animation en boucle (<code>loop()</code>,
-        <code>pingPong()</code>) doit avoir <code>.scope("overlay")</code>.
-        Les animations a usage unique (fondu d'apparition, slide) n'ont pas besoin de scope.
+        Rule to remember: in an overlay, every looping animation (<code>loop()</code>,
+        <code>pingPong()</code>) must have <code>.scope("overlay")</code>.
+        One-shot animations (fade-in, slide) do not need a scope.
       </p>
 
       <h3>hideInGui</h3>
       <p>
-        Par defaut, <code>hideInGui(true)</code> masque automatiquement l'overlay quand
-        <code>Minecraft.getMinecraft().currentScreen != null</code> (un GUI est ouvert).
-        Mettre a <code>false</code> si ton overlay doit rester visible dans les menus
-        (effet decoratif, information persistante).
+        By default, <code>hideInGui(true)</code> automatically hides the overlay when
+        <code>Minecraft.getMinecraft().currentScreen != null</code> (a GUI is open).
+        Set to <code>false</code> if your overlay must remain visible in menus
+        (decorative effect, persistent information).
       </p>
 
       <h3>hideOnF1</h3>
       <p>
-        Par defaut, <code>hideOnF1(true)</code> masque l'overlay quand
-        <code>mc.gameSettings.hideGUI == true</code> (joueur appuie sur F1 pour cacher le HUD).
-        Mettre a <code>false</code> uniquement pour les overlays qui ont une raison forte de
-        toujours s'afficher (debug info, etc.).
+        By default, <code>hideOnF1(true)</code> hides the overlay when
+        <code>mc.gameSettings.hideGUI == true</code> (player presses F1 to hide the HUD).
+        Set to <code>false</code> only for overlays that have a strong reason to always
+        display (debug info, etc.).
       </p>
 
       <h3>Thread safety</h3>
       <p>
-        Les overlays sont entierement rendus sur le thread de rendu client. Ne modifie pas
-        les composants depuis un thread async (EriScheduler.async ou autre). Utilise
-        <code>EriScheduler.delay(0, () -> overlay.setMana(...))</code> pour rappliquer sur
-        le thread principal si necessaire.
+        Overlays are entirely rendered on the client render thread. Do not modify
+        components from an async thread (EriScheduler.async or similar). Use
+        <code>EriScheduler.delay(0, () -> overlay.setMana(...))</code> to dispatch back to
+        the main thread if necessary.
       </p>
 
       <h3>Performance</h3>
       <p>
-        Les overlays sont rendus a chaque frame (60 FPS+). Evite les calculs lourds dans
-        <code>buildOverlay()</code> ou dans les lambdas <code>onUpdate</code>. Les composants
-        decoratifs (<code>SmokeFog</code>, <code>ParticleSystem</code>) ont des limites integrees
-        (<code>cellSize</code>, <code>maxParticles</code>) pour controler le cout GPU.
+        Overlays are rendered every frame (60 FPS+). Avoid heavy computations in
+        <code>buildOverlay()</code> or in <code>onUpdate</code> lambdas. Decorative components
+        (<code>SmokeFog</code>, <code>ParticleSystem</code>) have built-in limits
+        (<code>cellSize</code>, <code>maxParticles</code>) to control GPU cost.
       </p>
 
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Bonne pratique : mettre a jour via des methodes publiques</div>
-          <p>Stocke les references aux composants comme champs prives de ta classe overlay.
-          Expose des methodes publiques (<code>setMana()</code>, <code>update()</code>) pour
-          mettre a jour les valeurs. Ne cree pas de nouveaux composants a chaque tick —
-          modifie seulement les proprietes des composants existants (<code>.text()</code>,
+          <div class="ib-title">Best practice: update via public methods</div>
+          <p>Store references to components as private fields of your overlay class.
+          Expose public methods (<code>setMana()</code>, <code>update()</code>) to
+          update values. Never create new components on every tick —
+          only modify the properties of existing components (<code>.text()</code>,
           <code>.progress()</code>, etc.).</p>
         </div>
       </div>
@@ -1270,23 +1270,23 @@ public class AmbientOverlay extends EriOverlay {
          OVERLAY MOD — SYSTEME MODULAIRE
     ====================================================== -->
     <section class="doc-section" id="overlay-mod">
-      <h2>OverlayMod &mdash; Systeme Modulaire</h2>
+      <h2>OverlayMod &mdash; Modular System</h2>
       <p>
-        <code>OverlayMod</code> est le nouveau systeme d'overlay modulaire d'EriAPI. Il remplace
-        l'approche manuelle avec <code>EriOverlay</code> pour les overlays complexes qui ont besoin
-        de configuration utilisateur, de positionnement par drag &amp; drop et de persistance
-        automatique entre les sessions de jeu.
+        <code>OverlayMod</code> is EriAPI's new modular overlay system. It replaces the
+        manual approach with <code>EriOverlay</code> for complex overlays that need
+        user configuration, drag &amp; drop positioning and automatic persistence
+        between game sessions.
       </p>
       <p>
-        Chaque <code>OverlayMod</code> est un module autonome qui embarque :
+        Each <code>OverlayMod</code> is a self-contained module that includes:
       </p>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><strong style="color:var(--text);">Position propre</strong> — stockee en pixels de design (espace 1920x1080), convertie a l'affichage par le ScaleManager</li>
-        <li><strong style="color:var(--text);">Facteur de zoom propre</strong> — chaque mod a son propre scale configurable</li>
-        <li><strong style="color:var(--text);">Parametres configurables</strong> — via <code>ModSettings</code>, exposes dans l'editeur</li>
-        <li><strong style="color:var(--text);">Positionnement drag &amp; drop</strong> — l'editeur integre permet a l'utilisateur de deplacer chaque mod librement</li>
-        <li><strong style="color:var(--text);">Persistance JSON automatique</strong> — position, scale et parametres sont sauvegardes et restaures</li>
-        <li><strong style="color:var(--text);">Rendu par frame avec precision nanotime</strong> — le callback <code>onFrame()</code> recoit le delta en nanosecondes</li>
+        <li><strong style="color:var(--text);">Its own position</strong> — stored in design pixels (1920x1080 space), converted at render time by the ScaleManager</li>
+        <li><strong style="color:var(--text);">Its own zoom factor</strong> — each mod has its own configurable scale</li>
+        <li><strong style="color:var(--text);">Configurable settings</strong> — via <code>ModSettings</code>, exposed in the editor</li>
+        <li><strong style="color:var(--text);">Drag &amp; drop positioning</strong> — the built-in editor lets the user freely move each mod</li>
+        <li><strong style="color:var(--text);">Automatic JSON persistence</strong> — position, scale and settings are saved and restored</li>
+        <li><strong style="color:var(--text);">Per-frame rendering with nanotime precision</strong> — the <code>onFrame()</code> callback receives the delta in nanoseconds</li>
       </ul>
 
       <div class="class-header">
@@ -1297,12 +1297,12 @@ public class AmbientOverlay extends EriOverlay {
         </div>
       </div>
 
-      <h3>Creer un OverlayMod</h3>
+      <h3>Creating an OverlayMod</h3>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — OverlayMod minimal (affichage des PV)</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Minimal OverlayMod (health display)</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.OverlayMod;
 import fr.eri.eriapi.gui.components.*;
@@ -1317,8 +1317,8 @@ public class HealthOverlayMod extends OverlayMod {
     public HealthOverlayMod() {
         super("my_health", "Health Display", 200, 40);
         setCategory("Combat");
-        setDescription("Affiche les PV du joueur.");
-        setDefaultPosition(0.01f, 0.9f);  // bas-gauche (x et y en fraction de l'ecran)
+        setDescription("Displays the player's health points.");
+        setDefaultPosition(0.01f, 0.9f);  // bottom-left (x and y as screen fraction)
         setMinScale(0.5f);
         setMaxScale(2.0f);
     }
@@ -1347,20 +1347,20 @@ public class HealthOverlayMod extends OverlayMod {
 }</code></pre>
       </div>
 
-      <h3>Enregistrement</h3>
+      <h3>Registration</h3>
       <p>
-        Enregistre tes mods dans <code>ClientProxy.init()</code> via <code>OverlayModManager</code>.
-        Comme pour <code>OverlayManager</code>, l'enregistrement se fait une seule fois.
+        Register your mods in <code>ClientProxy.init()</code> via <code>OverlayModManager</code>.
+        As with <code>OverlayManager</code>, registration is done only once.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Enregistrement dans ClientProxy.init()</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Registration in ClientProxy.init()</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.overlay.OverlayModManager;
 
-// Dans ClientProxy.init() :
+// In ClientProxy.init():
 OverlayModManager.getInstance().register(new HealthOverlayMod());
 OverlayModManager.getInstance().register(new DebugOverlayMod());
 OverlayModManager.getInstance().register(new FactionInfoMod());</code></pre>
@@ -1369,108 +1369,108 @@ OverlayModManager.getInstance().register(new FactionInfoMod());</code></pre>
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="class-name">OverlayMod &mdash; reference des methodes</div>
+            <div class="class-name">OverlayMod &mdash; method reference</div>
             <div class="package-path">fr.eri.eriapi.overlay.OverlayMod</div>
           </div>
-          <span class="badge badge-cyan">API publique</span>
+          <span class="badge badge-cyan">Public API</span>
         </div>
 
         <ul class="method-list">
           <li class="method-item">
             <div>
               <div class="method-sig">OverlayMod(<span class="param">String id, String name, int designWidth, int designHeight</span>)</div>
-              <div class="method-desc">Constructeur. <code>id</code> est l'identifiant unique (utilise pour la persistance JSON). <code>name</code> est le nom affiche dans l'editeur. <code>designWidth</code> et <code>designHeight</code> sont les dimensions de la zone de rendu en pixels de design (espace 1920x1080).</div>
+              <div class="method-desc">Constructor. <code>id</code> is the unique identifier (used for JSON persistence). <code>name</code> is the display name shown in the editor. <code>designWidth</code> and <code>designHeight</code> are the render area dimensions in design pixels (1920x1080 space).</div>
             </div>
-            <span class="method-badge mb-constructor">Constructeur</span>
+            <span class="method-badge mb-constructor">Constructor</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> setCategory(<span class="param">String category</span>)</div>
-              <div class="method-desc">Definit la categorie affichee dans le gestionnaire (ex : "Combat", "Informations", "Debug"). Permet de regrouper les mods par theme dans l'interface de gestion.</div>
+              <div class="method-desc">Sets the category shown in the manager (e.g. "Combat", "Information", "Debug"). Allows grouping mods by theme in the management interface.</div>
             </div>
             <span class="method-badge mb-method">Configuration</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> setDescription(<span class="param">String description</span>)</div>
-              <div class="method-desc">Description courte affichee dans le gestionnaire d'overlays. Doit expliquer en une phrase ce que le mod affiche.</div>
+              <div class="method-desc">Short description shown in the overlay manager. Should explain in one sentence what the mod displays.</div>
             </div>
             <span class="method-badge mb-method">Configuration</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> setDefaultPosition(<span class="param">float x, float y</span>)</div>
-              <div class="method-desc">Position par defaut en fraction de l'ecran (0.0 a 1.0 pour x et y). Compatible avec l'ancien format — convertit en interne en pixels de design (<code>x * 1920</code>, <code>y * 1080</code>). Exemple : <code>(0.01f, 0.9f)</code> = environ coin bas-gauche.</div>
+              <div class="method-desc">Default position as a screen fraction (0.0 to 1.0 for x and y). Compatible with the legacy format — internally converts to design pixels (<code>x * 1920</code>, <code>y * 1080</code>). Example: <code>(0.01f, 0.9f)</code> = approximately bottom-left corner.</div>
             </div>
             <span class="method-badge mb-method">Configuration</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> setDefaultPositionDesign(<span class="param">float designX, float designY</span>)</div>
-              <div class="method-desc">Position par defaut directement en pixels de design (espace 1920x1080). Preferable a <code>setDefaultPosition()</code> pour un positionnement precis. Exemple : <code>(20, 950)</code> = 20 design-pixels depuis le bord gauche, 950 depuis le haut.</div>
+              <div class="method-desc">Default position directly in design pixels (1920x1080 space). Preferred over <code>setDefaultPosition()</code> for precise positioning. Example: <code>(20, 950)</code> = 20 design pixels from the left edge, 950 from the top.</div>
             </div>
             <span class="method-badge mb-method">Configuration</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> setMinScale(<span class="param">float min</span>) / setMaxScale(<span class="param">float max</span>)</div>
-              <div class="method-desc">Definit les limites du zoom utilisateur dans l'editeur. Valeurs typiques : min <code>0.5f</code>, max <code>2.0f</code>. Le scale par defaut est <code>1.0f</code>.</div>
+              <div class="method-desc">Sets the user zoom limits in the editor. Typical values: min <code>0.5f</code>, max <code>2.0f</code>. Default scale is <code>1.0f</code>.</div>
             </div>
             <span class="method-badge mb-method">Configuration</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> buildOverlay()</div>
-              <div class="method-desc">Methode abstraite a implementer. Construis ici tous les composants visuels avec <code>getRoot().add(...)</code>. Appelee une seule fois au premier rendu (et a chaque appel de <code>rebuild()</code>).</div>
+              <div class="method-desc">Abstract method to implement. Build all visual components here with <code>getRoot().add(...)</code>. Called once on first render (and on every <code>rebuild()</code> call).</div>
             </div>
-            <span class="method-badge mb-abstract">A implementer</span>
+            <span class="method-badge mb-abstract">To implement</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> buildSettings(<span class="param">ModSettings settings</span>)</div>
-              <div class="method-desc">Override optionnel. Declare ici les parametres configurables du mod via le builder <code>ModSettings</code>. Voir la section <a href="#mod-settings">ModSettings</a>.</div>
+              <div class="method-desc">Optional override. Declare the mod's configurable settings here via the <code>ModSettings</code> builder. See the <a href="#mod-settings">ModSettings</a> section.</div>
             </div>
-            <span class="method-badge mb-abstract">Optionnel</span>
+            <span class="method-badge mb-abstract">Optional</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> onFrame(<span class="param">float partialTicks, long deltaNanos</span>)</div>
-              <div class="method-desc">Override optionnel. Appele a chaque frame de rendu (60-144+ fois par seconde). <code>partialTicks</code> est la fraction de tick ecoulee depuis le dernier tick (0.0 a 1.0). <code>deltaNanos</code> est le temps en nanosecondes depuis le dernier appel — utile pour les timers internes. C'est ici que tu mets a jour les labels, barres, etc.</div>
+              <div class="method-desc">Optional override. Called every render frame (60-144+ times per second). <code>partialTicks</code> is the fraction of a tick elapsed since the last tick (0.0 to 1.0). <code>deltaNanos</code> is the time in nanoseconds since the last call — useful for internal timers. This is where you update labels, bars, etc.</div>
             </div>
-            <span class="method-badge mb-abstract">Optionnel</span>
+            <span class="method-badge mb-abstract">Optional</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> onTick()</div>
-              <div class="method-desc">Override optionnel. Appele 20 fois par seconde (chaque tick serveur). Utilise pour les mises a jour de donnees lourdes ou les synchronisations serveur. Voir <a href="#frame-vs-tick">onFrame vs onTick</a>.</div>
+              <div class="method-desc">Optional override. Called 20 times per second (every server tick). Use for heavy data updates or server synchronizations. See <a href="#frame-vs-tick">onFrame vs onTick</a>.</div>
             </div>
-            <span class="method-badge mb-abstract">Optionnel</span>
+            <span class="method-badge mb-abstract">Optional</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> onSettingChanged(<span class="param">String key, Object value</span>)</div>
-              <div class="method-desc">Override optionnel. Appele automatiquement quand l'utilisateur modifie un parametre dans l'editeur. <code>key</code> correspond a la cle declaree dans <code>buildSettings()</code>. <code>value</code> est la nouvelle valeur (Integer, Float, Boolean ou String selon le type de parametre).</div>
+              <div class="method-desc">Optional override. Called automatically when the user modifies a setting in the editor. <code>key</code> corresponds to the key declared in <code>buildSettings()</code>. <code>value</code> is the new value (Integer, Float, Boolean or String depending on the setting type).</div>
             </div>
-            <span class="method-badge mb-abstract">Optionnel</span>
+            <span class="method-badge mb-abstract">Optional</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">&lt;T&gt; T</span> getSetting(<span class="param">String key, T defaultValue</span>)</div>
-              <div class="method-desc">Lit la valeur courante d'un parametre. Si le parametre n'a pas encore ete charge (premiere session), retourne <code>defaultValue</code>. Le type <code>T</code> est infere depuis <code>defaultValue</code> — passe le meme type que celui declare dans <code>buildSettings()</code>.</div>
+              <div class="method-desc">Reads the current value of a setting. If the setting has not yet been loaded (first session), returns <code>defaultValue</code>. The type <code>T</code> is inferred from <code>defaultValue</code> — pass the same type as declared in <code>buildSettings()</code>.</div>
             </div>
             <span class="method-badge mb-getter">Getter</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">void</span> rebuild()</div>
-              <div class="method-desc">Force la reconstruction complete des composants visuels au prochain rendu. Appelle <code>buildOverlay()</code> a nouveau. Utile quand un parametre change le layout (nombre de lignes, mode compact, etc.).</div>
+              <div class="method-desc">Forces a complete rebuild of the visual components on the next render. Calls <code>buildOverlay()</code> again. Useful when a setting changes the layout (number of rows, compact mode, etc.).</div>
             </div>
-            <span class="method-badge mb-method">Methode</span>
+            <span class="method-badge mb-method">Method</span>
           </li>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">ContainerComponent</span> getRoot()</div>
-              <div class="method-desc">Retourne le conteneur racine dans lequel ajouter les composants. Disponible depuis <code>buildOverlay()</code>.</div>
+              <div class="method-desc">Returns the root container to which components are added. Available from <code>buildOverlay()</code>.</div>
             </div>
             <span class="method-badge mb-getter">Getter</span>
           </li>
@@ -1481,11 +1481,11 @@ OverlayModManager.getInstance().register(new FactionInfoMod());</code></pre>
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
           <div class="ib-title">OverlayMod vs EriOverlay</div>
-          <p>Utilise <code>EriOverlay</code> pour des overlays simples et statiques (barre de mana,
-          HUD de faction) ou tu geres toi-meme la mise a jour via des methodes publiques.
-          Utilise <code>OverlayMod</code> quand tu veux que l'utilisateur puisse configurer,
-          deplacer et activer/desactiver l'overlay depuis un editeur integre, avec
-          persistance automatique. Les deux systemes coexistent et peuvent etre utilises ensemble.</p>
+          <p>Use <code>EriOverlay</code> for simple, static overlays (mana bar,
+          faction HUD) where you manage updates yourself via public methods.
+          Use <code>OverlayMod</code> when you want the user to be able to configure,
+          move and enable/disable the overlay from a built-in editor, with
+          automatic persistence. Both systems coexist and can be used together.</p>
         </div>
       </div>
     </section>
@@ -1496,15 +1496,15 @@ OverlayModManager.getInstance().register(new FactionInfoMod());</code></pre>
          MOD SETTINGS
     ====================================================== -->
     <section class="doc-section" id="mod-settings">
-      <h2>ModSettings &mdash; Parametres configurables</h2>
+      <h2>ModSettings &mdash; Configurable settings</h2>
       <p>
-        Chaque <code>OverlayMod</code> peut declarer des parametres configurables en implementant
-        <code>buildSettings(ModSettings settings)</code>. Ces parametres sont automatiquement
-        exposes dans l'editeur <code>GuiOverlayHub</code> et leurs valeurs sont persistees en JSON.
+        Each <code>OverlayMod</code> can declare configurable settings by implementing
+        <code>buildSettings(ModSettings settings)</code>. These settings are automatically
+        exposed in the <code>GuiOverlayHub</code> editor and their values are persisted as JSON.
       </p>
       <p>
-        Le builder <code>ModSettings</code> utilise une syntaxe fluente — chaque appel retourne
-        le meme builder pour enchaîner les declarations.
+        The <code>ModSettings</code> builder uses a fluent syntax — each call returns
+        the same builder to chain declarations.
       </p>
 
       <div class="class-header">
@@ -1517,19 +1517,19 @@ OverlayModManager.getInstance().register(new FactionInfoMod());</code></pre>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Declaration de parametres avec buildSettings()</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Declaring settings with buildSettings()</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">@Override
 protected void buildSettings(ModSettings settings) {
     settings
-        .separator("Sections visibles")
+        .separator("Visible sections")
         .toggle("show_fps", "FPS", true)
-        .toggle("show_coords", "Coordonnees", true)
-        .separator("Apparence")
-        .colorPicker("text_color", "Couleur du texte", 0xFFCCCCCC)
-        .slider("bg_opacity", "Opacite du fond", 0f, 1f, 0.67f)
-        .toggle("compact", "Mode compact", false);
+        .toggle("show_coords", "Coordinates", true)
+        .separator("Appearance")
+        .colorPicker("text_color", "Text color", 0xFFCCCCCC)
+        .slider("bg_opacity", "Background opacity", 0f, 1f, 0.67f)
+        .toggle("compact", "Compact mode", false);
 }
 
 @Override
@@ -1538,22 +1538,22 @@ protected void onSettingChanged(String key, Object value) {
         int color = (Integer) value;
         myLabel.color(color);
     } else if ("compact".equals(key)) {
-        rebuild();  // Le layout change completement en mode compact
+        rebuild();  // The layout changes completely in compact mode
     }
 }
 
-// Lire une valeur dans onFrame() ou onTick() :
+// Reading a value in onFrame() or onTick():
 boolean showFps = getSetting("show_fps", true);
 float opacity  = getSetting("bg_opacity", 0.67f);</code></pre>
       </div>
 
-      <h3>Types de parametres disponibles</h3>
+      <h3>Available setting types</h3>
 
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Methode</th>
-            <th>Type retourne</th>
+            <th>Method</th>
+            <th>Return type</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -1561,47 +1561,47 @@ float opacity  = getSetting("bg_opacity", 0.67f);</code></pre>
           <tr>
             <td><code>toggle(key, label, default)</code></td>
             <td>Boolean</td>
-            <td>Interrupteur on/off. Affiche un toggle switch dans l'editeur.</td>
+            <td>On/off switch. Displays a toggle switch in the editor.</td>
           </tr>
           <tr>
             <td><code>slider(key, label, min, max, default)</code></td>
             <td>Float</td>
-            <td>Curseur a valeur flottante entre <code>min</code> et <code>max</code>. Ideal pour les opacites, tailles, vitesses.</td>
+            <td>Floating-point slider between <code>min</code> and <code>max</code>. Ideal for opacities, sizes, speeds.</td>
           </tr>
           <tr>
             <td><code>sliderInt(key, label, min, max, default)</code></td>
             <td>Integer</td>
-            <td>Curseur a valeur entiere. Pour les compteurs, limites de lignes, etc.</td>
+            <td>Integer slider. For counters, line limits, etc.</td>
           </tr>
           <tr>
             <td><code>colorPicker(key, label, defaultColor)</code></td>
             <td>Integer (ARGB)</td>
-            <td>Selecteur de couleur complet (roue, luminosite, alpha). La valeur est un entier ARGB <code>0xAARRGGBB</code>.</td>
+            <td>Full color picker (wheel, brightness, alpha). The value is an ARGB integer <code>0xAARRGGBB</code>.</td>
           </tr>
           <tr>
             <td><code>dropdown(key, label, default, options...)</code></td>
             <td>String</td>
-            <td>Menu deroulant avec une liste de choix. Passe les options sous forme de varargs String.</td>
+            <td>Dropdown menu with a list of choices. Pass options as String varargs.</td>
           </tr>
           <tr>
             <td><code>textField(key, label, default)</code></td>
             <td>String</td>
-            <td>Champ texte libre. Utile pour des prefixes, suffixes ou noms personnalises.</td>
+            <td>Free text field. Useful for prefixes, suffixes or custom names.</td>
           </tr>
           <tr>
             <td><code>keybind(key, label, defaultKey)</code></td>
             <td>Integer (LWJGL)</td>
-            <td>Selecteur de touche. La valeur est un code LWJGL (<code>Keyboard.KEY_*</code>).</td>
+            <td>Key selector. The value is an LWJGL key code (<code>Keyboard.KEY_*</code>).</td>
           </tr>
           <tr>
             <td><code>separator(title)</code></td>
             <td>&mdash;</td>
-            <td>Separateur visuel avec titre. Ne cree pas de parametre, sert uniquement a organiser l'interface.</td>
+            <td>Visual separator with title. Does not create a setting, used only to organize the interface.</td>
           </tr>
           <tr>
             <td><code>info(text)</code></td>
             <td>&mdash;</td>
-            <td>Texte informatif non interactif. Utile pour des notes ou avertissements dans l'editeur.</td>
+            <td>Non-interactive informational text. Useful for notes or warnings in the editor.</td>
           </tr>
         </tbody>
       </table>
@@ -1609,11 +1609,11 @@ float opacity  = getSetting("bg_opacity", 0.67f);</code></pre>
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Lire les parametres avec getSetting()</div>
-          <p>La methode <code>getSetting(key, defaultValue)</code> retourne toujours une valeur
-          valide : soit la valeur sauvegardee, soit la valeur par defaut si le parametre n'a
-          jamais ete modifie. Utilise la meme valeur par defaut dans <code>buildSettings()</code>
-          et dans <code>getSetting()</code> pour garantir la coherence.</p>
+          <div class="ib-title">Reading settings with getSetting()</div>
+          <p>The <code>getSetting(key, defaultValue)</code> method always returns a valid value:
+          either the saved value, or the default value if the setting has never been modified.
+          Use the same default value in <code>buildSettings()</code>
+          and in <code>getSetting()</code> to guarantee consistency.</p>
         </div>
       </div>
     </section>
@@ -1624,11 +1624,11 @@ float opacity  = getSetting("bg_opacity", 0.67f);</code></pre>
          GUI OVERLAY HUB
     ====================================================== -->
     <section class="doc-section" id="overlay-hub">
-      <h2>GuiOverlayHub &mdash; L'editeur integre</h2>
+      <h2>GuiOverlayHub &mdash; The built-in editor</h2>
       <p>
-        <code>GuiOverlayHub</code> est l'interface graphique centrale du systeme modulaire.
-        Elle permet aux utilisateurs de positionner, configurer et activer/desactiver leurs
-        overlays sans quitter le jeu.
+        <code>GuiOverlayHub</code> is the central graphical interface of the modular system.
+        It allows users to position, configure and enable/disable their overlays
+        without leaving the game.
       </p>
 
       <div class="class-header">
@@ -1639,85 +1639,85 @@ float opacity  = getSetting("bg_opacity", 0.67f);</code></pre>
         </div>
       </div>
 
-      <h3>Fonctionnalites de l'editeur</h3>
+      <h3>Editor features</h3>
 
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="class-name">Vue editeur (couche de base)</div>
+            <div class="class-name">Editor view (base layer)</div>
           </div>
           <span class="badge badge-purple">Drag &amp; Drop</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0;">
-          La couche de base de l'editeur affiche tous les overlays actifs en superposition
-          sur l'ecran de jeu. Chaque overlay peut etre :
+          The base layer of the editor displays all active overlays overlaid on
+          the game screen. Each overlay can be:
         </p>
         <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
-          <li><strong style="color:var(--text);">Deplace</strong> — clic + glisser pour repositionner librement</li>
-          <li><strong style="color:var(--text);">Zoom</strong> — molette de souris pour changer le scale</li>
-          <li><strong style="color:var(--text);">Selectionne</strong> — clic droit pour ouvrir le menu contextuel (parametres, reset, toggle)</li>
+          <li><strong style="color:var(--text);">Moved</strong> — click + drag to reposition freely</li>
+          <li><strong style="color:var(--text);">Zoomed</strong> — mouse wheel to change the scale</li>
+          <li><strong style="color:var(--text);">Selected</strong> — right-click to open the context menu (settings, reset, toggle)</li>
         </ul>
         <p style="color:var(--text-muted);margin:0.5rem 0;">
-          Un toggle <strong>Snap to grid</strong> permet d'activer l'alignement magnetique sur une grille.
-          Le bouton <strong>Reset All</strong> remet tous les overlays a leur position par defaut.
+          A <strong>Snap to grid</strong> toggle enables magnetic alignment to a grid.
+          The <strong>Reset All</strong> button resets all overlays to their default position.
         </p>
       </div>
 
       <div class="card" style="margin-top:1rem;">
         <div class="card-header">
           <div>
-            <div class="class-name">Bouton "Gestion" &mdash; popup de liste</div>
+            <div class="class-name">"Manage" button &mdash; list popup</div>
           </div>
-          <span class="badge badge-gray">Liste</span>
+          <span class="badge badge-gray">List</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0;">
-          Ouvre un popup listant tous les <code>OverlayMod</code> enregistres. Pour chaque mod :
+          Opens a popup listing all registered <code>OverlayMod</code>s. For each mod:
         </p>
         <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
-          <li>Toggle d'activation/desactivation rapide</li>
-          <li>Categorie et description</li>
-          <li>Barre de recherche par nom</li>
-          <li>Filtrage par categorie</li>
+          <li>Quick enable/disable toggle</li>
+          <li>Category and description</li>
+          <li>Search bar by name</li>
+          <li>Filter by category</li>
         </ul>
       </div>
 
       <div class="card" style="margin-top:1rem;">
         <div class="card-header">
           <div>
-            <div class="class-name">Bouton "Parametres" &mdash; popup de configuration</div>
+            <div class="class-name">"Settings" button &mdash; configuration popup</div>
           </div>
           <span class="badge badge-cyan">Settings</span>
         </div>
         <p style="color:var(--text-muted);margin:0.5rem 0;">
-          Disponible sur chaque mod selectionne (via le bouton dans l'editeur ou le menu
-          contextuel au clic droit). Affiche tous les parametres declares dans
-          <code>buildSettings()</code> avec les composants correspondants
-          (toggle, slider, colorPicker, dropdown...). Les changements sont appliques
-          en temps reel via <code>onSettingChanged()</code>.
+          Available for each selected mod (via the button in the editor or the
+          right-click context menu). Displays all settings declared in
+          <code>buildSettings()</code> with their corresponding components
+          (toggle, slider, colorPicker, dropdown...). Changes are applied
+          in real time via <code>onSettingChanged()</code>.
         </p>
       </div>
 
-      <h3>Ouvrir l'editeur</h3>
+      <h3>Opening the editor</h3>
       <p>
-        L'editeur s'ouvre par defaut avec la touche <kbd>]</kbd> (configurable via les
-        keybindings EriAPI). Il peut aussi etre ouvert programmatiquement :
+        The editor opens by default with the <kbd>]</kbd> key (configurable via
+        EriAPI keybindings). It can also be opened programmatically:
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Ouverture programmatique</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Programmatic opening</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// Ouvrir l'editeur depuis du code (ex. : depuis un keybinding ou une commande)
+        <pre><code class="language-java">// Open the editor from code (e.g. from a keybinding or a command)
 OverlayModManager.getInstance().openEditor();</code></pre>
       </div>
 
-      <h3>Sauvegarder</h3>
+      <h3>Saving</h3>
       <p>
-        Le bouton <strong>Sauvegarder et fermer</strong> ecrit la configuration en JSON
-        (voir <a href="#persistence">Persistance JSON</a>) et ferme l'editeur.
-        Tant que l'utilisateur n'a pas sauvegarde, les changements sont appliques visuellement
-        en temps reel mais pas encore persistes sur disque.
+        The <strong>Save and close</strong> button writes the configuration as JSON
+        (see <a href="#persistence">JSON Persistence</a>) and closes the editor.
+        Until the user saves, changes are applied visually in real time but not yet
+        persisted to disk.
       </p>
     </section>
 
@@ -1729,19 +1729,19 @@ OverlayModManager.getInstance().openEditor();</code></pre>
     <section class="doc-section" id="frame-vs-tick">
       <h2>onFrame vs onTick</h2>
       <p>
-        <code>OverlayMod</code> propose deux callbacks de mise a jour avec des frequences
-        tres differentes. Bien choisir lequel utiliser impacte directement la fluidite et
-        les performances de ton overlay.
+        <code>OverlayMod</code> provides two update callbacks with very different frequencies.
+        Choosing the right one directly impacts the smoothness and
+        performance of your overlay.
       </p>
 
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Regle generale</div>
+          <div class="ib-title">General rule</div>
           <p>
-            <strong>onFrame()</strong> pour tout ce qui est visuel et doit etre fluide.
-            <strong>onTick()</strong> pour les calculs lourds, les acces au monde ou les
-            donnees synchronisees depuis le serveur.
+            <strong>onFrame()</strong> for everything visual that needs to be smooth.
+            <strong>onTick()</strong> for heavy computations, world accesses or
+            server-synchronized data.
           </p>
         </div>
       </div>
@@ -1750,49 +1750,49 @@ OverlayModManager.getInstance().openEditor();</code></pre>
         <thead>
           <tr>
             <th>Callback</th>
-            <th>Frequence</th>
-            <th>Quand l'utiliser</th>
+            <th>Frequency</th>
+            <th>When to use it</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><code>onFrame(partialTicks, deltaNanos)</code></td>
-            <td>60 a 144+ fois/s (chaque frame de rendu)</td>
-            <td>Mise a jour de labels, coordonnees, FPS, animations fluides, interpolation de valeurs</td>
+            <td>60 to 144+ times/s (every render frame)</td>
+            <td>Updating labels, coordinates, FPS, smooth animations, value interpolation</td>
           </tr>
           <tr>
             <td><code>onTick()</code></td>
-            <td>20 fois/s (toutes les 50ms)</td>
-            <td>Calculs lourds, acces au biome, requetes au monde, donnees synchronisees serveur</td>
+            <td>20 times/s (every 50ms)</td>
+            <td>Heavy computations, biome access, world queries, server-synchronized data</td>
           </tr>
         </tbody>
       </table>
 
       <p>
-        Le parametre <code>deltaNanos</code> de <code>onFrame()</code> donne le temps exact
-        ecoule depuis le dernier appel en nanosecondes. Il permet de creer des timers internes
-        pour executer du code semi-lourd a intervalles precis sans passer par <code>onTick()</code>.
+        The <code>deltaNanos</code> parameter of <code>onFrame()</code> gives the exact time
+        elapsed since the last call in nanoseconds. It allows creating internal timers
+        to execute semi-heavy code at precise intervals without using <code>onTick()</code>.
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Timer nanotime dans onFrame() pour les mises a jour semi-lourdes</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — nanotime timer in onFrame() for semi-heavy updates</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">private long timer = 0L;
-private static final long INTERVAL = 500_000_000L; // 500ms en nanosecondes
+private static final long INTERVAL = 500_000_000L; // 500ms in nanoseconds
 
 @Override
 protected void onFrame(float partialTicks, long deltaNanos) {
     timer += deltaNanos;
 
-    // Mise a jour legere chaque frame (fluide)
+    // Light update every frame (smooth)
     fpsLabel.text("FPS: " + Minecraft.getDebugFPS());
 
-    // Mise a jour lourde toutes les 500ms seulement
+    // Heavy update only every 500ms
     if (timer >= INTERVAL) {
         timer = 0L;
-        biomeLabel.text("Biome: " + getBiomeName()); // acces au monde, plus couteux
+        biomeLabel.text("Biome: " + getBiomeName()); // world access, more costly
     }
 }</code></pre>
       </div>
@@ -1800,13 +1800,13 @@ protected void onFrame(float partialTicks, long deltaNanos) {
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Pourquoi onFrame() plutot que onTick() pour les coordonnees ?</div>
+          <div class="ib-title">Why onFrame() rather than onTick() for coordinates?</div>
           <p>
-            Les coordonnees du joueur changent entre les ticks (le mouvement est interpole
-            avec <code>partialTicks</code>). Si tu mets a jour les coordonnees dans
-            <code>onTick()</code>, le texte saute par increments discrets. Avec
-            <code>onFrame()</code>, le texte suit le mouvement reel du joueur de facon
-            completement fluide.
+            Player coordinates change between ticks (movement is interpolated
+            with <code>partialTicks</code>). If you update coordinates in
+            <code>onTick()</code>, the text jumps in discrete increments. With
+            <code>onFrame()</code>, the text follows the player's actual movement
+            completely smoothly.
           </p>
         </div>
       </div>
@@ -1815,109 +1815,109 @@ protected void onFrame(float partialTicks, long deltaNanos) {
     <div class="section-divider"></div>
 
     <!-- ======================================================
-         POSITIONNEMENT RESOLUTION-INDEPENDANT
+         DESIGN-PIXEL POSITIONING
     ====================================================== -->
     <section class="doc-section" id="positioning">
-      <h2>Positionnement en design-pixels</h2>
+      <h2>Design-pixel positioning</h2>
       <p>
-        Depuis la mise a jour du systeme modulaire, les positions des <code>OverlayMod</code> sont stockees
-        en <strong>pixels de design</strong> (espace 1920x1080), identiquement a tous les composants EriAPI.
-        C'est le <code>ScaleManager</code> qui convertit ces coordonnees en pixels ecran reels au moment
-        du rendu.
+        Since the modular system update, <code>OverlayMod</code> positions are stored in
+        <strong>design pixels</strong> (1920x1080 space), identically to all EriAPI components.
+        The <code>ScaleManager</code> converts these coordinates to actual screen pixels at
+        render time.
       </p>
 
-      <h3>Pourquoi ce changement ?</h3>
+      <h3>Why this change?</h3>
       <p>
-        L'ancien systeme stockait les positions en <strong>fractions de l'ecran</strong> (0.0 a 1.0).
-        En apparence independant de la resolution, ce systeme causait un probleme subtil : l'ecart visuel
-        entre deux overlays adjacents changeait selon la resolution et le guiScale du joueur, car les positions
-        et les tailles n'etaient pas dans le meme espace de coordonnees.
+        The old system stored positions as <strong>screen fractions</strong> (0.0 to 1.0).
+        Seemingly resolution-independent, this system caused a subtle problem: the visual gap
+        between two adjacent overlays changed depending on the player's resolution and guiScale,
+        because positions and sizes were not in the same coordinate space.
       </p>
 
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Critere</th>
-            <th>Ancien systeme (fractions)</th>
-            <th>Nouveau systeme (design-pixels)</th>
+            <th>Criterion</th>
+            <th>Old system (fractions)</th>
+            <th>New system (design pixels)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Unite de position</td>
-            <td>Fraction ecran (0.0 – 1.0)</td>
-            <td>Pixels de design (0 – 1920 / 0 – 1080)</td>
+            <td>Position unit</td>
+            <td>Screen fraction (0.0 – 1.0)</td>
+            <td>Design pixels (0 – 1920 / 0 – 1080)</td>
           </tr>
           <tr>
-            <td>Unite des composants</td>
-            <td>Pixels de design (ScaleManager)</td>
-            <td>Pixels de design (ScaleManager) — identique</td>
+            <td>Component unit</td>
+            <td>Design pixels (ScaleManager)</td>
+            <td>Design pixels (ScaleManager) — identical</td>
           </tr>
           <tr>
-            <td>Ecart entre overlays</td>
-            <td>Varie selon la resolution</td>
-            <td>Constant quelque soit la resolution</td>
+            <td>Gap between overlays</td>
+            <td>Varies with resolution</td>
+            <td>Constant regardless of resolution</td>
           </tr>
           <tr>
-            <td>Conversion au rendu</td>
+            <td>Conversion at render</td>
             <td><code>fraction * displayWidth / guiScale</code></td>
             <td><code>ScaleManager.scaleXf(posXDesign)</code></td>
           </tr>
         </tbody>
       </table>
 
-      <h3>Compatibilite ascendante</h3>
+      <h3>Backward compatibility</h3>
       <p>
-        L'API publique reste 100% compatible. <code>setDefaultPosition(float x, float y)</code> accepte
-        toujours des fractions et les convertit en interne :
+        The public API remains 100% compatible. <code>setDefaultPosition(float x, float y)</code> still
+        accepts fractions and converts them internally:
       </p>
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — les deux methodes de positionnement</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — both positioning methods</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// Methode historique — fractions (0.0 a 1.0)
-// Toujours valide, convert en interne : x * 1920, y * 1080
-setDefaultPosition(0.01f, 0.9f);   // ≈ (19, 972) en design-pixels
+        <pre><code class="language-java">// Legacy method — fractions (0.0 to 1.0)
+// Still valid, converted internally: x * 1920, y * 1080
+setDefaultPosition(0.01f, 0.9f);   // ≈ (19, 972) in design pixels
 
-// Nouvelle methode — pixels de design directs (recommandee)
-// Plus precis et coherent avec le reste du systeme EriAPI
-setDefaultPositionDesign(20f, 960f);  // exactement 20px a gauche, 960px en bas</code></pre>
+// New method — direct design pixels (recommended)
+// More precise and consistent with the rest of the EriAPI system
+setDefaultPositionDesign(20f, 960f);  // exactly 20px from the left, 960px from the top</code></pre>
       </div>
 
-      <h3>Exemple — deux overlays adjacents</h3>
+      <h3>Example — two adjacent overlays</h3>
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — overlays alignes avec un ecart constant</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — overlays aligned with a constant gap</span>
+          <button class="copy-btn">Copy</button>
         </div>
-        <pre><code class="language-java">// Barre de mana en bas a gauche
+        <pre><code class="language-java">// Mana bar at the bottom left
 public class ManaBarMod extends OverlayMod {
     public ManaBarMod() {
         super("mana_bar", "Mana", 240, 20);
-        setDefaultPositionDesign(20f, 1010f); // 20px depuis la gauche, 1010px depuis le haut
+        setDefaultPositionDesign(20f, 1010f); // 20px from the left, 1010px from the top
     }
 }
 
-// Barre d'endurance juste en dessous, ecart de 6 design-pixels
+// Stamina bar just below, 6 design pixels apart
 public class StaminaMod extends OverlayMod {
     public StaminaMod() {
-        super("stamina_bar", "Endurance", 240, 20);
-        // 1010 (mana) + 20 (hauteur mana) + 6 (ecart) = 1036
+        super("stamina_bar", "Stamina", 240, 20);
+        // 1010 (mana) + 20 (mana height) + 6 (gap) = 1036
         setDefaultPositionDesign(20f, 1036f);
     }
 }
-// L'ecart de 6 design-pixels est identique a toutes les resolutions.</code></pre>
+// The 6 design-pixel gap is identical at every resolution.</code></pre>
       </div>
 
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Getters de position</div>
+          <div class="ib-title">Position getters</div>
           <p>
-            <code>getPosXDesign()</code> et <code>getPosYDesign()</code> retournent la position en pixels
-            de design. Les anciens getters <code>getPosXPercent()</code> et <code>getPosYPercent()</code>
-            sont toujours disponibles pour la compatibilite (ils convertissent en divisant par 1920/1080).
+            <code>getPosXDesign()</code> and <code>getPosYDesign()</code> return the position in design
+            pixels. The legacy getters <code>getPosXPercent()</code> and <code>getPosYPercent()</code>
+            are still available for backward compatibility (they convert by dividing by 1920/1080).
           </p>
         </div>
       </div>
@@ -1929,30 +1929,30 @@ public class StaminaMod extends OverlayMod {
          PERSISTANCE JSON
     ====================================================== -->
     <section class="doc-section" id="persistence">
-      <h2>Persistance JSON</h2>
+      <h2>JSON Persistence</h2>
       <p>
-        Le systeme modulaire sauvegarde automatiquement la configuration de chaque
-        <code>OverlayMod</code> dans un fichier JSON. Tu n'as rien a implementer :
-        la persistance est entierement geree par <code>OverlayModManager</code>.
+        The modular system automatically saves the configuration of each
+        <code>OverlayMod</code> to a JSON file. You have nothing to implement:
+        persistence is entirely managed by <code>OverlayModManager</code>.
       </p>
 
-      <h3>Emplacement du fichier</h3>
+      <h3>File location</h3>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Chemin du fichier de configuration</span>
-          <button class="copy-btn">Copier</button>
+          <span>Configuration file path</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-text">.minecraft/config/eriapi/overlay_mods.json</code></pre>
       </div>
 
-      <h3>Donnees persistees par mod</h3>
+      <h3>Data persisted per mod</h3>
 
       <table class="prop-table">
         <thead>
           <tr>
-            <th>Donnee</th>
-            <th>Type JSON</th>
+            <th>Data</th>
+            <th>JSON type</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -1960,41 +1960,41 @@ public class StaminaMod extends OverlayMod {
           <tr>
             <td>enabled</td>
             <td>boolean</td>
-            <td>Si le mod est actif ou desactive dans le gestionnaire</td>
+            <td>Whether the mod is active or disabled in the manager</td>
           </tr>
           <tr>
             <td>posX / posY</td>
             <td>float</td>
-            <td>Position en pixels de design (0..1920 / 0..1080), convertie au chargement depuis les fractions JSON existantes</td>
+            <td>Position as a screen fraction (0.0 to 1.0), independent of resolution</td>
           </tr>
           <tr>
             <td>scale</td>
             <td>float</td>
-            <td>Facteur de zoom applique par l'utilisateur dans l'editeur</td>
+            <td>Zoom factor applied by the user in the editor</td>
           </tr>
           <tr>
             <td>settings.*</td>
             <td>mixed</td>
-            <td>Valeurs de tous les parametres declares dans <code>buildSettings()</code> (boolean, float, int, String)</td>
+            <td>Values of all settings declared in <code>buildSettings()</code> (boolean, float, int, String)</td>
           </tr>
         </tbody>
       </table>
 
-      <h3>Cycle de sauvegarde et de chargement</h3>
+      <h3>Save and load cycle</h3>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><strong style="color:var(--text);">Chargement</strong> — automatique a la premiere frame de rendu, apres que tous les mods ont ete enregistres dans <code>ClientProxy.init()</code></li>
-        <li><strong style="color:var(--text);">Sauvegarde</strong> — declenchee quand l'utilisateur clique sur "Sauvegarder et fermer" dans <code>GuiOverlayHub</code></li>
+        <li><strong style="color:var(--text);">Loading</strong> — automatic on the first render frame, after all mods have been registered in <code>ClientProxy.init()</code></li>
+        <li><strong style="color:var(--text);">Saving</strong> — triggered when the user clicks "Save and close" in <code>GuiOverlayHub</code></li>
       </ul>
 
       <div class="info-box warning">
         <div class="ib-icon">&#9888;</div>
         <div class="ib-body">
-          <div class="ib-title">Ne pas modifier le fichier JSON manuellement</div>
+          <div class="ib-title">Do not edit the JSON file manually</div>
           <p>
-            Le fichier <code>overlay_mods.json</code> est genere et lu par EriAPI.
-            Modifier sa structure manuellement peut provoquer des erreurs de chargement.
-            Si le fichier est corrompu, supprime-le — EriAPI recreera les valeurs par defaut
-            au prochain lancement du jeu.
+            The <code>overlay_mods.json</code> file is generated and read by EriAPI.
+            Manually modifying its structure can cause loading errors.
+            If the file is corrupted, delete it — EriAPI will recreate default values
+            on the next game launch.
           </p>
         </div>
       </div>
@@ -2006,28 +2006,28 @@ public class StaminaMod extends OverlayMod {
          EXEMPLE COMPLET : DEBUG OVERLAY MOD
     ====================================================== -->
     <section class="doc-section" id="exemple-debug">
-      <h2>Exemple complet &mdash; DebugOverlayMod</h2>
+      <h2>Full example &mdash; DebugOverlayMod</h2>
       <p>
-        Voici un exemple reel et complet : le <code>DebugOverlayMod</code> du mod EriniumFaction.
-        Il affiche FPS, coordonnees, chunk, biome, direction, lumiere et memoire en temps reel.
-        C'est un bon modele pour comprendre comment combiner <code>onFrame()</code>, un timer
-        nanotime pour les donnees lourdes, et <code>buildSettings()</code>.
+        Here is a real, complete example: the <code>DebugOverlayMod</code> from the EriniumFaction mod.
+        It displays FPS, coordinates, chunk, biome, direction, light and memory in real time.
+        It is a good model to understand how to combine <code>onFrame()</code>, a nanotime timer
+        for heavy data, and <code>buildSettings()</code>.
       </p>
 
-      <h3>Architecture du mod</h3>
+      <h3>Mod architecture</h3>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:1.5rem;line-height:2.2;">
-        <li><strong style="color:var(--text);">Dimensions</strong> : 380 x 160 px (design 1920x1080)</li>
-        <li><strong style="color:var(--text);">Position par defaut</strong> : coin superieur gauche (0.5%, 0.5%)</li>
-        <li><strong style="color:var(--text);">Donnees legeres</strong> (FPS, coords, chunk, direction) &mdash; mises a jour dans <code>onFrame()</code> a chaque frame</li>
-        <li><strong style="color:var(--text);">Donnees lourdes</strong> (biome, lumiere, memoire) &mdash; mises a jour toutes les 500ms via un timer nanotime dans <code>onFrame()</code></li>
-        <li><strong style="color:var(--text);">7 parametres configurables</strong> : 7 toggles de visibilite, un colorPicker, un slider et un toggle compact</li>
-        <li><strong style="color:var(--text);">FPS colore</strong> : vert &ge;60, jaune &ge;30, rouge &lt;30</li>
+        <li><strong style="color:var(--text);">Dimensions</strong>: 380 x 160 px (1920x1080 design)</li>
+        <li><strong style="color:var(--text);">Default position</strong>: top-left corner (0.5%, 0.5%)</li>
+        <li><strong style="color:var(--text);">Light data</strong> (FPS, coords, chunk, direction) &mdash; updated in <code>onFrame()</code> every frame</li>
+        <li><strong style="color:var(--text);">Heavy data</strong> (biome, light, memory) &mdash; updated every 500ms via a nanotime timer in <code>onFrame()</code></li>
+        <li><strong style="color:var(--text);">7 configurable settings</strong>: 7 visibility toggles, a colorPicker, a slider and a compact toggle</li>
+        <li><strong style="color:var(--text);">Colored FPS</strong>: green &ge;60, yellow &ge;30, red &lt;30</li>
       </ul>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — DebugOverlayMod complet</span>
-          <button class="copy-btn">Copier</button>
+          <span>Java — Complete DebugOverlayMod</span>
+          <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-java">package fr.eriniumgroup.eriniumfaction.overlay;
 
@@ -2044,7 +2044,7 @@ import net.minecraft.world.chunk.Chunk;
 
 public class DebugOverlayMod extends OverlayMod {
 
-    // Labels mis a jour chaque frame
+    // Labels updated every frame
     private Label fpsLabel;
     private Label coordsLabel;
     private Label chunkLabel;
@@ -2053,23 +2053,23 @@ public class DebugOverlayMod extends OverlayMod {
     private Label lightLabel;
     private Label memoryLabel;
 
-    // Fond
+    // Background
     private Rectangle background;
 
-    // Timer nanotime pour les mises a jour lourdes (500ms)
+    // nanotime timer for heavy updates (500ms)
     private long heavyUpdateTimer = 0L;
     private static final long HEAVY_UPDATE_INTERVAL = 500_000_000L;
 
-    // Cache pour les valeurs lourdes
+    // Cache for heavy values
     private String cachedBiome   = "";
     private String cachedLight   = "";
     private String cachedMemory  = "";
 
     public DebugOverlayMod() {
         super("erinium_debug", "Debug Info", 380, 160);
-        setCategory("Informations");
-        setDescription("Affiche FPS, coordonnees, biome, direction et memoire.");
-        setDefaultPosition(0.005f, 0.005f); // coin superieur gauche
+        setCategory("Information");
+        setDescription("Displays FPS, coordinates, biome, direction and memory.");
+        setDefaultPosition(0.005f, 0.005f); // top-left corner
         setMinScale(0.5f);
         setMaxScale(2.0f);
     }
@@ -2078,13 +2078,13 @@ public class DebugOverlayMod extends OverlayMod {
     protected void buildOverlay() {
         int w = 380;
 
-        // Fond semi-transparent avec coins arrondis
+        // Semi-transparent background with rounded corners
         background = new Rectangle();
         background.originalPos(0, 0).originalSize(w, 160);
         background.fillColor(0xAA1A1A2E).cornerRadius(6);
         getRoot().add(background);
 
-        // Creation des labels sur chaque ligne (espacement de 20px)
+        // Creating labels on each row (20px spacing)
         int x = 8, y = 6, lineH = 20;
         fpsLabel       = createLine(x, y, w - 16); y += lineH;
         coordsLabel    = createLine(x, y, w - 16); y += lineH;
@@ -2108,18 +2108,18 @@ public class DebugOverlayMod extends OverlayMod {
     @Override
     protected void buildSettings(ModSettings settings) {
         settings
-            .separator("Sections visibles")
+            .separator("Visible sections")
             .toggle("show_fps",       "FPS",          true)
-            .toggle("show_coords",    "Coordonnees",  true)
+            .toggle("show_coords",    "Coordinates",  true)
             .toggle("show_chunk",     "Chunk",        true)
             .toggle("show_biome",     "Biome",        true)
             .toggle("show_direction", "Direction",    true)
-            .toggle("show_light",     "Lumiere",      true)
-            .toggle("show_memory",    "Memoire",      true)
-            .separator("Apparence")
-            .colorPicker("text_color", "Couleur du texte", 0xFFCCCCCC)
-            .slider("bg_opacity",      "Opacite du fond",  0f, 1f, 0.67f)
-            .toggle("compact",         "Mode compact",     false);
+            .toggle("show_light",     "Light",        true)
+            .toggle("show_memory",    "Memory",       true)
+            .separator("Appearance")
+            .colorPicker("text_color", "Text color",          0xFFCCCCCC)
+            .slider("bg_opacity",      "Background opacity",  0f, 1f, 0.67f)
+            .toggle("compact",         "Compact mode",        false);
     }
 
     @Override
@@ -2131,7 +2131,7 @@ public class DebugOverlayMod extends OverlayMod {
             int alpha = (int) (opacity * 255);
             background.fillColor((alpha &lt;&lt; 24) | 0x1A1A2E);
         } else if ("compact".equals(key) || key.startsWith("show_")) {
-            rebuild(); // Le layout change (lignes cachees en mode compact)
+            rebuild(); // Layout changes (hidden rows in compact mode)
         }
     }
 
@@ -2153,14 +2153,14 @@ public class DebugOverlayMod extends OverlayMod {
 
         heavyUpdateTimer += deltaNanos;
 
-        // FPS — chaque frame, avec couleur adaptative
+        // FPS — every frame, with adaptive color
         if (fpsLabel != null &amp;&amp; getSetting("show_fps", true)) {
             int fps = Minecraft.getDebugFPS();
             fpsLabel.text("FPS: " + fps);
             fpsLabel.color(fps &gt;= 60 ? 0xFF55FF55 : fps &gt;= 30 ? 0xFFFFFF55 : 0xFFFF5555);
         }
 
-        // Coordonnees — chaque frame pour une fluidite maximale
+        // Coordinates — every frame for maximum smoothness
         if (coordsLabel != null &amp;&amp; getSetting("show_coords", true)) {
             boolean compact = getSetting("compact", false);
             coordsLabel.text(compact
@@ -2168,21 +2168,21 @@ public class DebugOverlayMod extends OverlayMod {
                 : String.format("X: %.1f  Y: %.1f  Z: %.1f", player.posX, player.posY, player.posZ));
         }
 
-        // Chunk — chaque frame
+        // Chunk — every frame
         if (chunkLabel != null &amp;&amp; getSetting("show_chunk", true)) {
             int cx = MathHelper.floor(player.posX) &gt;&gt; 4;
             int cz = MathHelper.floor(player.posZ) &gt;&gt; 4;
             chunkLabel.text("Chunk: " + cx + ", " + cz);
         }
 
-        // Direction — chaque frame (rotation interpolee)
+        // Direction — every frame (interpolated rotation)
         if (directionLabel != null &amp;&amp; getSetting("show_direction", true)) {
             float yaw = MathHelper.wrapDegrees(player.rotationYaw);
             directionLabel.text("Direction: " + getCardinalDirection(yaw)
                 + " (" + String.format("%.0f", yaw) + ")");
         }
 
-        // Infos lourdes — toutes les 500ms via timer nanotime
+        // Heavy data — every 500ms via nanotime timer
         if (heavyUpdateTimer &gt;= HEAVY_UPDATE_INTERVAL) {
             heavyUpdateTimer = 0L;
             BlockPos pos = player.getPosition();
@@ -2205,12 +2205,12 @@ public class DebugOverlayMod extends OverlayMod {
             }
         }
 
-        // Appliquer les valeurs cachees des infos lourdes
+        // Apply cached values for heavy data
         if (biomeLabel   != null) biomeLabel.text("Biome: " + cachedBiome);
         if (lightLabel   != null) lightLabel.text("Light " + cachedLight);
         if (memoryLabel  != null) memoryLabel.text("Mem: " + cachedMemory);
 
-        // Visibilite par setting
+        // Visibility per setting
         if (fpsLabel       != null) fpsLabel.visible(getSetting("show_fps", true));
         if (coordsLabel    != null) coordsLabel.visible(getSetting("show_coords", true));
         if (chunkLabel     != null) chunkLabel.visible(getSetting("show_chunk", true));
@@ -2222,8 +2222,8 @@ public class DebugOverlayMod extends OverlayMod {
 
     @Override
     protected void onTick() {
-        // Toute la logique de mise a jour est dans onFrame() pour la fluidite.
-        // onTick() n'est pas utilise ici mais pourrait servir pour des appels reseau.
+        // All update logic is in onFrame() for smoothness.
+        // onTick() is not used here but could serve for network calls.
     }
 
     private static String getCardinalDirection(float yaw) {
@@ -2240,18 +2240,18 @@ public class DebugOverlayMod extends OverlayMod {
 }</code></pre>
       </div>
 
-      <h3>Points cles de cet exemple</h3>
+      <h3>Key takeaways from this example</h3>
 
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Timer nanotime pour les donnees lourdes</div>
+          <div class="ib-title">nanotime timer for heavy data</div>
           <p>
-            L'acces au biome (<code>world.getBiome()</code>), a la lumiere de chunk et
-            a la memoire JVM sont des operations non triviales. Les executer a chaque frame
-            (60+ fois/s) gaspillerait du CPU. Le timer <code>heavyUpdateTimer</code> les
-            limite a une execution toutes les 500ms, tandis que les labels sont mis a jour
-            depuis le cache a chaque frame — le rendu reste fluide sans surcout.
+            Accessing the biome (<code>world.getBiome()</code>), chunk light and
+            JVM memory are non-trivial operations. Executing them every frame
+            (60+ times/s) would waste CPU. The <code>heavyUpdateTimer</code> limits them
+            to once every 500ms, while labels are updated from the cache every frame —
+            rendering stays smooth without overhead.
           </p>
         </div>
       </div>
@@ -2259,15 +2259,15 @@ public class DebugOverlayMod extends OverlayMod {
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">rebuild() sur les settings de layout</div>
+          <div class="ib-title">rebuild() on layout settings</div>
           <p>
-            Quand le parametre <code>compact</code> ou un toggle <code>show_*</code> change,
-            on appelle <code>rebuild()</code> plutot que de simplement changer la visibilite
-            des labels. En mode compact, le format du texte lui-meme change
-            (<code>"XYZ: 10 / 64 / -30"</code> au lieu de <code>"X: 10.0  Y: 64.0  Z: -30.0"</code>),
-            ce qui necessite une reconstruction complete des composants.
-            Si seule la visibilite changeait, un simple <code>label.visible(false)</code>
-            suffirait sans <code>rebuild()</code>.
+            When the <code>compact</code> setting or a <code>show_*</code> toggle changes,
+            we call <code>rebuild()</code> rather than simply changing label visibility.
+            In compact mode, the text format itself changes
+            (<code>"XYZ: 10 / 64 / -30"</code> instead of <code>"X: 10.0  Y: 64.0  Z: -30.0"</code>),
+            which requires a complete component rebuild.
+            If only visibility changed, a simple <code>label.visible(false)</code>
+            would suffice without <code>rebuild()</code>.
           </p>
         </div>
       </div>

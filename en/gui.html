@@ -41,6 +41,7 @@
       <ul>
         <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
         <li><a href="gui.html" class="nav-page-link active"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
@@ -154,6 +155,36 @@
         <li><a href="#color-picker"><span class="nav-dot"></span>ColorPicker</a></li>
         <li><a href="#menu-item"><span class="nav-dot"></span>MenuItem</a></li>
         <li><a href="#context-menu"><span class="nav-dot"></span>ContextMenu</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Selectors &amp; Overlays</div>
+      <ul>
+        <li><a href="#dropdown"><span class="nav-dot"></span>Dropdown</a></li>
+        <li><a href="#toggle-switch"><span class="nav-dot"></span>ToggleSwitch</a></li>
+        <li><a href="#modal"><span class="nav-dot"></span>Modal / Dialog</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Minecraft Rendering</div>
+      <ul>
+        <li><a href="#player-head"><span class="nav-dot"></span>PlayerHead</a></li>
+        <li><a href="#item-stack-renderer"><span class="nav-dot"></span>ItemStackRenderer</a></li>
+        <li><a href="#item-slot"><span class="nav-dot"></span>ItemSlot</a></li>
+        <li><a href="#textured-rect"><span class="nav-dot"></span>TexturedRect</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Decorative</div>
+      <ul>
+        <li><a href="#divider"><span class="nav-dot"></span>Divider</a></li>
+        <li><a href="#badge"><span class="nav-dot"></span>Badge</a></li>
+        <li><a href="#accordion"><span class="nav-dot"></span>Accordion</a></li>
+        <li><a href="#carousel"><span class="nav-dot"></span>Carousel</a></li>
+        <li><a href="#progress-bar-enhanced"><span class="nav-dot"></span>ProgressBarEnhanced</a></li>
       </ul>
     </div>
 
@@ -345,6 +376,39 @@ addComponent(myButton);</code></pre>
           </li>
         </ul>
       </div>
+
+      <h3>Automatic ItemSlot integration</h3>
+      <p>
+        <code>EriGuiScreen</code> automatically manages the complete lifecycle of
+        <a href="#item-slot"><code>ItemSlot</code></a> components present in the component tree.
+        No extra configuration is needed.
+      </p>
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>EriGuiScreen event</th>
+            <th>ItemSlot action triggered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>drawScreen(mouseX, mouseY, pt)</code></td>
+            <td><code>ItemSlot.renderCursorItem(mouseX, mouseY)</code> after all components and notifications</td>
+          </tr>
+          <tr>
+            <td><code>mouseReleased(x, y, btn)</code></td>
+            <td><code>ItemSlot.onDragEnd()</code> before propagating to components</td>
+          </tr>
+          <tr>
+            <td><code>mouseClickMove(x, y, btn, dt)</code></td>
+            <td><code>slot.checkDragHover(x, y)</code> on every <code>ItemSlot</code> in the tree</td>
+          </tr>
+          <tr>
+            <td><code>onGuiClosed()</code></td>
+            <td><code>ItemSlot.clearCursor()</code> to reset the global state</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
     <div class="section-divider"></div>
@@ -5342,6 +5406,1470 @@ addComponent(menu);</code></pre>
         </div>
       </div>
     </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DROPDOWN
+    ====================================================== -->
+    <section class="doc-section" id="dropdown">
+      <h2>Dropdown</h2>
+      <p>
+        A <code>Dropdown</code> (or "select") allows the player to choose a value from a drop-down list.
+        It supports text search filtering and scrolling when the list is long.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Dropdown</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Dropdown</div>
+          </div>
+          <span class="badge badge-cyan">Interactive component</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Dropdown with search</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Dropdown;
+
+// new Dropdown(x, y, width, height)
+Dropdown dd = new Dropdown(660, 400, 300, 40)
+    .placeholder("Choose a rank...")
+    .searchable(true)
+    .maxVisibleItems(8)
+    .onChange(val -> applyRank(val));
+
+dd.addOption("Member",  "member");
+dd.addOption("Officer", "officer");
+dd.addOption("Leader",  "leader");
+
+root.add(dd);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">addOption(<span class="param">String label, String value</span>)</div>
+              <div class="method-desc">Adds an entry to the drop-down list. <code>label</code> is the displayed text, <code>value</code> is the string returned by <code>getSelected()</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Method</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setSelected(<span class="param">String value</span>)</div>
+              <div class="method-desc">Programmatically selects an entry by its value. If the value does not exist, the state falls back to the placeholder.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getSelected()</div>
+              <div class="method-desc">Returns the currently selected value, or <code>null</code> if nothing is selected.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onChange(<span class="param">Consumer&lt;String&gt; callback</span>)</div>
+              <div class="method-desc">Called every time the selection changes. Receives the newly selected value.</div>
+            </div>
+            <span class="method-badge mb-event">Event</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">placeholder(<span class="param">String text</span>)</div>
+              <div class="method-desc">Text displayed when no value is selected (e.g. "Choose..."). Rendered greyed-out and in italics.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">maxVisibleItems(<span class="param">int n</span>)</div>
+              <div class="method-desc">Maximum number of entries visible before the list becomes scrollable. Default: 6.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">searchable(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Enables a search field at the top of the drop-down list. The typed text filters entries in real time.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         TOGGLE SWITCH
+    ====================================================== -->
+    <section class="doc-section" id="toggle-switch">
+      <h2>ToggleSwitch</h2>
+      <p>
+        A <code>ToggleSwitch</code> is a visual ON/OFF switch — the modern equivalent of a <code>Checkbox</code>,
+        with a knob that slides horizontally when toggling. Ideal for enabling or disabling an option clearly.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ToggleSwitch</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ToggleSwitch</div>
+          </div>
+          <span class="badge badge-cyan">Interactive control</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — ToggleSwitch</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ToggleSwitch;
+
+// new ToggleSwitch(x, y, width, height)
+ToggleSwitch toggle = new ToggleSwitch(860, 500, 60, 30)
+    .label("Show Mana HUD")
+    .setState(true)
+    .activeColor(0xFF00E5FF)
+    .onToggle(on -> manaBarMod.setEnabled(on));
+
+root.add(toggle);
+
+// Read state from another component:
+boolean active = toggle.getState();</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setState(<span class="param">boolean state</span>)</div>
+              <div class="method-desc">Sets the initial or programmatic state of the switch. <code>true</code> = active (knob on the right), <code>false</code> = inactive.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> getState()</div>
+              <div class="method-desc">Returns the current state of the switch.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onToggle(<span class="param">Consumer&lt;Boolean&gt; callback</span>)</div>
+              <div class="method-desc">Called every time the user toggles the switch. Receives the new state (<code>true</code> = active).</div>
+            </div>
+            <span class="method-badge mb-event">Event</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">label(<span class="param">String text</span>)</div>
+              <div class="method-desc">Text displayed to the right of the switch. Clicking the label also toggles the switch.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">activeColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Track background color when the switch is active. Default: cyan (<code>0xFF00E5FF</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">inactiveColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Track background color when the switch is inactive. Default: dark grey.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         MODAL / DIALOG
+    ====================================================== -->
+    <section class="doc-section" id="modal">
+      <h2>Modal / Dialog</h2>
+      <p>
+        <code>Modal</code> is an overlay dialog box. It displays a semi-transparent dark backdrop
+        behind a central "liquid glass" panel, with a fade + scale animation on opening.
+        The Escape key automatically closes the modal. Interactions with the background are blocked while open.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Modal</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Modal</div>
+          </div>
+          <span class="badge badge-cyan">Overlay component</span>
+        </div>
+
+        <h3>Static methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Modal.confirm(<span class="param">String title, String msg, Runnable onConfirm, Runnable onCancel</span>)</div>
+              <div class="method-desc">Displays a confirmation dialog with two buttons: "Confirm" (green) and "Cancel" (grey). Calls <code>onConfirm</code> or <code>onCancel</code> depending on the choice.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Modal.alert(<span class="param">String title, String msg, Runnable onClose</span>)</div>
+              <div class="method-desc">Displays an alert dialog with a single "OK" button. Calls <code>onClose</code> on close (button or Escape).</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static ContainerComponent</span> Modal.custom(<span class="param">String title, int width, int height</span>)</div>
+              <div class="method-desc">Creates an empty modal and returns its inner <code>ContainerComponent</code>. You can add any component to it to fully customise the content.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+        </ul>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Modals</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Modal;
+
+// Confirmation dialog — irreversible action
+Modal.confirm(
+    "Dissolve the faction?",
+    "This action is irreversible. All members will be kicked.",
+    () -> factionManager.dissolve(player),   // Confirm
+    () -> {}                                 // Cancel (do nothing)
+);
+
+// Simple alert dialog
+Modal.alert(
+    "Permission denied",
+    "You do not have the rights to perform this action.",
+    () -> {}
+);
+
+// Custom modal with free components
+ContainerComponent content = Modal.custom("Advanced settings", 600, 400);
+content.add(new Label(20, 20, 560, 30, "Choose an option:"));
+content.add(new Dropdown(20, 60, 560, 40)
+    .addOption("Option A", "a")
+    .addOption("Option B", "b"));</code></pre>
+        </div>
+
+        <div class="info-box info">
+          <div class="ib-icon">&#8505;</div>
+          <div class="ib-body">
+            <div class="ib-title">Visual behaviour</div>
+            <p>All modals share the same style: <code>0x80000000</code> overlay backdrop, translucent liquid glass panel,
+            <code>fadeIn</code> + <code>scaleIn</code> animation on opening, closed by Escape or button.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         PLAYER HEAD
+    ====================================================== -->
+    <section class="doc-section" id="player-head">
+      <h2>PlayerHead</h2>
+      <p>
+        <code>PlayerHead</code> renders a player's 3D head directly inside a GUI — full skin with hat layer,
+        configurable orientation. Useful for profiles, leaderboards, and member previews.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">PlayerHead</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.PlayerHead</div>
+          </div>
+          <span class="badge badge-cyan">Minecraft Rendering</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — PlayerHead</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.PlayerHead;
+import com.mojang.authlib.GameProfile;
+
+// From a GameProfile (connected player)
+PlayerHead head = new PlayerHead(860, 300, 80, player.getGameProfile())
+    .setRotation(-20f, 15f)  // yaw, pitch
+    .showHat(true);
+
+root.add(head);
+
+// From a UUID (offline / stored player)
+UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5"); // Notch
+PlayerHead headByUuid = new PlayerHead(960, 300, 80, uuid)
+    .showHat(false);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">PlayerHead(<span class="param">int x, int y, int size, GameProfile profile</span>)</div>
+              <div class="method-desc">Creates a head render from a <code>GameProfile</code>. The skin is loaded automatically.</div>
+            </div>
+            <span class="method-badge mb-fluent">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">PlayerHead(<span class="param">int x, int y, int size, UUID uuid</span>)</div>
+              <div class="method-desc">Creates a head render from a UUID. The skin is fetched asynchronously.</div>
+            </div>
+            <span class="method-badge mb-fluent">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setProfile(<span class="param">GameProfile profile</span>)</div>
+              <div class="method-desc">Changes the rendered profile (useful for dynamic lists).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setRotation(<span class="param">float yaw, float pitch</span>)</div>
+              <div class="method-desc">Orients the head in degrees. Yaw = left/right rotation, pitch = up/down. E.g. <code>(-20f, 15f)</code> for a three-quarter front angle.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showHat(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Shows or hides the second skin layer (hat, accessories). Default: <code>true</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ITEM STACK RENDERER
+    ====================================================== -->
+    <section class="doc-section" id="item-stack-renderer">
+      <h2>ItemStackRenderer</h2>
+      <p>
+        <code>ItemStackRenderer</code> renders a Minecraft <code>ItemStack</code> (with its 2D icon,
+        enchantment glint, stack count and tooltip) directly inside an EriAPI GUI.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ItemStackRenderer</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ItemStackRenderer</div>
+          </div>
+          <span class="badge badge-cyan">Minecraft Rendering</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — ItemStackRenderer</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ItemStackRenderer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+
+// new ItemStackRenderer(x, y, size, stack)
+ItemStackRenderer renderer = new ItemStackRenderer(
+        900, 400, 32, new ItemStack(Items.DIAMOND_SWORD))
+    .showTooltip(true)    // Show vanilla tooltip on hover
+    .showCount(false)     // Hide the stack count
+    .scale(1.5f);         // Enlarge the icon by 50%
+
+root.add(renderer);
+
+// Change the item dynamically (e.g. inventory slot)
+renderer.setStack(player.getHeldItemMainhand());</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setStack(<span class="param">ItemStack stack</span>)</div>
+              <div class="method-desc">Replaces the rendered ItemStack. Can be called every tick for a dynamic render.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showTooltip(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays the vanilla tooltip (name, lore, enchantments) when the mouse hovers over the component. Default: <code>true</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showCount(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays the item count as an overlay (bottom-right corner). Default: <code>true</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">scale(<span class="param">float factor</span>)</div>
+              <div class="method-desc">Icon scale factor. <code>1.0f</code> = normal size (16x16), <code>2.0f</code> = double. Default: <code>1.0f</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ITEM SLOT
+    ====================================================== -->
+    <section class="doc-section" id="item-slot">
+      <h2>ItemSlot</h2>
+      <p>
+        <code>ItemSlot</code> is a Minecraft inventory slot component with full vanilla interactions:
+        shared cursor, drag-and-drop, shift+click, double-click. It faithfully reproduces the behavior
+        of <code>GuiContainer</code> while integrating into any <code>EriGuiScreen</code>.
+      </p>
+      <p>
+        The component supports three distinct modes depending on the GUI architecture (client-only,
+        server-authoritative or direct take).
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ItemSlot</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ItemSlot</div>
+          </div>
+          <span class="badge badge-cyan">Minecraft Rendering</span>
+        </div>
+
+        <h3>Example — simple client inventory</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — ItemSlot in normal mode (client-authoritative)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ItemSlot;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+
+// Empty interactive slot
+ItemSlot slot = new ItemSlot()
+    .originalPos(100, 100)
+    .originalSize(48, 48)
+    .onSlotChanged((s, stack) -&gt; System.out.println("Contents: " + stack.getDisplayName()));
+
+// Pre-filled slot with a diamond
+ItemSlot slotDia = new ItemSlot(new ItemStack(Items.DIAMOND, 32))
+    .originalPos(160, 100)
+    .originalSize(48, 48)
+    .slotId("chest:0")                               // logical identifier for the server
+    .onSlotChanged((s, stack) -&gt; saveToServer(stack))
+    .onShiftClick((s, stack) -&gt; transferToPlayer(stack));
+
+root.add(slot, slotDia);</code></pre>
+        </div>
+
+        <h3>Example — server-only mode (server inventory)</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — ItemSlot in serverOnly mode</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">// All slots target the server — no local manipulation
+for (int i = 0; i &lt; 27; i++) {
+    final int idx = i;
+    ItemSlot slot = new ItemSlot()
+        .originalPos(80 + (i % 9) * 54, 200 + (i / 9) * 54)
+        .originalSize(48, 48)
+        .serverOnly(true)            // server-authoritative mode
+        .slotId("chest:" + idx)      // identifier sent to the server in the drag callback
+        .onAnyClick((s, button) -&gt; {
+            // Called for every simple click. button: 0=left, 1=right, 2=shift+left
+            sendClickPacket(idx, button, ItemSlot.getCursorStack());
+        })
+        .onDoubleClick((s, type) -&gt; {
+            // type 0 = double-click collect, type 3 = shift+double-click
+            sendDoubleClickPacket(idx, type);
+        });
+    root.add(slot);
+}
+
+// Register the drag callback (one global callback for the whole GUI)
+ItemSlot.setServerDragCallback((button, targetSlotIds) -&gt; {
+    sendDragPacket(button, targetSlotIds);
+});</code></pre>
+        </div>
+
+        <h3>Example — takeOnly mode (showcase)</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — ItemSlot in takeOnly mode</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">// The player can take the item but cannot deposit another one
+ItemSlot showcase = new ItemSlot(new ItemStack(Items.DIAMOND_SWORD))
+    .originalPos(200, 300)
+    .originalSize(48, 48)
+    .takeOnly(true)
+    .onSlotChanged((s, taken) -&gt; giveTo(player, taken));</code></pre>
+        </div>
+
+        <h3>Click behavior (normal mode)</h3>
+        <table class="prop-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Left click — empty cursor</td>
+              <td>Picks up the full slot contents into the cursor</td>
+            </tr>
+            <tr>
+              <td>Left click — cursor has item</td>
+              <td>Deposits / merges / swaps with the slot</td>
+            </tr>
+            <tr>
+              <td>Right click — empty cursor</td>
+              <td>Picks up half the stack</td>
+            </tr>
+            <tr>
+              <td>Right click — cursor has item</td>
+              <td>Deposits one item into the slot</td>
+            </tr>
+            <tr>
+              <td>Shift + left click</td>
+              <td>Triggers <code>onShiftClick</code> (bulk transfer delegated to caller)</td>
+            </tr>
+            <tr>
+              <td>Left drag</td>
+              <td>Distributes the cursor stack evenly across hovered slots</td>
+            </tr>
+            <tr>
+              <td>Right drag</td>
+              <td>Deposits 1 item per hovered slot</td>
+            </tr>
+            <tr>
+              <td>Left double-click</td>
+              <td>Triggers <code>onDoubleClick</code> (type 0 — collect all matching items)</td>
+            </tr>
+            <tr>
+              <td>Shift + double-click</td>
+              <td>Triggers <code>onDoubleClick</code> (type 3 — transfer all matching items)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Server-only flow — one action per physical click</h3>
+        <p style="color:var(--text-muted);margin-bottom:1rem;">
+          In <code>serverOnly</code> mode, no action is fired on <code>mouseDown</code>. All logic
+          is decided at <code>mouseUp</code> (via <code>onDragEnd()</code>): if drag slots were
+          accumulated, it is a drag — otherwise it is a simple click. Only one callback is ever
+          triggered, never two.
+        </p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot()</div>
+              <div class="method-desc">Creates an empty slot.</div>
+            </div>
+            <span class="method-badge mb-constructor">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot(<span class="param">ItemStack stack</span>)</div>
+              <div class="method-desc">Creates a pre-filled slot with the provided ItemStack.</div>
+            </div>
+            <span class="method-badge mb-constructor">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">stack(<span class="param">ItemStack s</span>)</div>
+              <div class="method-desc">Sets or replaces the slot's ItemStack. Pass <code>null</code> to clear the slot.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">interactive(<span class="param">boolean b</span>)</div>
+              <div class="method-desc">Enables or disables interactions. A non-interactive slot is rendered but does not respond to clicks. Default: <code>true</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">takeOnly(<span class="param">boolean b</span>)</div>
+              <div class="method-desc">Direct-take mode — a click takes the item without going through the cursor. The player cannot deposit items into this slot.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">serverOnly(<span class="param">boolean b</span>)</div>
+              <div class="method-desc">Server-authoritative mode — no local manipulation. Clicks and drags are delegated to callbacks; the server responds with the new state. Automatically enables <code>interactive(true)</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">slotId(<span class="param">String id</span>)</div>
+              <div class="method-desc">Logical identifier of the slot (e.g. <code>"chest:5"</code>, <code>"player:12"</code>). Used by the server-only drag to identify slots in the packet sent to the server.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">filter(<span class="param">Predicate&lt;ItemStack&gt; f</span>)</div>
+              <div class="method-desc">Filter accepted items. Returning <code>false</code> blocks the item from being deposited into this slot.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">bgColor(<span class="param">int color</span>)</div>
+              <div class="method-desc">Background color of the slot at rest (ARGB). Default: <code>0x20FFFFFF</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">hoverColor(<span class="param">int color</span>)</div>
+              <div class="method-desc">Background color when the mouse hovers over the slot (ARGB). Default: <code>0x40FFFFFF</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">slotBorderColor(<span class="param">int color</span>)</div>
+              <div class="method-desc">Border color of the slot (ARGB). Set to <code>0</code> to remove the border. Default: <code>0x15FFFFFF</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">cornerRadius(<span class="param">int r</span>)</div>
+              <div class="method-desc">Rounded corner radius in design pixels. Default: <code>4</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onSlotChanged(<span class="param">SlotAction action</span>)</div>
+              <div class="method-desc">Callback called when the slot's contents change. Receives the slot and the new ItemStack (empty if the slot is cleared). Signature: <code>(ItemSlot slot, ItemStack stack) -&gt; void</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onShiftClick(<span class="param">SlotAction action</span>)</div>
+              <div class="method-desc">Callback called on Shift+left click. Receives the slot and its current ItemStack. Use to implement bulk transfer (e.g. chest → player inventory).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onRightClick(<span class="param">SlotAction action</span>)</div>
+              <div class="method-desc">Callback called on right click when the cursor is empty (picking up half the stack).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onAnyClick(<span class="param">ClickAction action</span>)</div>
+              <div class="method-desc">Generic callback called on any simple click in <code>serverOnly</code> mode. Signature: <code>(ItemSlot slot, int button) -&gt; void</code>. <code>button</code> is 0 (left), 1 (right) or 2 (shift+left).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onDoubleClick(<span class="param">DoubleClickAction action</span>)</div>
+              <div class="method-desc">Callback called on left double-click in <code>serverOnly</code> mode. Signature: <code>(ItemSlot slot, int type) -&gt; void</code>. <code>type</code> is 0 (collect) or 3 (Shift+double-click transfer).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+
+        <h3>Static methods</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.getCursorStack()</div>
+              <div class="method-desc">Returns the ItemStack currently held by the cursor (shared across all slots of the GUI).</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.setCursorStack(<span class="param">ItemStack s</span>)</div>
+              <div class="method-desc">Forces the cursor contents (useful for applying the server response).</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.clearCursor()</div>
+              <div class="method-desc">Clears the cursor and resets all drag state. Called automatically by <code>EriGuiScreen.onGuiClosed()</code>.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.renderCursorItem(<span class="param">int mouseX, int mouseY</span>)</div>
+              <div class="method-desc">Renders the item held by the cursor at the mouse position. Called automatically by <code>EriGuiScreen.drawScreen()</code> after all components.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.setServerDragCallback(<span class="param">ServerDragCallback cb</span>)</div>
+              <div class="method-desc">Registers the global drag callback for server-only mode. Signature: <code>(int button, List&lt;String&gt; targetSlotIds) -&gt; void</code>. One callback is sufficient for the entire GUI.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">ItemSlot.onDragEnd()</div>
+              <div class="method-desc">Finalizes the current drag and fires the appropriate callbacks. Called automatically by <code>EriGuiScreen.mouseReleased()</code>. Never call manually.</div>
+            </div>
+            <span class="method-badge mb-static">Static</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Automatic integration in EriGuiScreen</div>
+          <p>
+            <code>EriGuiScreen</code> automatically handles the full lifecycle of <code>ItemSlot</code>
+            components: <code>drawScreen()</code> calls <code>renderCursorItem()</code> after all
+            components, <code>mouseReleased()</code> calls <code>onDragEnd()</code> before propagating
+            to components, <code>mouseClickMove()</code> propagates <code>checkDragHover()</code> to
+            every slot in the tree, and <code>onGuiClosed()</code> calls <code>clearCursor()</code>.
+            You never need to wire anything manually.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Rendering at any size</div>
+          <p>
+            The item is automatically scaled via GL to fill the slot area.
+            You can use a slot of 32x32, 48x48 or 64x64 design pixels — the icon always
+            adapts cleanly, regardless of the player's actual screen resolution.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         TEXTURED RECT
+    ====================================================== -->
+    <section class="doc-section" id="textured-rect">
+      <h2>TexturedRect</h2>
+      <p>
+        <code>TexturedRect</code> renders a PNG texture (via <code>ResourceLocation</code>) within the
+        component bounds. It supports a color tint, a grayscale mode and sub-pixel rendering
+        via the <code>Tessellator</code> for precise floating-point coordinates.
+        Works equally well inside an <code>EriGuiScreen</code> or an <code>OverlayMod</code>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">TexturedRect</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.TexturedRect</div>
+          </div>
+          <span class="badge badge-cyan">Minecraft Rendering</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — TexturedRect</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.TexturedRect;
+import net.minecraft.util.ResourceLocation;
+
+// Color icon 64x64
+TexturedRect icon = new TexturedRect(
+        new ResourceLocation("eriniumfaction", "textures/gui/faction_icon.png"))
+    .originalPos(40, 40)
+    .originalSize(64, 64)
+    .tint(0xFFFFFFFF);          // white = no tint
+
+root.add(icon);
+
+// Desaturated (grayscale) icon for an inactive element
+TexturedRect iconGray = new TexturedRect(
+        new ResourceLocation("eriniumfaction", "textures/gui/faction_icon.png"))
+    .originalPos(120, 40)
+    .originalSize(64, 64)
+    .grayscale(true);
+
+root.add(iconGray);
+
+// Colored semi-transparent tint
+TexturedRect tinted = new TexturedRect(
+        new ResourceLocation("eriniumfaction", "textures/gui/banner.png"))
+    .originalPos(0, 0)
+    .originalSize(1920, 1080)
+    .tint(0x80FF6600)           // orange 50% transparent
+    .textureSize(256, 128);     // actual PNG image size
+
+root.add(tinted);
+
+// Update dynamically
+icon.setGrayscale(true);
+icon.setTint(0x80FFFFFF);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">TexturedRect(<span class="param">ResourceLocation texture</span>)</div>
+              <div class="method-desc">Creates a component that renders the specified PNG texture. The texture must be on the mod's classpath (inside the <code>assets/</code> folder).</div>
+            </div>
+            <span class="method-badge mb-constructor">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">texture(<span class="param">ResourceLocation tex</span>)</div>
+              <div class="method-desc">Replaces the rendered texture. Can be called dynamically to change the displayed image.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">tint(<span class="param">int color</span>)</div>
+              <div class="method-desc">Applies an ARGB tint to the texture. <code>0xFFFFFFFF</code> = no tint (default). The tint alpha multiplies the component's opacity.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">grayscale(<span class="param">boolean gray</span>)</div>
+              <div class="method-desc">Enables grayscale rendering (applies a neutral color <code>(0.35, 0.35, 0.35)</code>). Useful for disabled elements or inactive icons. Default: <code>false</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">textureSize(<span class="param">int w, int h</span>)</div>
+              <div class="method-desc">Declares the actual PNG image resolution (in pixels). Informs the render engine about the UV proportions of the texture. Default: <code>64x64</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setGrayscale(<span class="param">boolean g</span>)</div>
+              <div class="method-desc">Non-fluent equivalent of <code>grayscale()</code> — useful for toggling the mode from a callback.</div>
+            </div>
+            <span class="method-badge mb-fluent">Setter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setTint(<span class="param">int c</span>)</div>
+              <div class="method-desc">Non-fluent equivalent of <code>tint()</code> — useful for animating the tint from an <code>onColorUpdate()</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Setter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">getTexture()</div>
+              <div class="method-desc">Returns the <code>ResourceLocation</code> of the currently displayed texture.</div>
+            </div>
+            <span class="method-badge mb-static">Getter</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Sub-pixel rendering</div>
+          <p>
+            <code>TexturedRect</code> uses the <code>Tessellator</code> with <code>float</code> coordinates
+            for precise sub-pixel positioning. Unlike <code>Gui.drawTexturedModalRect()</code>
+            which rounds to integers, this component aligns perfectly with the ScaleManager even
+            at non-integer scales.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DIVIDER
+    ====================================================== -->
+    <section class="doc-section" id="divider">
+      <h2>Divider</h2>
+      <p>
+        A <code>Divider</code> is a horizontal or vertical separator line. It can be solid color or gradient,
+        with configurable margins, and integrates into any panel to visually separate sections.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Divider</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Divider</div>
+          </div>
+          <span class="badge badge-gray">Decorative</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Divider</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Divider;
+
+// new Divider(x, y, length)  — horizontal by default
+root.add(new Divider(60, 200, 500)
+    .gradient(0x4400E5FF, 0x00000000)  // Cyan to transparent
+    .thickness(1)
+    .margin(20));
+
+// Solid vertical separator
+root.add(new Divider(960, 100, 800)
+    .vertical()
+    .color(0x33FFFFFF)
+    .thickness(2));</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">horizontal()</div>
+              <div class="method-desc">Horizontal mode (default). The <code>length</code> parameter is the width.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">vertical()</div>
+              <div class="method-desc">Vertical mode. The <code>length</code> parameter becomes the height.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">color(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Solid color for the line. Replaces any previously defined gradient.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">thickness(<span class="param">int px</span>)</div>
+              <div class="method-desc">Line thickness in design pixels. Default: <code>1</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">gradient(<span class="param">int startColor, int endColor</span>)</div>
+              <div class="method-desc">Applies a linear gradient from <code>startColor</code> to <code>endColor</code> along the line. Replaces the solid color.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">margin(<span class="param">int px</span>)</div>
+              <div class="method-desc">Transparent empty space at the start and end of the line. Useful to add breathing room relative to panel edges.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         BADGE
+    ====================================================== -->
+    <section class="doc-section" id="badge">
+      <h2>Badge</h2>
+      <p>
+        A <code>Badge</code> is a compact pill-shaped tag — perfect for displaying categories, ranks,
+        statuses or short labels (e.g. "Combat", "Leader", "Online"). Auto-sized based on its content.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Badge</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Badge</div>
+          </div>
+          <span class="badge badge-gray">Decorative</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Badge</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Badge;
+
+// new Badge(x, y, text) — auto-size calculated from text
+root.add(new Badge(200, 150, "Combat")
+    .color(0x206B2FA0, 0xFF9B4FCF)  // (bgColor, textColor)
+    .outlined(true));
+
+// Badge with icon
+root.add(new Badge(300, 150, "Leader")
+    .color(0x20FFD700, 0xFFFFD700)
+    .icon(new ResourceLocation("eriniumfaction", "textures/gui/icon_crown.png"))
+    .cornerRadius(4));
+
+// Solid badge (not outlined)
+root.add(new Badge(400, 150, "Online")
+    .color(0xFF1A6B3C, 0xFF2ECC71)
+    .scale(0.75f));</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">color(<span class="param">int bgColor, int textColor</span>)</div>
+              <div class="method-desc">Background color and text color in ARGB. The background accepts a low alpha value for a translucent effect.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">outlined(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Outline mode: transparent background, colored border using <code>bgColor</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">cornerRadius(<span class="param">int px</span>)</div>
+              <div class="method-desc">Corner radius in design pixels. Default: <code>999</code> (perfect pill). Use <code>4</code> for a rounded-rectangle look.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">icon(<span class="param">ResourceLocation texture</span>)</div>
+              <div class="method-desc">16x16 icon displayed to the left of the text. The badge width adjusts automatically.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">scale(<span class="param">float factor</span>)</div>
+              <div class="method-desc">Text scale of the badge. Default: <code>0.8f</code>. Reduce for very compact badges.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ACCORDION
+    ====================================================== -->
+    <section class="doc-section" id="accordion">
+      <h2>Accordion</h2>
+      <p>
+        An <code>Accordion</code> is a list of collapsible sections. Each section has a clickable header
+        that expands or collapses its content with an animated height transition. The <code>singleMode</code> option
+        ensures only one section is open at a time.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Accordion</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Accordion</div>
+          </div>
+          <span class="badge badge-cyan">Layout component</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Accordion</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Accordion;
+
+// new Accordion(x, y, width)
+Accordion acc = new Accordion(660, 300, 600)
+    .singleMode(true);  // Only one section open at a time
+
+acc.addSection("Information", section -> {
+    section.add(new Label(10, 10, 580, 20,
+        "Name: " + faction.getName()));
+    section.add(new Label(10, 35, 580, 20,
+        "Members: " + faction.getMemberCount()));
+});
+
+acc.addSection("Statistics", section -> {
+    section.add(new Label(10, 10, 580, 20,
+        "Wins: " + faction.getWins()));
+    section.add(new Label(10, 35, 580, 20,
+        "Losses: " + faction.getLosses()));
+});
+
+acc.addSection("Members", section -> {
+    for (String member : faction.getMembers()) {
+        section.add(new Label(10, 10 + i * 25, 580, 20, member));
+    }
+});
+
+root.add(acc);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">addSection(<span class="param">String title, Consumer&lt;ContainerComponent&gt; builder</span>)</div>
+              <div class="method-desc">Adds a section with the header <code>title</code>. The lambda receives the content <code>ContainerComponent</code> — add your components inside it.</div>
+            </div>
+            <span class="method-badge mb-getter">Method</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">expandAll()</div>
+              <div class="method-desc">Expands all sections. Ignores <code>singleMode</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Method</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">collapseAll()</div>
+              <div class="method-desc">Collapses all sections.</div>
+            </div>
+            <span class="method-badge mb-getter">Method</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">singleMode(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">When active, opening a section automatically closes any other open section. Default: <code>false</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         CAROUSEL
+    ====================================================== -->
+    <section class="doc-section" id="carousel">
+      <h2>Carousel</h2>
+      <p>
+        A <code>Carousel</code> is a horizontal scroll container that displays multiple elements side by side.
+        It supports arrow navigation, dot indicators, and auto-scrolling.
+        Ideal for card previews, rewards, or faction showcases.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Carousel</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.Carousel</div>
+          </div>
+          <span class="badge badge-cyan">Layout component</span>
+        </div>
+
+        <h3>Example</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Carousel</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.Carousel;
+
+// new Carousel(x, y, width, height)
+Carousel car = new Carousel(200, 300, 1520, 400)
+    .setVisibleCount(3)    // 3 cards visible simultaneously
+    .showArrows(true)      // &lt; and &gt; navigation buttons
+    .showDots(true)        // Indicator dots at the bottom
+    .autoScroll(100);      // Auto-scroll every 100 ticks (5 sec)
+
+// Add items (any Component)
+for (FactionCard card : factionCards) {
+    ContainerComponent cardComp = new ContainerComponent(0, 0, 480, 380);
+    cardComp.add(new Rectangle(0, 0, 480, 380)
+        .fillColor(0xCC1A1A2E).cornerRadius(12));
+    cardComp.add(new Label(20, 20, 440, 30, card.getName())
+        .scale(2.0f).color(0xFFFFFFFF));
+    car.addItem(cardComp);
+}
+
+root.add(car);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">addItem(<span class="param">Component component</span>)</div>
+              <div class="method-desc">Adds an element to the carousel. Each item is any <code>Component</code> — typically a <code>ContainerComponent</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Method</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">setVisibleCount(<span class="param">int n</span>)</div>
+              <div class="method-desc">Number of items displayed simultaneously. The available space is divided equally. Default: <code>1</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showArrows(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays left/right arrow buttons on the sides of the carousel.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showDots(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays indicator dots at the bottom of the carousel (one dot per item, the active one is highlighted).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">autoScroll(<span class="param">int intervalTicks</span>)</div>
+              <div class="method-desc">Enables automatic scrolling every <code>intervalTicks</code> ticks. Pass <code>0</code> to disable.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PROGRESS BAR ENHANCED
+    ====================================================== -->
+    <section class="doc-section" id="progress-bar-enhanced">
+      <h2>ProgressBarEnhanced</h2>
+      <p>
+        <code>ProgressBarEnhanced</code> is an advanced progress bar supporting 9 geometric shapes,
+        gradients, segments, smooth animations and a centered label. Use it instead of the standard
+        <code>ProgressBar</code> when you need circular, hexagonal, or segmented rendering.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ProgressBarEnhanced</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ProgressBarEnhanced</div>
+          </div>
+          <span class="badge badge-cyan">Visual control</span>
+        </div>
+
+        <h3>Available shapes — enum BarShape</h3>
+        <table class="prop-table">
+          <thead><tr><th>Constant</th><th>Render</th><th>Typical use</th></tr></thead>
+          <tbody>
+            <tr><td>BarShape.HORIZONTAL</td><td>Left-to-right bar</td><td>XP, health, mana</td></tr>
+            <tr><td>BarShape.VERTICAL</td><td>Bottom-to-top bar</td><td>Water level, heat</td></tr>
+            <tr><td>BarShape.CIRCULAR</td><td>Ring (arc)</td><td>Cooldown, stamina</td></tr>
+            <tr><td>BarShape.PIE</td><td>Filled pie chart</td><td>Resource share</td></tr>
+            <tr><td>BarShape.DIAMOND</td><td>Diamond shape</td><td>PvP stats</td></tr>
+            <tr><td>BarShape.PENTAGON</td><td>Pentagon</td><td>Overall score</td></tr>
+            <tr><td>BarShape.HEXAGON</td><td>Hexagon</td><td>Abilities, rank</td></tr>
+            <tr><td>BarShape.OCTAGON</td><td>Octagon</td><td>Shield, defense</td></tr>
+            <tr><td>BarShape.SQUARE</td><td>Square with corners</td><td>Compact bar</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Fill direction — enum FillDirection</h3>
+        <table class="prop-table">
+          <thead><tr><th>Constant</th><th>Direction</th></tr></thead>
+          <tbody>
+            <tr><td>FillDirection.LEFT_TO_RIGHT</td><td>Left to right (horizontal default)</td></tr>
+            <tr><td>FillDirection.RIGHT_TO_LEFT</td><td>Right to left</td></tr>
+            <tr><td>FillDirection.BOTTOM_TO_TOP</td><td>Bottom to top (vertical default)</td></tr>
+            <tr><td>FillDirection.TOP_TO_BOTTOM</td><td>Top to bottom</td></tr>
+            <tr><td>FillDirection.CLOCKWISE</td><td>Clockwise (circular shapes)</td></tr>
+            <tr><td>FillDirection.COUNTERCLOCKWISE</td><td>Counter-clockwise</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Examples</h3>
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Circular ring with gradient</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ProgressBarEnhanced;
+import fr.eri.eriapi.gui.components.ProgressBarEnhanced.BarShape;
+import fr.eri.eriapi.gui.components.ProgressBarEnhanced.FillDirection;
+
+// Circular ring for a cooldown
+ProgressBarEnhanced ring = new ProgressBarEnhanced(860, 440, 200, 200)
+    .shape(BarShape.CIRCULAR)
+    .value(0.72f)
+    .barWidth(18)
+    .gradientFill(0xFF00E5FF, 0xFF6B2FA0)
+    .backgroundColor(0xFF1A1A2E)
+    .showPercentage(true)
+    .animate(true);
+
+root.add(ring);</code></pre>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java — Segmented horizontal bar</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-java">// Segmented XP bar old-school style
+ProgressBarEnhanced bar = new ProgressBarEnhanced(100, 50, 400, 20)
+    .shape(BarShape.HORIZONTAL)
+    .value(0.5f)
+    .segments(10)
+    .segmentGap(2)
+    .fillColor(0xFF00D4FF)
+    .cornerRadius(4)
+    .animate(true)
+    .animationSpeed(10);  // Transition over 10 ticks (0.5 sec)
+
+root.add(bar);</code></pre>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">shape(<span class="param">BarShape shape</span>)</div>
+              <div class="method-desc">Sets the geometric shape of the bar. See the <code>BarShape</code> table above.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">value(<span class="param">float v</span>)</div>
+              <div class="method-desc">Fill value between <code>0.0</code> (empty) and <code>1.0</code> (full). If <code>animate</code> is active, the transition is animated.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">fillColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Solid fill color. Replaces any defined gradient.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">backgroundColor(<span class="param">int argb</span>)</div>
+              <div class="method-desc">Color of the empty area (bar background).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">barWidth(<span class="param">int px</span>)</div>
+              <div class="method-desc">Ring or outline thickness for circular and polygonal shapes.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">gradientFill(<span class="param">int startColor, int endColor</span>)</div>
+              <div class="method-desc">Linear gradient fill. For CIRCULAR/PIE, the gradient follows the arc.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">segments(<span class="param">int n</span>)</div>
+              <div class="method-desc">Divides the bar into <code>n</code> separated segments. Very useful for RPG-style health bars.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">segmentGap(<span class="param">int px</span>)</div>
+              <div class="method-desc">Spacing in design pixels between segments.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">direction(<span class="param">FillDirection dir</span>)</div>
+              <div class="method-desc">Fill direction. See the <code>FillDirection</code> table above.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">animate(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Enables animated transitions when the value changes via <code>value()</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">animationSpeed(<span class="param">int ticks</span>)</div>
+              <div class="method-desc">Transition duration in ticks. Default: <code>10</code> (0.5 sec). Requires <code>animate(true)</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showPercentage(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays the percentage ("72%") centered on the component.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">label(<span class="param">String text</span>)</div>
+              <div class="method-desc">Centered text displayed as an overlay. Overrides the percentage if <code>showPercentage</code> is also active.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">cornerRadius(<span class="param">int px</span>)</div>
+              <div class="method-desc">Corner radius for HORIZONTAL, VERTICAL and SQUARE shapes.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
 
     <!-- ======================================================
          GUI SHOWCASE — PAGE 2 (TEXTURES)
