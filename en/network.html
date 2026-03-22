@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Network — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT &middot; 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/network.html">FR</a>
+    <a href="network.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link active"><span class="nav-dot"></span>Network GUI</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">On this page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#initialisation"><span class="nav-dot"></span>Initialization</a></li>
+        <li><a href="#gui-network-handler"><span class="nav-dot"></span>GuiNetworkHandler</a></li>
+        <li><a href="#i-gui-data-receiver"><span class="nav-dot"></span>IGuiDataReceiver</a></li>
+        <li><a href="#packets"><span class="nav-dot"></span>Packets</a></li>
+        <li><a href="#full-example"><span class="nav-dot"></span>Full Example</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Network GUI</h1>
+        <p class="subtitle">
+          Client &harr; server communication for EriAPI GUIs &mdash; send actions,
+          receive data, and open screens from the server.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.network</span>
+          <span class="badge badge-purple">Forge 1.12.2</span>
+          <span class="badge badge-gray">Java 8</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        The <strong>Network</strong> module provides a simplified system for communicating between
+        your EriAPI GUIs and the Minecraft server. Without it, GUIs are purely visual &mdash;
+        they cannot read server data or trigger server-side actions.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Client vs Server in Minecraft</div>
+          <p>
+            Minecraft runs two sides simultaneously: the <strong>client</strong> (what the player
+            sees &mdash; the game window, GUIs, rendering) and the <strong>server</strong> (what
+            manages the world, items, players, economy). They communicate via <strong>packets</strong>.
+          </p>
+          <p>
+            When a player clicks "Buy" in your GUI, the click happens on the client. But the item
+            transfer must happen on the server. You need to send a packet to tell the server "this
+            player clicked Buy". That is what the network system is for.
+          </p>
+        </div>
+      </div>
+
+      <h3>When do you need the network system?</h3>
+      <ul style="color: var(--text-muted); margin: 0 0 18px 20px; line-height: 2.2;">
+        <li>When a button click should <strong style="color:var(--text)">give or take items</strong> from a player</li>
+        <li>When you need to <strong style="color:var(--text)">read server-side data</strong> (another player's stats, a database, etc.)</li>
+        <li>When you want to <strong style="color:var(--text)">open a GUI remotely</strong> (the server tells a client to open a screen)</li>
+        <li>When multiple players need to <strong style="color:var(--text)">see the same data</strong> update in real time</li>
+      </ul>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10004;</div>
+        <div class="ib-body">
+          <div class="ib-title">Don't need networking? Great!</div>
+          <p>
+            If your GUI only displays information stored locally (a scoreboard, a settings screen),
+            you don't need this module at all. The network system is only needed when actions must
+            be validated or executed on the server.
+          </p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Class / Interface</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>GuiNetworkHandler</code></td>
+              <td>Central hub &mdash; initialization, sending/receiving packets, registries</td>
+            </tr>
+            <tr>
+              <td><code>IGuiDataReceiver</code></td>
+              <td>Interface to implement in a GUI to receive data from the server</td>
+            </tr>
+            <tr>
+              <td><code>PacketGuiAction</code></td>
+              <td>Packet client &rarr; server for actions (button click, etc.)</td>
+            </tr>
+            <tr>
+              <td><code>PacketGuiData</code></td>
+              <td>Bidirectional packet for key/value data synchronization</td>
+            </tr>
+            <tr>
+              <td><code>PacketGuiOpen</code></td>
+              <td>Packet server &rarr; client to open a GUI with initial data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         INITIALIZATION
+    ====================================================== -->
+    <section class="doc-section" id="initialisation">
+      <h2>Initialization</h2>
+      <p>
+        The network system must be initialized <strong>exactly once</strong> in
+        <code>FMLPreInitializationEvent</code>. Then register your GUI factories and action handlers
+        in <code>FMLInitializationEvent</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; setup in the @Mod class</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod(modid = "mymod")
+public class MyMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        // Initialize the network system first
+        GuiNetworkHandler.init("mymod");
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Register a GUI factory (client-side)
+        // When the server calls openGuiFor("shop_menu", ...), this factory creates the GUI
+        GuiNetworkHandler.registerGui("shop_menu", data -&gt;
+            new GuiShop(data.getInteger("shop_type"))
+        );
+
+        // Register an action handler (server-side)
+        // When a client calls sendAction("shop_menu", "buy_btn", "buy_item", "42"),
+        // this handler is called on the server
+        GuiNetworkHandler.registerActionHandler("shop_menu", (player, params) -&gt; {
+            String action = params.get("action");       // "buy_item"
+            String data   = params.get("data");         // "42"
+            String compId = params.get("component");    // "buy_btn"
+            if ("buy_item".equals(action)) {
+                ShopManager.buyItem((EntityPlayerMP) player, Integer.parseInt(data));
+            }
+        });
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">preInit is mandatory</div>
+          <p>
+            <code>GuiNetworkHandler.init(modId)</code> must be called in
+            <code>FMLPreInitializationEvent</code> before any packet is sent. Calling
+            <code>sendAction()</code> or <code>openGuiFor()</code> before initialization causes a NullPointerException.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         GUI NETWORK HANDLER
+    ====================================================== -->
+    <section class="doc-section" id="gui-network-handler">
+      <h2>GuiNetworkHandler</h2>
+      <p>
+        Central hub of the GUI network system. All methods are <strong>static</strong>.
+        The network channel is created under the name <code>{modId}_gui</code>.
+      </p>
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.network.GuiNetworkHandler</code></p>
+        </div>
+      </div>
+
+      <h3>Initialization</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>static void init(String modId)</code></td>
+              <td>
+                Initializes the network system and registers the 4 internal packets (action,
+                server data, client data, open). Must be called <strong>exactly once</strong> in
+                <code>FMLPreInitializationEvent</code>. The channel will be named <code>{modId}_gui</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>static boolean isInitialized()</code></td>
+              <td>Returns <code>true</code> if the system has been initialized. Useful for defensive checks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Registries</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>static void registerGui(String guiId,<br>Function&lt;NBTTagCompound, GuiScreen&gt; factory)</code></td>
+              <td>
+                <strong>[Client-side]</strong> Registers a GUI factory identified by <code>guiId</code>.
+                When the server calls <code>openGuiFor(player, guiId, data)</code>, the factory is invoked
+                with the NBT data and the returned <code>GuiScreen</code> is displayed.
+                Register in <code>FMLInitializationEvent</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>static void registerActionHandler(String guiId,<br>BiConsumer&lt;EntityPlayer, Map&lt;String,String&gt;&gt; handler)</code></td>
+              <td>
+                <strong>[Server-side]</strong> Registers a handler for actions sent from a GUI.
+                The <code>Map&lt;String,String&gt; params</code> contains:
+                <code>"component"</code> (source component ID),
+                <code>"action"</code> (action type),
+                <code>"data"</code> (additional payload).
+              </td>
+            </tr>
+            <tr>
+              <td><code>static void registerDataHandler(String guiId,<br>BiConsumer&lt;EntityPlayer, Map&lt;String,String&gt;&gt; handler)</code></td>
+              <td>
+                <strong>[Server-side]</strong> Registers a handler for data sent from a GUI.
+                The <code>Map&lt;String,String&gt; params</code> contains:
+                <code>"component"</code>, <code>"key"</code>, <code>"value"</code>.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Sending &mdash; Client to Server</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>static void sendAction(String guiId, String componentId,<br>String action, Object data)</code></td>
+              <td>
+                <strong>[Client only &mdash; @SideOnly(CLIENT)]</strong>
+                Sends an action to the server. <code>guiId</code> identifies the GUI (must match a registered handler).
+                <code>componentId</code> identifies the source component (e.g. <code>"buy_btn"</code>).
+                <code>action</code> is the action type (e.g. <code>"buy_item"</code>).
+                <code>data</code> is additional payload &mdash; converted to String via <code>toString()</code>,
+                or an empty string if null.
+              </td>
+            </tr>
+            <tr>
+              <td><code>static void sendData(String guiId, String componentId,<br>String key, Object value)</code></td>
+              <td>
+                <strong>[Client only]</strong>
+                Sends a key/value pair to the server. Useful for input fields (e.g. the value
+                of a TextField when the user submits).
+                <code>value</code> is converted to String via <code>toString()</code>.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Sending &mdash; Server to Client</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>static void openGuiFor(EntityPlayerMP player,<br>String guiId, NBTTagCompound data)</code></td>
+              <td>
+                <strong>[Server only]</strong>
+                Sends a <code>PacketGuiOpen</code> to the player. On the client, the factory registered
+                under <code>guiId</code> is called with <code>data</code> and the resulting GUI is displayed.
+                <code>data</code> may be an empty <code>new NBTTagCompound()</code> if no initial data is needed.
+              </td>
+            </tr>
+            <tr>
+              <td><code>static void sendDataToClient(EntityPlayerMP player,<br>String guiId, String componentId,<br>String key, Object value)</code></td>
+              <td>
+                <strong>[Server only]</strong>
+                Sends a key/value pair to the player's client. If the player's currently open GUI
+                implements <code>IGuiDataReceiver</code>, its
+                <code>onDataUpdate(componentId, key, value)</code> method is called.
+                <code>value</code> is converted to String.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Thread-safe execution</div>
+          <p>
+            Handlers registered via <code>registerActionHandler</code> and <code>registerDataHandler</code>
+            are called on the server main thread (via <code>addScheduledTask</code> in the
+            <code>PacketHandler</code>). You can modify player data directly without extra
+            <code>synchronized</code> blocks.
+          </p>
+          <p>
+            Likewise, the client-side data dispatch is called on the Minecraft main thread
+            (via <code>addScheduledTask</code>). You can modify GUI components directly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         I GUI DATA RECEIVER
+    ====================================================== -->
+    <section class="doc-section" id="i-gui-data-receiver">
+      <h2>IGuiDataReceiver</h2>
+      <p>
+        Interface to implement in an <code>EriGuiScreen</code> to receive data updates
+        sent by the server via <code>sendDataToClient()</code>.
+      </p>
+      <p>
+        When the server sends a <code>PacketGuiData</code> to the client,
+        <code>GuiNetworkHandler</code> checks whether the currently open GUI implements
+        <code>IGuiDataReceiver</code> and calls <code>onDataUpdate()</code>.
+      </p>
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.network.IGuiDataReceiver</code></p>
+        </div>
+      </div>
+
+      <h3>Method to implement</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>void onDataUpdate(String componentId, String key, String value)</code></td>
+              <td>
+                Called on the client when data is received from the server.
+                <code>componentId</code>: identifier of the targeted component (as passed to <code>sendDataToClient</code>).
+                <code>key</code>: data key.
+                <code>value</code>: data value (always a String).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; IGuiDataReceiver in an EriGuiScreen</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">public class GuiShop extends EriGuiScreen implements IGuiDataReceiver {
+
+    private Label balanceLabel;
+    private Label statusLabel;
+
+    @Override
+    protected void buildGui() {
+        balanceLabel = new Label(20, 20, 400, 30, "Loading...")
+            .scale(1.4f)
+            .color(0xFFFFD700);
+        getRoot().add(balanceLabel);
+
+        statusLabel = new Label(20, 60, 400, 24, "")
+            .scale(1.0f)
+            .color(0xFFFFFFFF);
+        getRoot().add(statusLabel);
+    }
+
+    @Override
+    public void onDataUpdate(String componentId, String key, String value) {
+        // Filter by component ID (useful when multiple components receive data)
+        if ("balance_display".equals(componentId)) {
+            if ("gold".equals(key)) {
+                balanceLabel.text("Gold: " + value);
+            }
+        } else if ("purchase_result".equals(componentId)) {
+            if ("success".equals(key)) {
+                boolean ok = Boolean.parseBoolean(value);
+                statusLabel.text(ok ? "Purchase successful!" : "Insufficient funds.")
+                           .color(ok ? 0xFF44FF88 : 0xFFFF4444);
+            }
+        }
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         PACKETS
+    ====================================================== -->
+    <section class="doc-section" id="packets">
+      <h2>Packets</h2>
+      <p>
+        The system uses three internal packets. In general you never interact with the packet
+        classes directly &mdash; always go through <code>GuiNetworkHandler</code>.
+        This section documents their format for reference.
+      </p>
+
+      <h3>PacketGuiAction &mdash; Client &rarr; Server</h3>
+      <p>
+        Sent by <code>GuiNetworkHandler.sendAction()</code> when a client component triggers
+        an action (button click, etc.).
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>guiId</code></td><td><code>String</code></td><td>Source GUI identifier (e.g. <code>"shop_menu"</code>)</td></tr>
+            <tr><td><code>componentId</code></td><td><code>String</code></td><td>Source component identifier (e.g. <code>"buy_btn"</code>)</td></tr>
+            <tr><td><code>action</code></td><td><code>String</code></td><td>Action type (e.g. <code>"buy_item"</code>, <code>"cancel"</code>)</td></tr>
+            <tr><td><code>data</code></td><td><code>String</code></td><td>Additional payload (e.g. <code>"42"</code> for an item ID)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The server handler receives a <code>Map&lt;String, String&gt;</code> with keys
+        <code>"component"</code>, <code>"action"</code>, <code>"data"</code>.
+      </p>
+
+      <h3>PacketGuiData &mdash; Bidirectional</h3>
+      <p>
+        Used by <code>sendData()</code> (client &rarr; server) and
+        <code>sendDataToClient()</code> (server &rarr; client) to synchronize a key/value pair.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>guiId</code></td><td><code>String</code></td><td>Identifier of the GUI concerned</td></tr>
+            <tr><td><code>componentId</code></td><td><code>String</code></td><td>Identifier of the component concerned</td></tr>
+            <tr><td><code>key</code></td><td><code>String</code></td><td>Data key</td></tr>
+            <tr><td><code>value</code></td><td><code>String</code></td><td>Value (always a String)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>PacketGuiOpen &mdash; Server &rarr; Client</h3>
+      <p>
+        Sent by <code>openGuiFor()</code> to open a GUI on the client.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>guiId</code></td><td><code>String</code></td><td>GUI identifier to open (must be registered via <code>registerGui</code>)</td></tr>
+            <tr><td><code>initialData</code></td><td><code>NBTTagCompound</code></td><td>Initial data passed to the GUI factory</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Serialization</div>
+          <p>
+            All packets use <code>ByteBufUtils.writeUTF8String</code> /
+            <code>readUTF8String</code> for String fields, and
+            <code>ByteBufUtils.writeTag</code> / <code>readTag</code> for NBT.
+            The maximum String size is limited by the Minecraft packet MTU
+            (approximately 32&nbsp;767 characters).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FULL EXAMPLE
+    ====================================================== -->
+    <section class="doc-section" id="full-example">
+      <h2>Full Example &mdash; Client/Server Shop</h2>
+      <p>
+        A complete example showing both sides: the client GUI sends an action, the server
+        processes it and replies with updated data.
+      </p>
+
+      <h3>1. Setup (in the @Mod class)</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; MyMod.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Mod(modid = "mymod")
+public class MyMod {
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        GuiNetworkHandler.init("mymod");
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // GUI factory: the server can open this GUI on the client
+        GuiNetworkHandler.registerGui("shop", data -&gt; {
+            String shopName  = data.getString("name");
+            int initialGold  = data.getInteger("gold");
+            return new GuiShop(shopName, initialGold);
+        });
+
+        // Action handler: the server processes purchases
+        GuiNetworkHandler.registerActionHandler("shop", (player, params) -&gt; {
+            EntityPlayerMP mp = (EntityPlayerMP) player;
+            String action = params.get("action");
+            String data   = params.get("data");
+
+            if ("buy".equals(action)) {
+                int itemId   = Integer.parseInt(data);
+                boolean ok   = ShopManager.processPurchase(mp, itemId);
+                int newGold  = ShopManager.getGold(mp);
+
+                // Reply to the client
+                GuiNetworkHandler.sendDataToClient(mp, "shop", "result", "success", String.valueOf(ok));
+                GuiNetworkHandler.sendDataToClient(mp, "shop", "balance", "gold",   String.valueOf(newGold));
+            }
+        });
+    }
+}</code></pre>
+      </div>
+
+      <h3>2. Opening the GUI from the server</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; ShopNPC.java (player interaction)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// When a player right-clicks the Shop NPC on the server:
+NBTTagCompound data = new NBTTagCompound();
+data.setString("name", "Pierre's Shop");
+data.setInteger("gold", ShopManager.getGold(player));
+GuiNetworkHandler.openGuiFor(player, "shop", data);</code></pre>
+      </div>
+
+      <h3>3. Client GUI</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; GuiShop.java</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">public class GuiShop extends EriGuiScreen implements IGuiDataReceiver {
+
+    private final String shopName;
+    private int currentGold;
+
+    private Label labelGold;
+    private Label labelStatus;
+
+    public GuiShop(String shopName, int initialGold) {
+        this.shopName    = shopName;
+        this.currentGold = initialGold;
+    }
+
+    @Override
+    protected void buildGui() {
+        ContainerComponent root = getRoot();
+
+        // Background
+        root.add(new Rectangle(0, 0, 1920, 1080).fillColor(0x88000000));
+
+        // Center panel
+        ContainerComponent panel = new ContainerComponent(660, 240, 600, 600);
+        panel.add(new Rectangle(0, 0, 600, 600).fillColor(0xCC1A1A2E).cornerRadius(16));
+        panel.add(new Label(0, 24, 600, 40, shopName).scale(2.0f).color(0xFFFFD700)
+            .align(Label.Align.CENTER));
+
+        // Gold balance
+        labelGold = new Label(20, 80, 560, 30, "Gold: " + currentGold);
+        labelGold.scale(1.3f).color(0xFFFFD700);
+        panel.add(labelGold);
+
+        // Status label
+        labelStatus = new Label(20, 120, 560, 24, "");
+        labelStatus.scale(1.0f).color(0xFFFFFFFF);
+        panel.add(labelStatus);
+
+        // Buy button
+        panel.add(new Button(200, 180, 200, 44, "Buy Sword (100 gold)")
+            .colorScheme(0xFF1A6A3A)
+            .cornerRadius(8)
+            .onClick(() -&gt; {
+                GuiNetworkHandler.sendAction("shop", "buy_btn", "buy", "1");
+            })
+        );
+
+        root.add(panel);
+    }
+
+    @Override
+    public void onDataUpdate(String componentId, String key, String value) {
+        if ("result".equals(componentId) &amp;&amp; "success".equals(key)) {
+            boolean ok = Boolean.parseBoolean(value);
+            labelStatus.text(ok ? "Purchase successful!" : "Not enough gold!")
+                       .color(ok ? 0xFF44FF88 : 0xFFFF4444);
+        } else if ("balance".equals(componentId) &amp;&amp; "gold".equals(key)) {
+            currentGold = Integer.parseInt(value);
+            labelGold.text("Gold: " + currentGold);
+        }
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Full flow</div>
+          <ol style="margin: 0; padding-left: 20px; line-height: 2.0;">
+            <li>Player interacts with the NPC &rarr; server calls <code>openGuiFor()</code></li>
+            <li>Client receives <code>PacketGuiOpen</code> &rarr; factory creates <code>GuiShop</code></li>
+            <li>Player clicks "Buy" &rarr; <code>sendAction()</code> sends <code>PacketGuiAction</code></li>
+            <li>Server receives the action &rarr; handler processes the purchase</li>
+            <li>Server calls <code>sendDataToClient()</code> twice (result + balance)</li>
+            <li>Client receives <code>PacketGuiData</code> &rarr; <code>onDataUpdate()</code> updates the GUI</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (block) {
+      hljs.highlightElement(block);
+    });
+  });
+</script>
+
+</body>
+</html>

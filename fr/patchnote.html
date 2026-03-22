@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patchnote — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.1.0 · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="patchnote.html" class="active">FR</a>
+    <a href="../en/patchnote.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link"><span class="nav-dot"></span>Network GUI</a></li>
+        <li><a href="patchnote.html" class="nav-page-link active"><span class="nav-dot"></span>Patchnote</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Versions</div>
+      <ul>
+        <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
+        <li><a href="#v1.0.0"><span class="nav-dot"></span>v1.0.0</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ===== HERO ===== -->
+    <section class="doc-section section-intro" id="patchnote">
+      <div class="hero">
+        <h1>Patchnote</h1>
+        <p class="subtitle">
+          Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== v1.1.0 ===== -->
+    <section class="doc-section" id="v1.1.0">
+      <h2>v1.1.0 <span class="badge badge-cyan">22 Mars 2026</span></h2>
+
+      <h3>Nouveau module : Security Framework</h3>
+      <p>
+        Ajout du package <code>fr.eri.eriapi.security</code> — un toolkit complet de prevention anti-duplication
+        et de protection contre les exploits cote serveur. Concu pour les serveurs a forte affluence (500-1000 joueurs).
+      </p>
+      <ul>
+        <li><strong>GuiRateLimiter</strong> — Limitation d'actions par joueur avec fenetre glissante configurable. Empeche le spam de clics sur les conteneurs.</li>
+        <li><strong>ItemIntegrityValidator</strong> — Systeme de snapshot/validation/rollback pour verifier que le nombre total d'items ne change pas apres une operation de conteneur. Detecte automatiquement les tentatives de duplication.</li>
+        <li><strong>ContainerLock</strong> — Verrous synchronises par cle pour empecher les acces concurrents aux conteneurs partages (ex: coffre de faction).</li>
+        <li><strong>DupeAlertManager</strong> — Alertes en temps reel envoyees a tous les operateurs en ligne via EriChat quand une tentative de duplication est detectee.</li>
+      </ul>
+
+      <h3>Nouvelle documentation : Network GUI</h3>
+      <p>
+        Ajout de la page <a href="network.html">Network GUI</a> documentant le systeme de communication client-serveur
+        pour les interactions GUI : <code>GuiNetworkHandler</code>, <code>IGuiDataReceiver</code>, format des packets,
+        et exemples complets.
+      </p>
+
+      <h3>Documentation GUI enrichie</h3>
+      <ul>
+        <li>Ajout des composants visuels : <code>GradientRectangle</code>, <code>Aurora</code>, <code>Starfield</code>, <code>ParticleSystem</code>, <code>SmokeFog</code></li>
+        <li>Section reseau deplacee vers la page dediee <a href="network.html">Network GUI</a></li>
+        <li>Liens sidebar mis a jour avec Security et Network</li>
+      </ul>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version — uniquement des ajouts.</li>
+      </ul>
+    </section>
+
+    <!-- ===== v1.0.0 ===== -->
+    <section class="doc-section" id="v1.0.0">
+      <h2>v1.0.0 <span class="badge badge-purple">Release initiale</span></h2>
+
+      <h3>Modules inclus</h3>
+      <ul>
+        <li><strong>GUI Framework</strong> — Toolkit UI complet en 1920x1080 design pixels avec 30+ composants, animations, sons, et scaling automatique.</li>
+        <li><strong>Overlay HUD</strong> — Systeme d'overlay draggable avec positionnement en pixels design, ancrage, et editeur in-game.</li>
+        <li><strong>Config System</strong> — Configuration annotee avec GUI auto-generee, sync client-serveur, et validation.</li>
+        <li><strong>Command Framework</strong> — Builder de commandes avec auto-completion, arguments types, permissions, cooldowns, et sous-commandes.</li>
+        <li><strong>Item &amp; Block Builder</strong> — Creation d'items, blocs et recettes via API fluent sans boilerplate Forge.</li>
+        <li><strong>Data &amp; Storage</strong> — Stockage persistant par POJOs annotes avec sync client automatique via <code>@Sync</code>.</li>
+        <li><strong>Scheduler</strong> — Planification de taches differees, repetitives, chainees, et asynchrones.</li>
+        <li><strong>Chat Builder</strong> — Messages chat riches avec couleurs, clics, hover, et pagination.</li>
+        <li><strong>Capability Helpers</strong> — Capabilities Forge simplifiees via annotations avec auto-attach et auto-sync.</li>
+        <li><strong>Event Simplifier</strong> — Abonnement aux events Forge en une ligne avec filtres, priorite, et expiration.</li>
+        <li><strong>Keybinding Manager</strong> — Raccourcis clavier fluent avec combos, double-tap, hold, et contextes.</li>
+        <li><strong>Network GUI</strong> — Communication client-serveur pour les interactions GUI.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>

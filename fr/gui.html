@@ -51,6 +51,8 @@
         <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
         <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
         <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link"><span class="nav-dot"></span>Network GUI</a></li>
       </ul>
     </div>
     <div class="nav-search">
@@ -203,10 +205,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Réseau</div>
       <ul>
-        <li><a href="#reseau-intro"><span class="nav-dot"></span>Introduction réseau</a></li>
-        <li><a href="#gui-network-handler"><span class="nav-dot"></span>GuiNetworkHandler</a></li>
-        <li><a href="#packets"><span class="nav-dot"></span>Packets</a></li>
-        <li><a href="#i-gui-data-receiver"><span class="nav-dot"></span>IGuiDataReceiver</a></li>
+        <li><a href="network.html"><span class="nav-dot"></span>Network GUI &rarr;</a></li>
       </ul>
     </div>
 
@@ -5749,346 +5748,25 @@ notification
     <div class="section-divider"></div>
 
     <!-- ======================================================
-         RESEAU — INTRODUCTION
+         RESEAU — REDIRECT
     ====================================================== -->
     <section class="doc-section" id="reseau-intro">
-      <h2>Introduction au réseau</h2>
+      <h2>Network GUI</h2>
       <p>
-        Cette section est pour les cas avancés : quand ton menu doit <strong>communiquer avec le serveur</strong>.
-        Si tu fais juste un menu purement visuel côté client (sans interaction avec le serveur), tu peux sauter
-        cette section.
+        La communication client &harr; serveur pour les GUIs EriAPI &mdash; envoi d'actions, reception
+        de donnees, et ouverture d'ecrans depuis le serveur &mdash; est couverte dans la page de
+        documentation dediee <strong><a href="network.html">Network GUI</a></strong>.
       </p>
-
       <div class="info-box info">
-        <div class="ib-icon">ℹ</div>
+        <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Client vs Serveur — la base</div>
-          <p>Dans Minecraft multijoueur, ton ordinateur fait tourner le <strong>client</strong> (ce que tu vois)
-          et un autre ordinateur fait tourner le <strong>serveur</strong> (la vraie partie, les données, les
-          règles). Pour que ta GUI côté client modifie quelque chose sur le serveur (ex: acheter un objet,
-          enregistrer un score), les deux doivent se parler via des <strong>paquets réseau</strong>.</p>
-        </div>
-      </div>
-
-      <h3>Comment ça fonctionne avec EriAPI</h3>
-      <p>EriAPI fournit un système réseau prêt à l'emploi :</p>
-      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:16px;line-height:2.2;">
-        <li><strong style="color:var(--text);">Client → Serveur :</strong> Le joueur clique sur "Acheter" dans ta GUI. Le client envoie un <em>paquet d'action</em> au serveur.</li>
-        <li><strong style="color:var(--text);">Serveur → Client :</strong> Le serveur traite l'action et envoie des <em>données</em> à afficher dans la GUI.</li>
-        <li><strong style="color:var(--text);">Serveur → ouvrir GUI :</strong> Le serveur peut ordonner au client d'ouvrir une GUI avec des données préremplies.</li>
-      </ul>
-
-      <div class="code-wrapper">
-        <div class="code-label">
-          <span>Java — Initialisation du système réseau (dans ta classe principale)</span>
-          <button class="copy-btn">Copier</button>
-        </div>
-        <pre><code class="language-java">import fr.eri.eriapi.gui.network.GuiNetworkHandler;
-
-@Mod.EventHandler
-public void init(FMLInitializationEvent event) {
-    // Initialiser le système réseau EriAPI — à appeler UNE SEULE FOIS au démarrage
-    GuiNetworkHandler.init("tonmodid");   // Passe l'ID de ton mod
-
-    // Enregistrer ta GUI (pour que le serveur puisse l'ouvrir pour un joueur)
-    // "maboutique" = identifiant unique pour cette GUI
-    GuiNetworkHandler.registerGui("maboutique", () -> new GuiBoutique());
-
-    // Enregistrer les handlers d'actions (ce qui se passe quand le client clique)
-    GuiNetworkHandler.registerActionHandler("acheter", (player, data) -> {
-        // "player" = le joueur qui a cliqué
-        // "data" = les données envoyées par le client (ex: l'id de l'objet)
-        String itemId = data.getString("item");
-        traiterAchat(player, itemId);
-    });
-}</code></pre>
-      </div>
-    </section>
-
-    <!-- ======================================================
-         GUI NETWORK HANDLER
-    ====================================================== -->
-    <section class="doc-section" id="gui-network-handler">
-      <h2>GuiNetworkHandler</h2>
-      <p>
-        <code>GuiNetworkHandler</code> est le point central du système réseau d'EriAPI. Il orchestre
-        toutes les communications entre le client (GUI) et le serveur.
-      </p>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">GuiNetworkHandler</div>
-            <div class="package-path">fr.eri.eriapi.gui.network.GuiNetworkHandler</div>
-          </div>
-          <span class="badge badge-purple">Réseau</span>
-        </div>
-
-        <ul class="method-list">
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> init(<span class="param">String modId</span>)</div>
-              <div class="method-desc">Initialise le système réseau. Appelle cette méthode une seule fois dans le <code>init()</code> de ton mod.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> registerGui(<span class="param">String id, Supplier&lt;EriGuiScreen&gt; factory</span>)</div>
-              <div class="method-desc">Enregistre une GUI avec un identifiant. La "factory" est une fonction qui crée une nouvelle instance de la GUI.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> registerActionHandler(<span class="param">String action, BiConsumer&lt;EntityPlayer, NBTTagCompound&gt; handler</span>)</div>
-              <div class="method-desc">Enregistre un handler côté serveur pour une action. Appelé quand le client envoie cette action.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> openGuiFor(<span class="param">EntityPlayer player, String guiId</span>)</div>
-              <div class="method-desc">Ouvre une GUI enregistrée pour un joueur spécifique, depuis le serveur. La GUI s'ouvre sur l'écran du joueur.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> openGuiFor(<span class="param">EntityPlayer player, String guiId, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Ouvre une GUI avec des données initiales (ex: le contenu de la boutique, les stats du joueur). Les données sont disponibles dans la GUI via <code>getInitData()</code>.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> sendAction(<span class="param">String action, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Envoie une action du client au serveur. À appeler depuis ta GUI (ex: dans le onClick d'un bouton "Acheter").</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">static void</span> sendDataToClient(<span class="param">EntityPlayer player, String guiId, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Envoie des données du serveur à la GUI ouverte chez un joueur. La GUI doit implémenter <code>IGuiDataReceiver</code> pour recevoir ces données.</div>
-            </div>
-            <span class="method-badge mb-static">Statique</span>
-          </li>
-        </ul>
-
-        <h3>Exemple complet : boutique avec réseau</h3>
-        <div class="code-wrapper">
-          <div class="code-label">
-            <span>Java — Boutique complète côté client (GuiBoutique.java)</span>
-            <button class="copy-btn">Copier</button>
-          </div>
-          <pre><code class="language-java">import fr.eri.eriapi.gui.EriGuiScreen;
-import fr.eri.eriapi.gui.network.GuiNetworkHandler;
-import fr.eri.eriapi.gui.network.IGuiDataReceiver;
-import fr.eri.eriapi.gui.components.*;
-import fr.eri.eriapi.gui.util.Colors;
-import net.minecraft.nbt.NBTTagCompound;
-
-// La GUI implémente IGuiDataReceiver pour recevoir des données du serveur
-public class GuiBoutique extends EriGuiScreen implements IGuiDataReceiver {
-
-    private Label labelSolde;  // On garde une référence pour mettre à jour le texte
-
-    public GuiBoutique() {
-        super(1920, 1080);
-    }
-
-    @Override
-    public void initGui() {
-        super.initGui();
-
-        // Titre
-        addComponent(new Label(0, 60, 1920, 50)
-            .text("Boutique").color(Colors.WHITE)
-            .align(Label.Align.CENTER).scale(2.0f));
-
-        // Affichage du solde (sera mis à jour quand le serveur répond)
-        labelSolde = new Label(1700, 40, 200, 30)
-            .text("Solde : ...").color(Colors.CYAN);
-        addComponent(labelSolde);
-
-        // Bouton acheter une épée
-        addComponent(new Button(760, 400, 400, 50)
-            .text("Acheter Epée d'Or — 500 pièces")
-            .colorScheme(Button.Style.CYAN)
-            .cornerRadius(8)
-            .onClick(() -> {
-                // Préparer les données à envoyer au serveur
-                NBTTagCompound data = new NBTTagCompound();
-                data.setString("item", "golden_sword");
-                data.setInteger("quantite", 1);
-
-                // Envoyer l'action "acheter" au serveur
-                GuiNetworkHandler.sendAction("acheter", data);
-            }));
-    }
-
-    // Cette méthode est appelée quand le serveur envoie des données à cette GUI
-    @Override
-    public void onDataReceived(NBTTagCompound data) {
-        // Le serveur nous envoie le nouveau solde après chaque achat
-        if (data.hasKey("solde")) {
-            int solde = data.getInteger("solde");
-            labelSolde.text("Solde : " + solde + " pièces");
-        }
-
-        // Le serveur peut aussi envoyer un message d'erreur
-        if (data.hasKey("erreur")) {
-            String erreur = data.getString("erreur");
-            // Afficher l'erreur à l'utilisateur...
-        }
-    }
-}</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================================================
-         PACKETS
-    ====================================================== -->
-    <section class="doc-section" id="packets">
-      <h2>Packets</h2>
-      <p>
-        EriAPI inclut trois types de paquets réseau prêts à l'emploi. Tu n'as généralement pas besoin
-        de les utiliser directement — passe par <code>GuiNetworkHandler</code> qui les gère pour toi.
-        Voici quand chacun est utilisé :
-      </p>
-
-      <table class="prop-table">
-        <thead>
-          <tr>
-            <th>Paquet</th>
-            <th>Direction</th>
-            <th>Usage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>PacketGuiAction</td>
-            <td>Client → Serveur</td>
-            <td>Le joueur fait une action dans la GUI (clic "Acheter", "Valider", etc.)</td>
-          </tr>
-          <tr>
-            <td>PacketGuiData</td>
-            <td>Serveur → Client</td>
-            <td>Le serveur envoie des données à afficher dans la GUI ouverte</td>
-          </tr>
-          <tr>
-            <td>PacketGuiOpen</td>
-            <td>Serveur → Client</td>
-            <td>Le serveur ordonne au client d'ouvrir une GUI spécifique</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="code-wrapper">
-        <div class="code-label">
-          <span>Java — Côté serveur : traiter les actions et répondre</span>
-          <button class="copy-btn">Copier</button>
-        </div>
-        <pre><code class="language-java">// Dans ton init() — côté serveur :
-GuiNetworkHandler.registerActionHandler("acheter", (player, data) -> {
-    String itemId   = data.getString("item");
-    int quantite    = data.getInteger("quantite");
-
-    // Vérifier et effectuer l'achat
-    boolean succès = boutique.effectuerAchat(player, itemId, quantite);
-
-    // Préparer la réponse
-    NBTTagCompound reponse = new NBTTagCompound();
-    reponse.setInteger("solde", boutique.getSolde(player));
-
-    if (!succès) {
-        reponse.setString("erreur", "Solde insuffisant !");
-    }
-
-    // Envoyer la réponse au client — la GUI reçoit ça dans onDataReceived()
-    GuiNetworkHandler.sendDataToClient(player, "maboutique", reponse);
-});</code></pre>
-      </div>
-    </section>
-
-    <!-- ======================================================
-         I GUI DATA RECEIVER
-    ====================================================== -->
-    <section class="doc-section" id="i-gui-data-receiver">
-      <h2>IGuiDataReceiver</h2>
-      <p>
-        <code>IGuiDataReceiver</code> est une interface que ta GUI doit implémenter si elle veut
-        <strong>recevoir des données du serveur</strong>. En ajoutant <code>implements IGuiDataReceiver</code>
-        à ta classe, tu t'engages à implémenter la méthode <code>onDataReceived()</code>.
-      </p>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">IGuiDataReceiver</div>
-            <div class="package-path">fr.eri.eriapi.gui.network.IGuiDataReceiver</div>
-          </div>
-          <span class="badge badge-purple">Interface</span>
-        </div>
-
-        <div class="code-wrapper">
-          <div class="code-label">
-            <span>Java — Implémenter IGuiDataReceiver</span>
-            <button class="copy-btn">Copier</button>
-          </div>
-          <pre><code class="language-java">// Ta GUI doit "implémenter" IGuiDataReceiver pour recevoir les données
-public class MaGui extends EriGuiScreen implements IGuiDataReceiver {
-
-    public MaGui() { super(1920, 1080); }
-
-    @Override
-    public void initGui() {
-        super.initGui();
-        // Créer tes composants...
-    }
-
-    // Cette méthode est OBLIGATOIRE quand on implémente IGuiDataReceiver
-    // Elle est appelée automatiquement quand GuiNetworkHandler.sendDataToClient() est utilisé
-    @Override
-    public void onDataReceived(NBTTagCompound data) {
-        // "data" contient les données envoyées par le serveur
-        // Utilise data.getString("clé"), data.getInteger("clé"), etc.
-
-        if (data.hasKey("nomJoueur")) {
-            String nom = data.getString("nomJoueur");
-            // Mettre à jour un Label par exemple...
-        }
-
-        if (data.hasKey("score")) {
-            int score = data.getInteger("score");
-            // Mettre à jour une ProgressBar...
-        }
-    }
-}</code></pre>
-        </div>
-
-        <ul class="method-list">
-          <li class="method-item">
-            <div>
-              <div class="method-sig"><span class="ret">void</span> onDataReceived(<span class="param">NBTTagCompound data</span>)</div>
-              <div class="method-desc">Appelée automatiquement quand le serveur envoie des données à cette GUI. <code>data</code> est un objet clé/valeur (comme un dictionnaire).</div>
-            </div>
-            <span class="method-badge mb-abstract">À implémenter</span>
-          </li>
-        </ul>
-
-        <div class="info-box tip">
-          <div class="ib-icon">&#10003;</div>
-          <div class="ib-body">
-            <div class="ib-title">Méthodes utiles de NBTTagCompound</div>
-            <p><code>data.getString("clé")</code> — lire une chaîne de caractères<br>
-            <code>data.getInteger("clé")</code> — lire un entier<br>
-            <code>data.getDouble("clé")</code> — lire un décimal<br>
-            <code>data.getBoolean("clé")</code> — lire un booléen<br>
-            <code>data.hasKey("clé")</code> — vérifier si une clé existe (toujours vérifier avant de lire !)</p>
-          </div>
+          <div class="ib-title">Page dédiée</div>
+          <p>
+            Consulte <a href="network.html"><strong>network.html</strong></a> pour la reference complete :
+            <code>GuiNetworkHandler</code> (toutes les methodes statiques),
+            <code>IGuiDataReceiver</code> (<code>onDataUpdate(String, String, String)</code>),
+            tableaux de format des paquets, et un exemple complet boutique client/serveur.
+          </p>
         </div>
       </div>
     </section>

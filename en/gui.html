@@ -51,6 +51,8 @@
         <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
         <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
         <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link"><span class="nav-dot"></span>Network GUI</a></li>
       </ul>
     </div>
     <div class="nav-search">
@@ -138,12 +140,20 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Visual Effects</div>
+      <ul>
+        <li><a href="#gradient-rectangle"><span class="nav-dot"></span>GradientRectangle</a></li>
+        <li><a href="#aurora"><span class="nav-dot"></span>Aurora</a></li>
+        <li><a href="#starfield"><span class="nav-dot"></span>Starfield</a></li>
+        <li><a href="#particle-system"><span class="nav-dot"></span>ParticleSystem</a></li>
+        <li><a href="#smoke-fog"><span class="nav-dot"></span>SmokeFog</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">Network</div>
       <ul>
-        <li><a href="#network-overview"><span class="nav-dot"></span>Overview</a></li>
-        <li><a href="#gui-network-handler"><span class="nav-dot"></span>GuiNetworkHandler</a></li>
-        <li><a href="#packets"><span class="nav-dot"></span>Packets</a></li>
-        <li><a href="#i-gui-data-receiver"><span class="nav-dot"></span>IGuiDataReceiver</a></li>
+        <li><a href="network.html"><span class="nav-dot"></span>Network GUI &rarr;</a></li>
       </ul>
     </div>
 
@@ -3987,6 +3997,475 @@ NotificationManager.notify(Notification.Type.INFO, "Custom message", 100);</code
       </ul>
     </section>
 
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         VISUAL EFFECTS — GRADIENT RECTANGLE
+    ====================================================== -->
+    <section class="doc-section" id="gradient-rectangle">
+      <h2>GradientRectangle</h2>
+      <p>
+        A rectangle component filled with a two-color gradient &mdash; either vertical (top to bottom)
+        or horizontal (left to right). The direction and both colors are set via fluent methods.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.gui.components.GradientRectangle</code></p>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">GradientRectangle()</div>
+            <div class="method-desc">Creates an empty gradient rectangle. Set position and size with <code>originalPos(x, y)</code> and <code>originalSize(w, h)</code> (inherited from <code>Component</code>), then configure the gradient with <code>.vertical()</code> or <code>.horizontal()</code>.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">vertical(<span class="param">int topColor, int bottomColor</span>)</div>
+            <div class="method-desc">Sets the gradient direction to <code>Direction.VERTICAL</code> with the given top and bottom ARGB colors. Returns <code>this</code> for chaining.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">horizontal(<span class="param">int leftColor, int rightColor</span>)</div>
+            <div class="method-desc">Sets the gradient direction to <code>Direction.HORIZONTAL</code> with the given left and right ARGB colors. Returns <code>this</code> for chaining.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">cornerRadius(<span class="param">int px</span>)</div>
+            <div class="method-desc">Rounds all four corners by <code>px</code> design pixels.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>Direction enum</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Constant</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>GradientRectangle.Direction.VERTICAL</code></td><td>Gradient flows from top color to bottom color</td></tr>
+            <tr><td><code>GradientRectangle.Direction.HORIZONTAL</code></td><td>Gradient flows from left color to right color</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java &mdash; usage examples</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// Dark vertical gradient (header fade)
+GradientRectangle header = new GradientRectangle()
+    .originalPos(0, 0)
+    .originalSize(1920, 120)
+    .vertical(0xFF1A1A3E, 0x001A1A3E)  // opaque top, transparent bottom
+    .cornerRadius(0);
+root.add(header);
+
+// Horizontal color bar
+GradientRectangle bar = new GradientRectangle()
+    .originalPos(200, 500)
+    .originalSize(600, 8)
+    .horizontal(0xFF00E5FF, 0xFF9B59FF)
+    .cornerRadius(4);
+root.add(bar);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         VISUAL EFFECTS — AURORA
+    ====================================================== -->
+    <section class="doc-section" id="aurora">
+      <h2>Aurora</h2>
+      <p>
+        An animated aurora borealis background effect. You add up to 10 color bands; each band is
+        a sinusoidal ribbon that drifts slowly across the component. Ideal as a full-screen
+        background layer.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.gui.components.Aurora</code> &mdash; maximum 10 bands per instance.</p>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">Aurora()</div>
+            <div class="method-desc">Creates an aurora effect with no bands. Configure position and size with <code>originalPos(x, y)</code> and <code>originalSize(w, h)</code>, then add bands with <code>addBand()</code>.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">addBand(<span class="param">int color, float frequency, float amplitude, int height, int yOffset</span>)</div>
+            <div class="method-desc">
+              Adds an aurora band. <code>color</code>: ARGB color (semi-transparent values recommended);
+              <code>frequency</code>: wave frequency &mdash; higher = more waves across the width (e.g. 0.02);
+              <code>amplitude</code>: wave height oscillation in design pixels (e.g. 40.0f);
+              <code>height</code>: band thickness in design pixels;
+              <code>yOffset</code>: vertical offset from the top of the component.
+              Maximum 10 bands per instance.
+            </div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">speed(<span class="param">float speed</span>)</div>
+            <div class="method-desc">Animation speed multiplier. Default is 1.0. Higher values make bands drift faster.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">segments(<span class="param">int count</span>)</div>
+            <div class="method-desc">Number of horizontal segments per wave. Higher values produce smoother curves at higher rendering cost.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java &mdash; full-screen aurora background</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">Aurora aurora = new Aurora()
+    .originalPos(0, 0)
+    .originalSize(1920, 1080)
+    .addBand(0x440088FF, 0.015f, 60f, 220, 200)   // blue band
+    .addBand(0x3300FF88, 0.02f,  45f, 180, 380)   // green band
+    .addBand(0x33AA44FF, 0.012f, 80f, 200, 550)   // purple band
+    .speed(0.6f)
+    .segments(120);
+root.add(aurora);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         VISUAL EFFECTS — STARFIELD
+    ====================================================== -->
+    <section class="doc-section" id="starfield">
+      <h2>Starfield</h2>
+      <p>
+        An animated field of twinkling background stars with optional shooting stars.
+        Stars are randomly distributed across the component area. Designed as a full-screen
+        background layer.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.gui.components.Starfield</code> &mdash; maximum 3 simultaneous shooting stars.</p>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">Starfield()</div>
+            <div class="method-desc">Creates a starfield with default settings. Set position and size with <code>originalPos(x, y)</code> and <code>originalSize(w, h)</code>.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">starCount(<span class="param">int count</span>)</div>
+            <div class="method-desc">Total number of background stars to render.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">starColor(<span class="param">int argbColor</span>)</div>
+            <div class="method-desc">Base ARGB color for background stars. Individual star brightness varies around this base value.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">shootingStarChance(<span class="param">float chance</span>)</div>
+            <div class="method-desc">Probability per tick that a new shooting star spawns (0.0 to 1.0). A maximum of 3 shooting stars can be active simultaneously. Set to 0.0 to disable shooting stars entirely.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java &mdash; starfield background</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">Starfield stars = new Starfield()
+    .originalPos(0, 0)
+    .originalSize(1920, 1080)
+    .starCount(200)
+    .starColor(0xCCFFFFFF)
+    .shootingStarChance(0.003f);  // roughly one shooting star every ~6 seconds
+root.add(stars);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         VISUAL EFFECTS — PARTICLE SYSTEM
+    ====================================================== -->
+    <section class="doc-section" id="particle-system">
+      <h2>ParticleSystem</h2>
+      <p>
+        A 2D particle emitter. Particles are spawned at the component origin (or along its edges)
+        and drift according to speed, spread, and lifecycle parameters. Suitable for magic sparkles,
+        fire embers, confetti, and similar effects.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.gui.components.ParticleSystem</code></p>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">ParticleSystem()</div>
+            <div class="method-desc">Creates an empty particle system. Configure with the fluent methods below, then set position/size with <code>originalPos(x, y)</code> and <code>originalSize(w, h)</code>.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">maxParticles(<span class="param">int max</span>)</div>
+            <div class="method-desc">Maximum number of simultaneously active particles.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">spawnRate(<span class="param">float perTick</span>)</div>
+            <div class="method-desc">Particles spawned per tick. Can be fractional (e.g. 0.5 = one every 2 ticks).</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">particleLife(<span class="param">int minMs, int maxMs</span>)</div>
+            <div class="method-desc">Lifetime range per particle in milliseconds. Each particle gets a random value in [minMs, maxMs].</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">particleSize(<span class="param">int startPx, int endPx</span>)</div>
+            <div class="method-desc">Particle size in design pixels at birth (<code>startPx</code>) and at death (<code>endPx</code>). Linearly interpolated.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">particleColor(<span class="param">int argbColor</span>)</div>
+            <div class="method-desc">Base ARGB color. Alpha is respected and combined with fade-in/fade-out.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">drift(<span class="param">float dx, float dy</span>)</div>
+            <div class="method-desc">Average velocity in design pixels per tick. Positive <code>dy</code> drifts downward.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">spread(<span class="param">float radius</span>)</div>
+            <div class="method-desc">Random velocity spread (pixels/tick radius) added to the base drift direction.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">fadeIn(<span class="param">float ratio</span>)</div>
+            <div class="method-desc">Fraction of the particle lifetime (0.0&ndash;1.0) during which it fades in from transparent.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">fadeOut(<span class="param">float ratio</span>)</div>
+            <div class="method-desc">Fraction of the particle lifetime during which it fades out to transparent. E.g. 0.3 = starts fading at 70% of its life.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">spawnOnEdges(<span class="param">boolean enable</span>)</div>
+            <div class="method-desc">If <code>true</code>, particles spawn along the component's edges instead of at the center.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java &mdash; sparkle effect</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">ParticleSystem sparkles = new ParticleSystem()
+    .originalPos(860, 480)
+    .originalSize(200, 120)
+    .maxParticles(80)
+    .spawnRate(1.5f)
+    .particleLife(600, 1400)
+    .particleSize(3, 1)
+    .particleColor(0xFFFFD700)
+    .drift(0.0f, -0.8f)   // float upward
+    .spread(1.2f)
+    .fadeIn(0.15f)
+    .fadeOut(0.35f)
+    .spawnOnEdges(false);
+root.add(sparkles);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         VISUAL EFFECTS — SMOKE FOG
+    ====================================================== -->
+    <section class="doc-section" id="smoke-fog">
+      <h2>SmokeFog</h2>
+      <p>
+        A procedural Perlin-noise fog/smoke overlay rendered in real time. The noise field scrolls
+        continuously and can be given a wind direction. Useful for atmospheric backgrounds,
+        mist over a landscape, or dark smoke layers.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p><code>fr.eri.eriapi.gui.components.SmokeFog</code></p>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">SmokeFog()</div>
+            <div class="method-desc">Creates a smoke/fog effect with default parameters. Set position and size with <code>originalPos(x, y)</code> and <code>originalSize(w, h)</code>.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <h3>API</h3>
+      <ul class="method-list">
+        <li class="method-item">
+          <div>
+            <div class="method-sig">color(<span class="param">int rgb</span>)</div>
+            <div class="method-desc">Base RGB color of the fog (no alpha &mdash; opacity is controlled by <code>intensity</code>). Example: <code>0x888888</code> for grey smoke.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">intensity(<span class="param">float value</span>)</div>
+            <div class="method-desc">Maximum opacity of the fog (0.0 to 1.0). Higher values produce denser, more opaque fog.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">scale(<span class="param">float value</span>)</div>
+            <div class="method-desc">Spatial scale of the noise pattern. Larger values produce bigger, smoother wisps; smaller values produce fine-grained turbulence.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">speed(<span class="param">float value</span>)</div>
+            <div class="method-desc">How fast the noise pattern scrolls over time. Default is 1.0.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">wind(<span class="param">float wx, float wy</span>)</div>
+            <div class="method-desc">Wind direction vector. The fog scrolls in this direction at the configured speed. E.g. <code>wind(1.0f, 0.2f)</code> drifts mostly to the right with a slight downward angle.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">octaves(<span class="param">int count</span>)</div>
+            <div class="method-desc">Number of noise octaves (1&ndash;8). More octaves add fine detail at higher rendering cost. Default is 4.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">persistence(<span class="param">float value</span>)</div>
+            <div class="method-desc">Contribution of each successive octave (0.0&ndash;1.0). Higher values produce more turbulent, cloud-like patterns.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+        <li class="method-item">
+          <div>
+            <div class="method-sig">cellSize(<span class="param">int pixels</span>)</div>
+            <div class="method-desc">Resolution of the noise sampling grid in design pixels. Larger cells are cheaper to render but produce blockier fog.</div>
+          </div>
+          <span class="method-badge mb-fluent">Fluent</span>
+        </li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java &mdash; atmospheric fog overlay</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">SmokeFog fog = new SmokeFog()
+    .originalPos(0, 600)
+    .originalSize(1920, 480)
+    .color(0x1A1A2E)
+    .intensity(0.55f)
+    .scale(2.5f)
+    .speed(0.4f)
+    .wind(0.8f, 0.15f)
+    .octaves(4)
+    .persistence(0.5f)
+    .cellSize(8);
+root.add(fog);</code></pre>
+      </div>
+    </section>
+
     <!-- ======================================================
          TOOLTIPS & NOTIFICATIONS — NOTIFICATION MANAGER
     ====================================================== -->
@@ -4060,360 +4539,31 @@ NotificationManager.notify(Notification.Type.INFO, "Custom message", 100);</code
       </div>
     </section>
     <div class="section-divider"></div>
-
     <!-- ======================================================
-         NETWORK OVERVIEW
+         NETWORK GUI
     ====================================================== -->
     <section class="doc-section" id="network-overview">
-      <h2>Network Overview</h2>
+      <h2>Network GUI</h2>
       <p>
-        This section is a bit more advanced. If you're just starting out and only want to make
-        client-side GUIs (screens that don't communicate with the server), you can skip this section
-        for now.
+        Client &harr; server communication for EriAPI GUIs &mdash; sending actions, receiving data,
+        and opening screens from the server &mdash; is covered in the dedicated
+        <strong><a href="network.html">Network GUI</a></strong> documentation page.
       </p>
-
       <div class="info-box info">
-        <div class="ib-icon">ℹ</div>
+        <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">What is "client" vs "server" in Minecraft?</div>
+          <div class="ib-title">Dedicated page</div>
           <p>
-            Minecraft runs two sides simultaneously: the <strong>client</strong> (what the player
-            sees — the game window, graphics, GUIs) and the <strong>server</strong> (what handles
-            the game world, items, players, economy). They communicate by sending small data packages
-            called <strong>packets</strong> back and forth.
-          </p>
-          <p>
-            When a player clicks a "Buy" button in your GUI, the click happens on the client. But the
-            actual item transfer must happen on the server (because the server controls the inventory).
-            So you need to send a packet from the client to tell the server "hey, this player clicked Buy".
-            That's what the network system is for.
-          </p>
-        </div>
-      </div>
-
-      <h3>When do you need the network system?</h3>
-      <ul style="color: var(--text-muted); margin: 0 0 18px 20px; line-height: 2.2;">
-        <li>When a button click should <strong style="color:var(--text)">give or take items</strong> from a player</li>
-        <li>When you need to <strong style="color:var(--text)">read server-side data</strong> (another player's stats, a database, etc.)</li>
-        <li>When you want to <strong style="color:var(--text)">open a GUI remotely</strong> (server tells a client to open a screen)</li>
-        <li>When multiple players need to <strong style="color:var(--text)">see the same data</strong> update in real time</li>
-      </ul>
-
-      <div class="info-box tip">
-        <div class="ib-icon">✔</div>
-        <div class="ib-body">
-          <div class="ib-title">Don't need the network? Great!</div>
-          <p>
-            If your GUI just shows information (like a scoreboard or a settings screen stored locally),
-            you don't need any of this. The network system only matters when actions must be validated
-            or executed on the server side.
+            See <a href="network.html"><strong>network.html</strong></a> for the full reference:
+            <code>GuiNetworkHandler</code> (all static methods),
+            <code>IGuiDataReceiver</code> (<code>onDataUpdate(String, String, String)</code>),
+            packet format tables, and a complete client/server shop example.
           </p>
         </div>
       </div>
     </section>
 
     <div class="section-divider"></div>
-
-    <!-- ======================================================
-         GUI NETWORK HANDLER
-    ====================================================== -->
-    <section class="doc-section" id="gui-network-handler">
-      <h2>GuiNetworkHandler</h2>
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">GuiNetworkHandler</div>
-            <div class="package-path">fr.eri.eriapi.gui.network</div>
-          </div>
-          <span class="badge badge-purple">Singleton</span>
-        </div>
-        <p>
-          <code>GuiNetworkHandler</code> is the central hub for all network communication between your
-          GUIs and the server. It's a singleton — you access it via <code>GuiNetworkHandler.getInstance()</code>
-          — and you initialize it once when your mod loads.
-        </p>
-
-        <h3>Setup — initialize in your mod's preInit</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Mod setup — FMLPreInitializationEvent</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// In your @Mod class:
-
-@Mod.EventHandler
-public void preInit(FMLPreInitializationEvent event) {
-    // Initialize the network handler — do this before anything else
-    GuiNetworkHandler.init("yourmod");
-    // Replace "yourmod" with your mod's ID (the same one in @Mod(modid = "..."))
-}</code></pre>
-        </div>
-
-        <h3>Register action handlers (server-side)</h3>
-        <p>
-          An "action handler" is a function that runs on the server when a client sends an action
-          (e.g. the player clicked a button). Register these in your preInit or init:
-        </p>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Register an action handler</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">GuiNetworkHandler handler = GuiNetworkHandler.getInstance();
-
-// Register an action called "buy_item"
-// This function runs ON THE SERVER when a client sends this action
-handler.registerActionHandler("buy_item", (player, data) -> {
-    // "player" is the EntityPlayerMP who triggered the action
-    // "data" is an NBTTagCompound (like a dictionary) with extra info sent from the client
-    String itemName = data.getString("item");  // Read data sent from the client
-    int price = data.getInteger("price");
-
-    // ... do server-side logic here (check if player has money, give item, etc.)
-    System.out.println(player.getName() + " is buying: " + itemName + " for " + price);
-});</code></pre>
-        </div>
-
-        <h3>Register a GUI factory (server opens GUI on client)</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Register a GUI so the server can open it</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// This registers a GUI under the ID "shop_menu"
-// When the server calls openGuiFor(), it uses this factory to know which screen to create
-handler.registerGui("shop_menu", data -> {
-    // "data" is NBT data the server sent to pre-populate the GUI
-    return new ShopMenuScreen(data);  // Return your screen instance
-});</code></pre>
-        </div>
-
-        <h3>Open a GUI for a player (from the server)</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Server: open a GUI for a player</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// On the server side (e.g. when a player right-clicks an NPC):
-
-EntityPlayerMP player = ...; // The player to open the screen for
-
-NBTTagCompound data = new NBTTagCompound();
-data.setString("shop_name", "Bob's Shop");      // Send some data to the GUI
-data.setInteger("player_gold", 500);            // e.g. the player's gold balance
-
-// This sends a packet to the player's client, which opens the registered "shop_menu"
-GuiNetworkHandler.getInstance().openGuiFor(player, "shop_menu", data);</code></pre>
-        </div>
-
-        <h3>Send an action from the client (button click)</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Client: send an action to the server</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// Inside your button's onClick, send an action to the server:
-addComponent(new Button(760, 500, 300, 40)
-    .text("Buy Diamond Sword")
-    .colorScheme(Button.Style.CYAN)
-    .onClick(() -> {
-        // Build the data to send
-        NBTTagCompound data = new NBTTagCompound();
-        data.setString("item", "diamond_sword");
-        data.setInteger("price", 100);
-
-        // Send the "buy_item" action to the server
-        GuiNetworkHandler.getInstance().sendAction("buy_item", data);
-
-        // Close the GUI after clicking (optional)
-        mc.displayGuiScreen(null);
-    })
-);</code></pre>
-        </div>
-
-        <h3>Send data back to the client (server → client)</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>Server: send data to a player's GUI</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// On the server side, after processing an action, send data back:
-NBTTagCompound response = new NBTTagCompound();
-response.setBoolean("success", true);
-response.setInteger("new_balance", 400);
-
-GuiNetworkHandler.getInstance().sendDataToClient(player, response);
-// The player's active GUI will receive this in onDataReceived() — see IGuiDataReceiver</code></pre>
-        </div>
-
-        <h3>Key methods summary</h3>
-        <ul class="method-list">
-          <li class="method-item">
-            <div>
-              <div class="method-sig">GuiNetworkHandler.init(<span class="param">String modId</span>)</div>
-              <div class="method-desc">Call once in preInit. Sets up the network channel.</div>
-            </div>
-            <span class="method-badge mb-static">STATIC</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">GuiNetworkHandler.getInstance()</div>
-              <div class="method-desc">Returns the global instance of the handler.</div>
-            </div>
-            <span class="method-badge mb-static">STATIC</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">registerActionHandler(<span class="param">String actionId, BiConsumer&lt;EntityPlayerMP, NBTTagCompound&gt; handler</span>)</div>
-              <div class="method-desc">Registers a server-side function to handle a named action from the client.</div>
-            </div>
-            <span class="method-badge mb-fluent">FLUENT</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">registerGui(<span class="param">String guiId, Function&lt;NBTTagCompound, GuiScreen&gt; factory</span>)</div>
-              <div class="method-desc">Registers a GUI factory so the server can open it on a client.</div>
-            </div>
-            <span class="method-badge mb-fluent">FLUENT</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">openGuiFor(<span class="param">EntityPlayerMP player, String guiId, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Server-side: sends a packet that opens the named GUI on the player's client, with the given data.</div>
-            </div>
-            <span class="method-badge mb-fluent">FLUENT</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">sendAction(<span class="param">String actionId, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Client-side: sends a named action + data to the server.</div>
-            </div>
-            <span class="method-badge mb-fluent">FLUENT</span>
-          </li>
-          <li class="method-item">
-            <div>
-              <div class="method-sig">sendDataToClient(<span class="param">EntityPlayerMP player, NBTTagCompound data</span>)</div>
-              <div class="method-desc">Server-side: pushes data to the player's currently open GUI.</div>
-            </div>
-            <span class="method-badge mb-fluent">FLUENT</span>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ======================================================
-         PACKETS
-    ====================================================== -->
-    <section class="doc-section" id="packets">
-      <h2>Packets</h2>
-      <p>
-        Under the hood, GuiNetworkHandler uses three packet types. You rarely need to interact with
-        these directly (GuiNetworkHandler's helper methods handle everything), but it's useful to
-        know they exist.
-      </p>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">PacketGuiAction</div>
-            <div class="package-path">fr.eri.eriapi.gui.network</div>
-          </div>
-          <span class="badge badge-gray">C → S</span>
-        </div>
-        <p>Sent from the client to the server when the player performs an action (button click, form submit, etc.). Contains an action ID string and an NBT data payload.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">PacketGuiData</div>
-            <div class="package-path">fr.eri.eriapi.gui.network</div>
-          </div>
-          <span class="badge badge-gray">S → C</span>
-        </div>
-        <p>Sent from the server to a client to update the currently open GUI with new data. The active GUI receives it via <code>IGuiDataReceiver.onDataReceived()</code>.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">PacketGuiOpen</div>
-            <div class="package-path">fr.eri.eriapi.gui.network</div>
-          </div>
-          <span class="badge badge-gray">S → C</span>
-        </div>
-        <p>Sent from the server to tell a client to open a specific registered GUI, with optional initialization data.</p>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ======================================================
-         I GUI DATA RECEIVER
-    ====================================================== -->
-    <section class="doc-section" id="i-gui-data-receiver">
-      <h2>IGuiDataReceiver</h2>
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="class-name">IGuiDataReceiver</div>
-            <div class="package-path">fr.eri.eriapi.gui.network</div>
-          </div>
-          <span class="badge badge-gray">Interface</span>
-        </div>
-        <p>
-          When the server sends data back to the client (using <code>sendDataToClient()</code>), the
-          currently open GUI receives it via <code>IGuiDataReceiver</code>. To receive this data,
-          implement this interface in your GUI screen class.
-        </p>
-
-        <h3>How to receive server data in your GUI</h3>
-        <div class="code-wrapper">
-          <div class="code-label"><span>IGuiDataReceiver — complete shop example</span><button class="copy-btn">Copy</button></div>
-          <pre><code class="language-java">// Implement IGuiDataReceiver alongside EriGuiScreen
-public class ShopScreen extends EriGuiScreen implements IGuiDataReceiver {
-
-    // A label we'll update when we receive data from the server
-    private Label balanceLabel;
-
-    @Override
-    protected void buildComponents() {
-        // A label showing the player's gold — starts empty, updated when server responds
-        balanceLabel = new Label(600, 200, 400, 30)
-            .text("Loading balance...")
-            .color(Colors.YELLOW)
-            .align(Label.Align.CENTER);
-        addComponent(balanceLabel);
-
-        // A buy button that sends an action to the server
-        addComponent(new Button(700, 350, 300, 44)
-            .text("Buy Diamond Sword (100 gold)")
-            .colorScheme(Button.Style.CYAN)
-            .onClick(() -> {
-                NBTTagCompound data = new NBTTagCompound();
-                data.setString("item", "diamond_sword");
-                data.setInteger("price", 100);
-                GuiNetworkHandler.getInstance().sendAction("buy_item", data);
-            })
-        );
-    }
-
-    // This method is called automatically when the server sends data to this GUI
-    @Override
-    public void onDataReceived(NBTTagCompound data) {
-        // Update the balance label with the server's response
-        int newBalance = data.getInteger("new_balance");
-        boolean success = data.getBoolean("success");
-
-        if (success) {
-            balanceLabel.text("Your balance: " + newBalance + " gold");
-        } else {
-            balanceLabel.text("Purchase failed — not enough gold!").color(Colors.RED);
-        }
-    }
-
-}</code></pre>
-        </div>
-
-        <h3>Method to implement</h3>
-        <ul class="method-list">
-          <li class="method-item">
-            <div>
-              <div class="method-sig">onDataReceived(<span class="param">NBTTagCompound data</span>)</div>
-              <div class="method-desc">Called on the client side when the server sends data via <code>sendDataToClient()</code>. Read the data and update your GUI accordingly.</div>
-            </div>
-            <span class="method-badge mb-abstract">ABSTRACT</span>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
-
     <!-- ======================================================
          COLORS
     ====================================================== -->
