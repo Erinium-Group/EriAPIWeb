@@ -35,7 +35,7 @@
     "description": "All-in-one modding framework for Minecraft Forge 1.12.2",
     "url": "https://eriapi.netlify.app",
     "downloadUrl": "https://www.curseforge.com/minecraft/mc-mods/eriapi",
-    "softwareVersion": "1.1.0",
+    "softwareVersion": "1.2.0",
     "author": {
       "@type": "Organization",
       "name": "EriniumGroup"
@@ -54,7 +54,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+  <span class="version-badge">v1.2.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/index.html">FR</a>
@@ -113,7 +113,7 @@
       <div class="hero">
         <h1>EriAPI</h1>
         <p class="subtitle">
-          The framework for building beautiful graphical interfaces in your Minecraft mods — even if you've never coded in Java.
+          The all-in-one modding framework for Minecraft Forge 1.12.2 — GUIs, overlays, commands, data, security and more.
         </p>
         <div class="badge-row">
           <span class="badge badge-cyan">Minecraft 1.12.2</span>
@@ -147,7 +147,13 @@
         <li><strong style="color:var(--text);">Forms</strong> (login, character creation, registration)</li>
         <li><strong style="color:var(--text);">Scrollable lists</strong> (leaderboards, history, option selection)</li>
         <li><strong style="color:var(--text);">Charts</strong> (LineChart, BarChart, PieChart)</li>
-        <li>And any other interface you can imagine!</li>
+        <li><strong style="color:var(--text);">Draggable HUD overlays</strong> with auto-snap and a visual editor</li>
+        <li><strong style="color:var(--text);">Commands</strong> with auto-completion and sub-commands</li>
+        <li><strong style="color:var(--text);">Persistent player data storage</strong> (survives restarts, auto sync)</li>
+        <li><strong style="color:var(--text);">Client-server network communication</strong> for GUIs</li>
+        <li><strong style="color:var(--text);">Anti-duplication protection</strong> for containers</li>
+        <li><strong style="color:var(--text);">Configuration</strong> with an auto-generated GUI</li>
+        <li>And any other feature you can imagine!</li>
       </ul>
 
       <div class="info-box info">
@@ -156,6 +162,7 @@
           <div class="ib-title">This documentation is beginner-friendly</div>
           <p>We assume you don't know Java and have never made a Minecraft mod. Every concept is explained
           from scratch. If something isn't clear, it's a bug in the docs — not in your head.</p>
+          <p style="margin-top:8px;">Experienced modders can jump directly to any specific module page using the sidebar.</p>
         </div>
       </div>
 
@@ -277,7 +284,7 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2864'
-    implementation(name: 'EriAPI-1.0-SNAPSHOT-1.12.2', ext: 'jar')
+    implementation(name: 'eriapi-1.2.0-1.12.2', ext: 'jar')
 }</code></pre>
       </div>
 
@@ -286,7 +293,7 @@ dependencies {
         <div class="ib-body">
           <div class="ib-title">How to add the EriAPI.jar file</div>
           <p>Create a <code>libs</code> folder in the root of your project (where <code>build.gradle</code> is).
-          Copy <code>EriAPI-1.0-SNAPSHOT-1.12.2.jar</code> into it. Gradle will find it automatically.</p>
+          Copy <code>eriapi-1.2.0-1.12.2.jar</code> into it. Gradle will find it automatically.</p>
         </div>
       </div>
 
@@ -439,7 +446,7 @@ public void init(FMLInitializationEvent event) {
           <div class="mc-icon" style="background: rgba(0,221,255,0.12); color: var(--accent-cyan);">&#9632;</div>
           <div class="mc-title">GUI Framework</div>
           <p class="mc-desc">
-            30+ components for building graphical interfaces: buttons, labels, sliders, scrollable lists,
+            48+ components for building graphical interfaces: buttons, labels, sliders, scrollable lists,
             charts, color picker, tabs, text fields, and more.
           </p>
           <span class="mc-badge mc-available">Available</span>
@@ -534,6 +541,33 @@ public void init(FMLInitializationEvent event) {
           </p>
           <span class="mc-badge mc-available">Available</span>
         </a>
+
+        <a href="network.html" class="module-card">
+          <div class="mc-icon" style="background: rgba(0,221,255,0.12); color: var(--accent-cyan);">&#8644;</div>
+          <div class="mc-title">Network GUI</div>
+          <p class="mc-desc">
+            Client-server communication for GUIs. Send actions, receive data, open GUIs from the server side.
+          </p>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
+
+        <a href="security.html" class="module-card">
+          <div class="mc-icon" style="background: rgba(255,180,0,0.12); color: #FFB800;">&#9953;</div>
+          <div class="mc-title">Security Framework</div>
+          <p class="mc-desc">
+            Anti-duplication protection for containers. Transaction locks, server-side validation, inventory exploit prevention.
+          </p>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
+
+        <a href="patchnote.html" class="module-card">
+          <div class="mc-icon" style="background: rgba(120,120,160,0.12); color: var(--text-muted);">&#9776;</div>
+          <div class="mc-title">Patchnote</div>
+          <p class="mc-desc">
+            Version history and changelog. All new features, bug fixes and improvements documented per release.
+          </p>
+          <span class="mc-badge mc-available">Available</span>
+        </a>
       </div>
     </section>
 
@@ -563,7 +597,7 @@ public void init(FMLInitializationEvent event) {
         <div class="feature-item">
           <div class="fi-icon" style="color: #00C864;">&#10003;</div>
           <div class="fi-text">
-            <strong>30+ components</strong>
+            <strong>48+ components</strong>
             Buttons, sliders, lists, charts, color picker, tabs, text fields...
           </div>
         </div>
