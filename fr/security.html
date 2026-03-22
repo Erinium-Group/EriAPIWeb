@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="security.html" class="active">FR</a>
+    <a href="../en/security.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link active"><span class="nav-dot"></span>Security</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#rate-limiter"><span class="nav-dot"></span>GuiRateLimiter</a></li>
+        <li><a href="#integrity"><span class="nav-dot"></span>ItemIntegrityValidator</a></li>
+        <li><a href="#lock"><span class="nav-dot"></span>ContainerLock</a></li>
+        <li><a href="#alert"><span class="nav-dot"></span>DupeAlertManager</a></li>
+        <li><a href="#exemple-complet"><span class="nav-dot"></span>Exemple complet</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Security</h1>
+        <p class="subtitle">
+          Protege les conteneurs partagés contre la duplication d'items — rate limiting, validation d'integrite,
+          verrouillage concurrent et alertes admin.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.security</span>
+          <span class="badge badge-purple">Forge 1.12.2</span>
+          <span class="badge badge-gray">Java 8</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        Le module <strong>Security</strong> fournit quatre classes utilitaires independantes pour
+        proteger les GUI serveur contre les exploits de duplication d'items. Ces classes sont
+        generiques : elles fonctionnent avec n'importe quel conteneur (<code>ItemStack[]</code>),
+        n'importe quel joueur (<code>EntityPlayerMP</code>) et s'integrent sans configuration.
+      </p>
+      <p>
+        Les quatre classes couvrent les quatre vecteurs d'attaque principaux :
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Classe</th>
+              <th>Protection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>GuiRateLimiter</code></td>
+              <td>Limite le nombre de clics par seconde pour empecher les macros et le spam</td>
+            </tr>
+            <tr>
+              <td><code>ItemIntegrityValidator</code></td>
+              <td>Verifie que le total d'items ne peut pas augmenter apres une operation</td>
+            </tr>
+            <tr>
+              <td><code>ContainerLock</code></td>
+              <td>Acces concurrent serialise par cle — empeche les race conditions entre threads</td>
+            </tr>
+            <tr>
+              <td><code>DupeAlertManager</code></td>
+              <td>Alerte les operateurs en ligne et loggue toute tentative de duplication detectee</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Package</div>
+          <p>Toutes les classes de ce module se trouvent dans le package <code>fr.eri.eriapi.security</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         GUI RATE LIMITER
+    ====================================================== -->
+    <section class="doc-section" id="rate-limiter">
+      <h2>GuiRateLimiter</h2>
+      <p>
+        Limite le nombre d'actions par seconde par joueur. Utilise une fenetre glissante d'une seconde :
+        si un joueur declenche plus de <code>maxPerSecond</code> actions dans la meme seconde,
+        <code>check()</code> retourne <code>false</code> jusqu'a ce que la fenetre se reinitialise.
+      </p>
+      <p>
+        Thread-safe : utilise un <code>ConcurrentHashMap</code> en interne.
+      </p>
+
+      <h3>Constructeur</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Parametre</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>maxPerSecond</code></td>
+              <td><code>int</code></td>
+              <td>Nombre maximum d'actions autorisees par joueur par seconde</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methodes</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Retour</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>check(UUID playerId)</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code> si l'action est permise, <code>false</code> si rate-limited</td>
+            </tr>
+            <tr>
+              <td><code>clear(UUID playerId)</code></td>
+              <td><code>void</code></td>
+              <td>Supprime le tracker du joueur — appeler a la deconnexion</td>
+            </tr>
+            <tr>
+              <td><code>clearAll()</code></td>
+              <td><code>void</code></td>
+              <td>Supprime tous les trackers — appeler au dechargement du monde</td>
+            </tr>
+            <tr>
+              <td><code>getMaxPerSecond()</code></td>
+              <td><code>int</code></td>
+              <td>Retourne le seuil configure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exemple d'utilisation</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — GuiRateLimiter</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Creer un limiteur de 20 clics par seconde (champ de la classe)
+private final GuiRateLimiter chestRateLimiter = new GuiRateLimiter(20);
+
+// A chaque action joueur :
+UUID uid = player.getGameProfile().getId();
+if (!chestRateLimiter.check(uid)) {
+    // Trop de clics — rejeter silencieusement
+    LOGGER.warn("[AntiDupe] Rate-limited {}", player.getName());
+    return;
+}
+// ... traiter l'action
+
+// A la deconnexion du joueur :
+chestRateLimiter.clear(uid);</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Plusieurs limiteurs distincts</div>
+          <p>
+            Cree un <code>GuiRateLimiter</code> different pour chaque type d'action si les seuils
+            doivent etre differents. Par exemple : 20/s pour les clics de coffre, 10/s pour les
+            collectes de contrats.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ITEM INTEGRITY VALIDATOR
+    ====================================================== -->
+    <section class="doc-section" id="integrity">
+      <h2>ItemIntegrityValidator</h2>
+      <p>
+        Valide que le nombre total d'items ne peut pas augmenter pendant une operation conteneur
+        &lt;-&gt; inventaire joueur. Si le total apres depasse le total avant, une duplication a ete
+        detectee et l'operation doit etre annulee.
+      </p>
+      <p>
+        Toutes les methodes sont statiques — aucune instance requise.
+      </p>
+
+      <h3>Methodes de snapshot</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>snapshot(ItemStack[] items)</code></td>
+              <td>Copie profonde d'un tableau d'ItemStack. Les stacks vides sont stockes comme <code>ItemStack.EMPTY</code>.</td>
+            </tr>
+            <tr>
+              <td><code>snapshotPlayerInventory(EntityPlayerMP player)</code></td>
+              <td>Copie profonde des 36 slots de l'inventaire principal du joueur.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methodes de comptage</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>countItems(ItemStack[] items)</code></td>
+              <td>Somme des <code>getCount()</code> de tous les stacks non vides du tableau.</td>
+            </tr>
+            <tr>
+              <td><code>countPlayerInventory(EntityPlayerMP player)</code></td>
+              <td>Compte les items actuels dans les 36 slots principaux du joueur (etat live).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methodes de validation</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Signature</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>validate(ItemStack[] containerBefore, ItemStack[] containerAfter,<br>
+                ItemStack cursorBefore, ItemStack cursorAfter,<br>
+                int invCountBefore, int invCountAfter)</code></td>
+              <td>Retourne <code>true</code> si le total n'a pas augmente. Surcharge numerique pour les deux comptes d'inventaire.</td>
+            </tr>
+            <tr>
+              <td><code>validate(ItemStack[] containerBefore, ItemStack[] containerAfter,<br>
+                ItemStack cursorBefore, ItemStack cursorAfter,<br>
+                ItemStack[] invSnapshotBefore, EntityPlayerMP player)</code></td>
+              <td>Surcharge pratique : passe le snapshot AVANT et le joueur live pour le compte APRES.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methode de rollback</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>rollback(ItemStack[] container, ItemStack[] containerSnapshot,<br>
+                EntityPlayerMP player, ItemStack[] inventorySnapshot)</code></td>
+              <td>
+                Restaure le conteneur et l'inventaire joueur depuis leurs snapshots.
+                Appelle aussi <code>player.inventoryContainer.detectAndSendChanges()</code>.
+                <br><em>Important :</em> si le conteneur est stocke en externe (NBT, base de donnees), le persister apres le rollback.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Workflow snapshot / validate / rollback</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — pattern complet avant/apres</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// 1. Snapshot AVANT l'operation
+ItemStack[] containerSnap = ItemIntegrityValidator.snapshot(container);
+ItemStack   cursorSnap    = cursor.isEmpty() ? ItemStack.EMPTY : cursor.copy();
+ItemStack[] invSnap       = ItemIntegrityValidator.snapshotPlayerInventory(player);
+
+// 2. Effectuer l'operation (modifier container, cursor, inventaire joueur)
+doOperation(container, cursor, player);
+
+// 3. Valider — rejeter si des items ont ete crees
+if (!ItemIntegrityValidator.validate(containerSnap, container,
+        cursorSnap, cursor, invSnap, player)) {
+    // Duplication detectee — restaurer l'etat
+    ItemIntegrityValidator.rollback(container, containerSnap, player, invSnap);
+    // Re-persister le conteneur si necessaire
+    persistContainer(containerSnap);
+    return;
+}
+
+// 4. Persister — aucune duplication
+persistContainer(container);</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Items perdus (delta negatif)</div>
+          <p>
+            <code>validate()</code> retourne <code>true</code> si le total apres est inferieur ou egal
+            au total avant — c'est-a-dire qu'une perte d'items est acceptee (ils ont peut-etre ete
+            droppes). Seul une <em>creation</em> d'items est detectee comme dupe.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CONTAINER LOCK
+    ====================================================== -->
+    <section class="doc-section" id="lock">
+      <h2>ContainerLock</h2>
+      <p>
+        Fournit un verrou <code>Object</code> distinct par cle logique (ex : ID de faction, UUID de
+        conteneur). Utiliser ces verrous dans des blocs <code>synchronized</code> empeche que deux
+        threads traitent simultanement la meme ressource partagee.
+      </p>
+      <p>
+        L'avantage par rapport a un verrou global unique est la granularite : deux factions differentes
+        peuvent etre traitees en parallele, mais deux joueurs de la meme faction ne peuvent pas modifier
+        le meme coffre en meme temps.
+      </p>
+      <p>
+        Thread-safe : utilise un <code>ConcurrentHashMap</code> en interne.
+      </p>
+
+      <h3>Methodes</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Methode</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getLock(String key)</code></td>
+              <td>Retourne le verrou pour la cle donnee, en le creant s'il n'existe pas encore.</td>
+            </tr>
+            <tr>
+              <td><code>removeLock(String key)</code></td>
+              <td>Supprime le verrou de la cle — appeler quand la ressource est detruite (ex : faction dissoute).</td>
+            </tr>
+            <tr>
+              <td><code>clearAll()</code></td>
+              <td>Supprime tous les verrous.</td>
+            </tr>
+            <tr>
+              <td><code>size()</code></td>
+              <td>Retourne le nombre de cles actuellement tracees.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exemple d'utilisation</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — ContainerLock</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Champ de la classe
+private final ContainerLock containerLock = new ContainerLock();
+
+// Proteger une operation sur le coffre d'une faction
+synchronized (containerLock.getLock(factionInfo.id)) {
+    handleChestOperation(player, fm, factionInfo);
+    sendChestFullState(player, factionInfo);
+}
+
+// Quand une faction est dissoute :
+containerLock.removeLock(factionInfo.id);</code></pre>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Pas de timeout</div>
+          <p>
+            <code>ContainerLock</code> utilise des blocs <code>synchronized</code> standard Java —
+            il n'y a pas de timeout integre. Si le code dans le bloc synchronise peut bloquer
+            indefiniment (ex : acces reseau), envisage un <code>ReentrantLock</code> avec
+            <code>tryLock()</code> a la place.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DUPE ALERT MANAGER
+    ====================================================== -->
+    <section class="doc-section" id="alert">
+      <h2>DupeAlertManager</h2>
+      <p>
+        Envoie des alertes en temps reel a tous les operateurs en ligne (niveau de permission &ge; 2)
+        quand une tentative de duplication est detectee. Loggue egalement l'evenement dans la console
+        serveur sous le logger <code>EriAPI-Security</code>.
+      </p>
+      <p>
+        Toutes les methodes sont statiques — aucune instance requise.
+      </p>
+
+      <h3>Methode alert()</h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Parametre</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>exploiter</code></td>
+              <td><code>EntityPlayerMP</code></td>
+              <td>Le joueur qui a declenche la detection de duplication</td>
+            </tr>
+            <tr>
+              <td><code>itemDelta</code></td>
+              <td><code>int</code></td>
+              <td>Nombre d'items qui auraient ete crees (entier positif)</td>
+            </tr>
+            <tr>
+              <td><code>context</code></td>
+              <td><code>String</code></td>
+              <td>Description courte du contexte affichee dans l'alerte (ex : "coffre de faction")</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Format du message admin</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Apercu — message chat pour les operateurs</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-text">[AntiDupe] NomDuJoueur a tente de dupliquer +3 items (coffre de faction)</code></pre>
+      </div>
+
+      <h3>Exemple d'utilisation</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — DupeAlertManager.alert()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Apres avoir detecte une duplication :
+int delta = totalApres - totalAvant;
+LOGGER.warn("[AntiDupe] Duplication detectee pour {} : +{} items", player.getName(), delta);
+DupeAlertManager.alert(player, delta, "coffre de faction");
+// Effectuer le rollback...</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EXEMPLE COMPLET
+    ====================================================== -->
+    <section class="doc-section" id="exemple-complet">
+      <h2>Exemple complet — proteger un conteneur GUI custom</h2>
+      <p>
+        Voici comment utiliser les quatre classes ensemble pour proteger un conteneur arbitraire
+        (ex : coffre de guilde, marche, stockage de faction).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — protection complete d'un conteneur</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public class MonGuiHandler {
+
+    // ── Instances des outils EriAPI Security ─────────────────────────────
+    // Rate limiter : max 20 clics par seconde
+    private final GuiRateLimiter rateLimiter  = new GuiRateLimiter(20);
+    // Verrous par conteneur (cle = ID de guilde par exemple)
+    private final ContainerLock  containerLock = new ContainerLock();
+
+    public void handleSlotClick(EntityPlayerMP player, String containerId,
+                                 ItemStack[] container, ItemStack cursor,
+                                 int slotIndex, int button) {
+
+        UUID uid = player.getGameProfile().getId();
+
+        // 1. Rate limit — rejeter si trop de clics
+        if (!rateLimiter.check(uid)) {
+            LOGGER.warn("[AntiDupe] Rate-limited {}", player.getName());
+            sendFullState(player, container);
+            return;
+        }
+
+        // 2. Acces concurrent serialise par conteneur
+        synchronized (containerLock.getLock(containerId)) {
+
+            // 3. Snapshot AVANT l'operation
+            ItemStack[] containerSnap = ItemIntegrityValidator.snapshot(container);
+            ItemStack   cursorSnap    = cursor.isEmpty() ? ItemStack.EMPTY : cursor.copy();
+            ItemStack[] invSnap       = ItemIntegrityValidator.snapshotPlayerInventory(player);
+
+            // 4. Effectuer l'operation metier
+            doSlotClick(container, cursor, player, slotIndex, button);
+
+            // 5. Valider l'integrite
+            if (!ItemIntegrityValidator.validate(containerSnap, container,
+                    cursorSnap, cursor, invSnap, player)) {
+                // Duplication detectee
+                int totalBefore = ItemIntegrityValidator.countItems(containerSnap)
+                        + (cursorSnap.isEmpty() ? 0 : cursorSnap.getCount())
+                        + ItemIntegrityValidator.countItems(invSnap);
+                int totalAfter  = ItemIntegrityValidator.countItems(container)
+                        + (cursor.isEmpty() ? 0 : cursor.getCount())
+                        + ItemIntegrityValidator.countPlayerInventory(player);
+                int delta = totalAfter - totalBefore;
+
+                LOGGER.warn("[AntiDupe] DUPE DETECTEE ! Joueur: {} delta: +{}",
+                    player.getName(), delta);
+
+                // 6. Alerter les admins
+                DupeAlertManager.alert(player, delta, "conteneur-" + containerId);
+
+                // 7. Rollback
+                ItemIntegrityValidator.rollback(container, containerSnap, player, invSnap);
+                persistContainer(containerId, containerSnap); // re-persister l'etat revenu
+                return;
+            }
+
+            // 8. Pas de duplication — persister
+            persistContainer(containerId, container);
+        }
+
+        // Envoyer le nouvel etat au client
+        sendFullState(player, container);
+    }
+
+    // A appeler sur PlayerLoggedOutEvent
+    public void onPlayerDisconnect(EntityPlayerMP player) {
+        rateLimiter.clear(player.getGameProfile().getId());
+    }
+
+    // A appeler quand le conteneur est supprime definitvement
+    public void onContainerDeleted(String containerId) {
+        containerLock.removeLock(containerId);
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ordre des operations</div>
+          <p>
+            L'ordre est important : <strong>rate limit</strong> en premier (rejet rapide sans lock),
+            puis <strong>lock concurrent</strong>, puis <strong>snapshot</strong>, puis
+            <strong>operation</strong>, puis <strong>validation</strong>. Ne jamais snapshotter
+            apres l'operation — le snapshot doit capturer l'etat d'avant.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Persister APRES rollback</div>
+          <p>
+            <code>ItemIntegrityValidator.rollback()</code> restaure les tableaux en memoire et
+            synchronise l'inventaire joueur, mais <strong>ne persiste pas</strong> le conteneur
+            en base de donnees ou en NBT. Si le conteneur est stocke de facon externe, le
+            re-persister manuellement apres le rollback (avec le snapshot original).
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
