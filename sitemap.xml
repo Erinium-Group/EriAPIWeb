@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Root -->
+  <url><loc>https://eriapi.netlify.app/</loc><priority>1.0</priority><changefreq>monthly</changefreq></url>
+
+  <!-- EN pages -->
+  <url><loc>https://eriapi.netlify.app/en/index.html</loc><priority>1.0</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/gui.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/overlay.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/content.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/data.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/scheduler.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/chat.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/capability.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/events.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/keys.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/commands.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/config.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/network.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/security.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/en/patchnote.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+
+  <!-- FR pages -->
+  <url><loc>https://eriapi.netlify.app/fr/index.html</loc><priority>1.0</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/gui.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/overlay.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/content.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/data.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/scheduler.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/chat.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/capability.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/events.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/keys.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/commands.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/config.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/network.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/security.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://eriapi.netlify.app/fr/patchnote.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+</urlset>
