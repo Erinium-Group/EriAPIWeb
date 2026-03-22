@@ -118,6 +118,16 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Editor: Auto-Snap</div>
+      <ul>
+        <li><a href="#auto-snap"><span class="nav-dot"></span>Overview</a></li>
+        <li><a href="#auto-snap-types"><span class="nav-dot"></span>Snap types</a></li>
+        <li><a href="#auto-snap-visuals"><span class="nav-dot"></span>Visual feedback</a></li>
+        <li><a href="#auto-snap-shift"><span class="nav-dot"></span>Bypass with Shift</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">Modular System</div>
       <ul>
         <li><a href="#overlay-mod"><span class="nav-dot"></span>OverlayMod</a></li>
@@ -2284,6 +2294,169 @@ public class DebugOverlayMod extends OverlayMod {
             which requires a complete component rebuild.
             If only visibility changed, a simple <code>label.visible(false)</code>
             would suffice without <code>rebuild()</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         AUTO-SNAP
+    ====================================================== -->
+    <section class="doc-section" id="auto-snap">
+      <h2>Overlay editor: auto-snap alignment system <span class="badge badge-cyan">v1.2.0</span></h2>
+      <p>
+        When you open the in-game editor (<strong>GuiOverlayHub</strong>) and drag an overlay,
+        the auto-snap system activates. The overlay being moved automatically snaps to the edges
+        and centers of other overlays and to fixed screen reference points, enabling precise
+        alignment without entering coordinates manually.
+      </p>
+      <p>
+        All coordinates are expressed in <strong>1920x1080 design pixels</strong>,
+        consistent with the rest of the EriAPI positioning system.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-types">Snap types</h2>
+      <p>
+        The system detects 10 distinct snap types. A snap triggers when the distance
+        between two reference points is less than or equal to <strong>5 design pixels</strong>.
+      </p>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Source reference</th>
+            <th>Target reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>LEFT_TO_LEFT</code></td>
+            <td>Left edge aligned to the left edge of another overlay</td>
+            <td>x of the dragged overlay</td>
+            <td>x of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>LEFT_TO_RIGHT</code></td>
+            <td>Left edge aligned to the right edge of another overlay</td>
+            <td>x of the dragged overlay</td>
+            <td>x + width of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>RIGHT_TO_RIGHT</code></td>
+            <td>Right edge aligned to the right edge of another overlay</td>
+            <td>x + width of the dragged overlay</td>
+            <td>x + width of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>RIGHT_TO_LEFT</code></td>
+            <td>Right edge aligned to the left edge of another overlay</td>
+            <td>x + width of the dragged overlay</td>
+            <td>x of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>TOP_TO_TOP</code></td>
+            <td>Top edge aligned to the top edge of another overlay</td>
+            <td>y of the dragged overlay</td>
+            <td>y of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>TOP_TO_BOTTOM</code></td>
+            <td>Top edge aligned to the bottom edge of another overlay</td>
+            <td>y of the dragged overlay</td>
+            <td>y + height of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_TO_BOTTOM</code></td>
+            <td>Bottom edge aligned to the bottom edge of another overlay</td>
+            <td>y + height of the dragged overlay</td>
+            <td>y + height of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_TO_TOP</code></td>
+            <td>Bottom edge aligned to the top edge of another overlay</td>
+            <td>y + height of the dragged overlay</td>
+            <td>y of a neighbor overlay</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_H</code></td>
+            <td>Horizontal center aligned to the horizontal center of another overlay or the screen center (960)</td>
+            <td>x + width/2 of the dragged overlay</td>
+            <td>horizontal center of the target</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_V</code></td>
+            <td>Vertical center aligned to the vertical center of another overlay or the screen center (540)</td>
+            <td>y + height/2 of the dragged overlay</td>
+            <td>vertical center of the target</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Screen edge snapping</h3>
+      <p>
+        In addition to other overlays, all four screen borders are snap targets:
+      </p>
+      <ul>
+        <li><strong>Left border</strong> — x = 0</li>
+        <li><strong>Right border</strong> — x = 1920</li>
+        <li><strong>Top border</strong> — y = 0</li>
+        <li><strong>Bottom border</strong> — y = 1080</li>
+      </ul>
+      <p>
+        The screen center (960, 540) is also a target for <code>CENTER_H</code>
+        and <code>CENTER_V</code> snaps.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-visuals">Visual feedback</h2>
+      <p>
+        Two visual indicators appear during dragging to guide positioning:
+      </p>
+
+      <h3>Guide lines (cyan)</h3>
+      <p>
+        When at least one snap is active, a semi-transparent <strong>cyan</strong> guide line
+        appears on the snap axis:
+      </p>
+      <ul>
+        <li>A <strong>vertical</strong> line for a snap on the X axis (left/right edges or horizontal center).</li>
+        <li>A <strong>horizontal</strong> line for a snap on the Y axis (top/bottom edges or vertical center).</li>
+      </ul>
+      <p>
+        These lines span the full width or height of the screen to remain visible regardless
+        of the overlay position. They disappear immediately when the overlay is released or
+        when the snap is no longer active.
+      </p>
+
+      <h3>Overlap indicator (red)</h3>
+      <p>
+        If the dragged overlay overlaps (at least partially) another overlay during the drag,
+        it takes on a <strong>semi-transparent red tint</strong>. This signals that an overlap
+        is occurring. The overlay can still be dropped at that position — this is a visual
+        warning, not a block.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-shift">Bypassing snap (Shift key)</h2>
+      <p>
+        To move an overlay freely without any snapping, hold the <kbd>Shift</kbd> key during
+        the drag. The overlay will then follow the mouse movement exactly, pixel by pixel,
+        with no snapping or position correction applied.
+      </p>
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Usage tip</div>
+          <p>
+            Use normal drag (without Shift) to align overlays with each other or with screen
+            borders. Use Shift only when you need a very specific position that does not
+            correspond to any grid reference point.
           </p>
         </div>
       </div>

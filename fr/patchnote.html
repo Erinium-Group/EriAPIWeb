@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.1.0 · 1.12.2</span>
+  <span class="version-badge">v1.2.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -76,6 +76,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.2.0"><span class="nav-dot"></span>v1.2.0</a></li>
         <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
         <li><a href="#v1.0.0"><span class="nav-dot"></span>v1.0.0</a></li>
       </ul>
@@ -94,6 +95,33 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.2.0 ===== -->
+    <section class="doc-section" id="v1.2.0">
+      <h2>v1.2.0 <span class="badge badge-cyan">22 Mars 2026</span></h2>
+
+      <h3>Editeur d'overlays : systeme d'aimantation automatique (auto-snap)</h3>
+      <p>
+        L'editeur in-game de l'Overlay HUD dispose maintenant d'un systeme d'aimantation automatique.
+        Quand vous deplacez un overlay en mode edition, il se colle automatiquement aux bords et centres
+        des autres overlays ainsi qu'aux reperes de l'ecran, pour un positionnement precis sans avoir
+        a entrer des coordonnees manuellement.
+      </p>
+      <ul>
+        <li><strong>Aimantation aux bords d'overlays</strong> — Les bords gauche, droit, haut et bas d'un overlay s'aimantent aux bords correspondants des overlays voisins lorsqu'ils se trouvent a moins de 5 pixels de design. 10 types d'accrochage sont geres : alignement bord-a-bord et centre-a-centre dans les deux axes.</li>
+        <li><strong>Aimantation aux bords de l'ecran</strong> — L'overlay s'accroche aux quatre bords de l'ecran (x = 0, x = 1920, y = 0, y = 1080) quand il s'en approche a moins de 5 pixels de design.</li>
+        <li><strong>Aimantation au centre de l'ecran</strong> — L'overlay peut s'aligner sur le centre absolu de l'ecran (960, 540), aussi bien horizontalement que verticalement.</li>
+        <li><strong>Alignement centre-a-centre</strong> — Les centres horizontaux et verticaux de deux overlays peuvent s'aligner entre eux pour une disposition symetrique.</li>
+        <li><strong>Lignes guides cyan</strong> — Quand un accrochage est actif, une ligne guide semi-transparente de couleur cyan apparait sur l'axe d'aimantation pour visualiser l'alignement.</li>
+        <li><strong>Indicateur de chevauchement rouge</strong> — Si un overlay se superpose a un autre pendant le deplacement, il prend une teinte rouge pour signaler le chevauchement.</li>
+        <li><strong>Maintien de Shift pour desactiver l'aimantation</strong> — Maintenez la touche <kbd>Shift</kbd> pendant le drag pour desactiver l'aimantation et deplacer l'overlay librement pixel par pixel.</li>
+      </ul>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version — uniquement des ajouts.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.1.0 ===== -->

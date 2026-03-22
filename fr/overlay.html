@@ -118,6 +118,16 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Editeur : Auto-Snap</div>
+      <ul>
+        <li><a href="#auto-snap"><span class="nav-dot"></span>Principe</a></li>
+        <li><a href="#auto-snap-types"><span class="nav-dot"></span>Types d'aimantation</a></li>
+        <li><a href="#auto-snap-visuals"><span class="nav-dot"></span>Retour visuel</a></li>
+        <li><a href="#auto-snap-shift"><span class="nav-dot"></span>Desactiver avec Shift</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">Systeme Modulaire</div>
       <ul>
         <li><a href="#overlay-mod"><span class="nav-dot"></span>OverlayMod</a></li>
@@ -2284,6 +2294,170 @@ public class DebugOverlayMod extends OverlayMod {
             ce qui necessite une reconstruction complete des composants.
             Si seule la visibilite changeait, un simple <code>label.visible(false)</code>
             suffirait sans <code>rebuild()</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         AUTO-SNAP
+    ====================================================== -->
+    <section class="doc-section" id="auto-snap">
+      <h2>Editeur d'overlays : aimantation automatique <span class="badge badge-cyan">v1.2.0</span></h2>
+      <p>
+        Quand vous ouvrez l'editeur in-game (<strong>GuiOverlayHub</strong>) et que vous deplacez
+        un overlay en le faisant glisser, le systeme d'aimantation automatique entre en jeu.
+        L'overlay en cours de deplacement se colle ("snaps") automatiquement aux bords et centres
+        des autres overlays ainsi qu'aux reperes fixes de l'ecran, facilitant un alignement precis
+        sans avoir a entrer des coordonnees manuellement.
+      </p>
+      <p>
+        Toutes les coordonnees sont exprimees en <strong>pixels de design 1920x1080</strong>,
+        coheremment avec le reste du systeme de positionnement EriAPI.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-types">Types d'aimantation</h2>
+      <p>
+        Le systeme detecte 10 types d'accrochage distincts. L'aimantation se declenche
+        quand la distance entre deux reperes est inferieure ou egale a <strong>5 pixels de design</strong>.
+      </p>
+
+      <table class="prop-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Repere source</th>
+            <th>Repere cible</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>LEFT_TO_LEFT</code></td>
+            <td>Bord gauche aligne sur le bord gauche d'un autre overlay</td>
+            <td>x de l'overlay deplace</td>
+            <td>x d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>LEFT_TO_RIGHT</code></td>
+            <td>Bord gauche aligne sur le bord droit d'un autre overlay</td>
+            <td>x de l'overlay deplace</td>
+            <td>x + largeur d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>RIGHT_TO_RIGHT</code></td>
+            <td>Bord droit aligne sur le bord droit d'un autre overlay</td>
+            <td>x + largeur de l'overlay deplace</td>
+            <td>x + largeur d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>RIGHT_TO_LEFT</code></td>
+            <td>Bord droit aligne sur le bord gauche d'un autre overlay</td>
+            <td>x + largeur de l'overlay deplace</td>
+            <td>x d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>TOP_TO_TOP</code></td>
+            <td>Bord haut aligne sur le bord haut d'un autre overlay</td>
+            <td>y de l'overlay deplace</td>
+            <td>y d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>TOP_TO_BOTTOM</code></td>
+            <td>Bord haut aligne sur le bord bas d'un autre overlay</td>
+            <td>y de l'overlay deplace</td>
+            <td>y + hauteur d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_TO_BOTTOM</code></td>
+            <td>Bord bas aligne sur le bord bas d'un autre overlay</td>
+            <td>y + hauteur de l'overlay deplace</td>
+            <td>y + hauteur d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>BOTTOM_TO_TOP</code></td>
+            <td>Bord bas aligne sur le bord haut d'un autre overlay</td>
+            <td>y + hauteur de l'overlay deplace</td>
+            <td>y d'un overlay voisin</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_H</code></td>
+            <td>Centre horizontal aligne sur le centre horizontal d'un autre overlay ou du centre ecran (960)</td>
+            <td>x + largeur/2 de l'overlay deplace</td>
+            <td>centre horizontal de la cible</td>
+          </tr>
+          <tr>
+            <td><code>CENTER_V</code></td>
+            <td>Centre vertical aligne sur le centre vertical d'un autre overlay ou du centre ecran (540)</td>
+            <td>y + hauteur/2 de l'overlay deplace</td>
+            <td>centre vertical de la cible</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Aimantation aux bords de l'ecran</h3>
+      <p>
+        En plus des autres overlays, les quatre bords de l'ecran sont des cibles d'aimantation :
+      </p>
+      <ul>
+        <li><strong>Bord gauche</strong> — x = 0</li>
+        <li><strong>Bord droit</strong> — x = 1920</li>
+        <li><strong>Bord haut</strong> — y = 0</li>
+        <li><strong>Bord bas</strong> — y = 1080</li>
+      </ul>
+      <p>
+        Le centre de l'ecran (960, 540) est egalement une cible pour les aimantations <code>CENTER_H</code>
+        et <code>CENTER_V</code>.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-visuals">Retour visuel</h2>
+      <p>
+        Deux indicateurs visuels s'affichent pendant le deplacement pour guider le positionnement :
+      </p>
+
+      <h3>Lignes guides (cyan)</h3>
+      <p>
+        Quand au moins un accrochage est actif, une ligne guide semi-transparente de couleur
+        <strong>cyan</strong> s'affiche sur l'axe de l'aimantation :
+      </p>
+      <ul>
+        <li>Une ligne <strong>verticale</strong> pour un accrochage sur l'axe X (bords gauche/droit ou centre horizontal).</li>
+        <li>Une ligne <strong>horizontale</strong> pour un accrochage sur l'axe Y (bords haut/bas ou centre vertical).</li>
+      </ul>
+      <p>
+        Ces lignes couvrent toute la largeur ou hauteur de l'ecran afin d'etre visibles
+        quelle que soit la position de l'overlay. Elles disparaissent immediatement
+        quand l'overlay est relache ou quand le snap n'est plus actif.
+      </p>
+
+      <h3>Indicateur de chevauchement (rouge)</h3>
+      <p>
+        Si l'overlay deplace se superpose (au moins partiellement) a un autre overlay pendant
+        le drag, il prend une teinte <strong>rouge semi-transparente</strong>. Cela signale
+        qu'un chevauchement est en cours. L'overlay peut tout de meme etre pose a cet endroit —
+        c'est un avertissement visuel, pas un blocage.
+      </p>
+
+      <div class="section-divider"></div>
+
+      <h2 id="auto-snap-shift">Desactiver l'aimantation (touche Shift)</h2>
+      <p>
+        Pour deplacer un overlay librement sans aucune aimantation, maintenez la touche
+        <kbd>Shift</kbd> pendant le drag. L'overlay suit alors exactement le deplacement
+        de la souris pixel par pixel, sans aucun accrochage ni correction de position.
+      </p>
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Conseil d'utilisation</div>
+          <p>
+            Utilisez le drag normal (sans Shift) pour aligner les overlays entre eux ou sur
+            les bords de l'ecran. Utilisez Shift uniquement quand vous avez besoin
+            d'une position tres specifique qui ne correspond a aucun repere de grille.
           </p>
         </div>
       </div>

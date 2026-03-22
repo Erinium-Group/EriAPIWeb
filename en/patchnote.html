@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.1.0 · 1.12.2</span>
+  <span class="version-badge">v1.2.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -76,6 +76,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.2.0"><span class="nav-dot"></span>v1.2.0</a></li>
         <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
         <li><a href="#v1.0.0"><span class="nav-dot"></span>v1.0.0</a></li>
       </ul>
@@ -94,6 +95,33 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.2.0 ===== -->
+    <section class="doc-section" id="v1.2.0">
+      <h2>v1.2.0 <span class="badge badge-cyan">March 22, 2026</span></h2>
+
+      <h3>Overlay editor: auto-snap alignment system</h3>
+      <p>
+        The in-game overlay editor now features an auto-snap system.
+        When dragging an overlay in edit mode, it automatically snaps to the edges and centers
+        of other overlays as well as to screen reference points, enabling precise positioning
+        without manually entering coordinates.
+      </p>
+      <ul>
+        <li><strong>Overlay edge snapping</strong> — The left, right, top and bottom edges of an overlay snap to the corresponding edges of neighboring overlays when within 5 design pixels. 10 snap types are supported: edge-to-edge and center-to-center alignment on both axes.</li>
+        <li><strong>Screen edge snapping</strong> — The overlay snaps to all four screen borders (x = 0, x = 1920, y = 0, y = 1080) when approaching within 5 design pixels.</li>
+        <li><strong>Screen center snapping</strong> — The overlay can align to the absolute center of the screen (960, 540), both horizontally and vertically.</li>
+        <li><strong>Center-to-center alignment</strong> — The horizontal and vertical centers of two overlays can align with each other for symmetric layouts.</li>
+        <li><strong>Cyan guide lines</strong> — When a snap is active, a semi-transparent cyan guide line appears on the snap axis to visualize the alignment.</li>
+        <li><strong>Red overlap indicator</strong> — If an overlay overlaps another during dragging, it turns red to signal the overlap.</li>
+        <li><strong>Hold Shift to bypass snap</strong> — Hold <kbd>Shift</kbd> while dragging to disable snapping and move the overlay freely pixel by pixel.</li>
+      </ul>
+
+      <h3>Bug fixes</h3>
+      <ul>
+        <li>No bug fixes in this release — additions only.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.1.0 ===== -->
