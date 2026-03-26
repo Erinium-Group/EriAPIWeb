@@ -1056,6 +1056,20 @@ addComponent(monTexte);</code></pre>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">scaleToFit(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Si <code>true</code>, au lieu de tronquer le texte avec "...", reduit automatiquement l'echelle du texte pour qu'il rentre exactement dans la largeur du composant. Mutuellement exclusif avec <code>wrapped()</code> au rendu — si les deux sont actifs, <code>wrapped</code> prend la priorite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">wrapped(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Si <code>true</code>, le texte passe a la ligne suivante aux limites de mots au lieu d'etre tronque. Si le contenu depasse la hauteur du composant, le scroll vertical a la souris est active (clippe par scissor). Mutuellement exclusif avec <code>scaleToFit()</code> — <code>wrapped</code> a la priorite si les deux sont actifs.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
         </ul>
 
         <h3>Exemple avancé</h3>
@@ -1085,9 +1099,23 @@ Label nomLong = new Label(100, 200, 200, 20)
     .color(Colors.GRAY)
     .clip(true);           // Devient "NomDeJoueurTrès..." si trop long
 
+// Texte long qui s'adapte automatiquement (scaleToFit)
+Label nomAdapte = new Label(100, 240, 200, 20)
+    .text("NomDeJoueurTrèsTrèsTrèsLong")
+    .color(Colors.GRAY)
+    .scaleToFit(true);     // Réduit la taille pour rentrer dans 200px
+
+// Description multi-ligne avec retour à la ligne (wrapped)
+Label description = new Label(100, 280, 400, 100)
+    .text("Ceci est une longue description qui va automatiquement passer à la ligne quand elle dépasse la largeur du composant. Si le texte dépasse la hauteur, le joueur peut scroller avec la molette.")
+    .color(Colors.LIGHT_GRAY)
+    .wrapped(true);        // Retour à la ligne automatique
+
 addComponent(titre);
 addComponent(sousTitre);
 addComponent(nomLong);
+addComponent(nomAdapte);
+addComponent(description);
 
 // Mettre à jour le texte dynamiquement (en dehors de initGui)
 titre.text("Nouveau titre !");</code></pre>
@@ -5458,7 +5486,7 @@ AnimationManager.getInstance().play(breatheAnim);</code></pre>
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">T</span> tooltip(<span class="param">String text</span>)</div>
-              <div class="method-desc">Définit le texte du tooltip. Supporte les retours à la ligne avec <code>\n</code>. Passer <code>null</code> pour désactiver le tooltip.</div>
+              <div class="method-desc">Définit le texte du tooltip. Supporte les retours à la ligne avec <code>\n</code> en Java et <code>\\n</code> littéral depuis les fichiers <code>.lang</code> (les deux sont normalisés automatiquement au rendu). Passer <code>null</code> pour désactiver le tooltip.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
@@ -5489,6 +5517,16 @@ AnimationManager.getInstance().play(breatheAnim);</code></pre>
       </div>
 
       <div class="code-block">
+        <div class="code-label"><span>Java — Tooltip depuis un fichier .lang</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">// Dans fr_FR.lang : tooltip.item.info=Ligne 1\nLigne 2\nLigne 3
+// Le \\n litteral du fichier .lang est automatiquement converti en vrai retour a la ligne
+new Button("Info")
+    .originalPos(100, 50)
+    .originalSize(120, 30)
+    .tooltip(I18n.format("tooltip.item.info")); // Affiche 3 lignes</code></pre>
+      </div>
+
+      <div class="code-block">
         <div class="code-label"><span>Java — Délai personnalisé (2 secondes)</span><button class="copy-btn">Copier</button></div>
         <pre><code class="language-java">// Delai personnalise (40 ticks = 2s)
 new Label("Info")
@@ -5503,7 +5541,7 @@ new Label("Info")
         <thead><tr><th>Propriété</th><th>Valeur</th></tr></thead>
         <tbody>
           <tr><td>Délai par défaut</td><td>15 ticks (0.75 s)</td></tr>
-          <tr><td>Multi-ligne</td><td>Séparateur <code>\n</code></td></tr>
+          <tr><td>Multi-ligne</td><td>Séparateur <code>\n</code> en Java ou <code>\\n</code> littéral depuis les fichiers <code>.lang</code> — les deux fonctionnent</td></tr>
           <tr><td>Auto-positionnement</td><td>Reste dans les bords de l'écran</td></tr>
           <tr><td>Rendu</td><td>Automatique via <code>EriGuiScreen</code></td></tr>
           <tr><td>Composants supportés</td><td>Tous (héritent de <code>Component</code>)</td></tr>
@@ -6345,6 +6383,48 @@ root.add(dd);</code></pre>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
         </ul>
+
+        <h3>Rendu differe (deferred rendering)</h3>
+        <div class="info-box info">
+          <div class="ib-icon">ℹ</div>
+          <div class="ib-body">
+            <div class="ib-title">La liste deroulante s'affiche toujours au-dessus</div>
+            <p>
+              Le <code>Dropdown</code> utilise un rendu differe : sa liste est dessinee APRES tous les autres
+              composants, garantissant qu'elle apparait toujours par-dessus. Le clic sur la liste fonctionne
+              meme quand le Dropdown est a l'interieur d'un <code>ScrollPanel</code>.
+            </p>
+            <p>
+              Si vous utilisez <code>EriGuiScreen</code>, tout est automatique. En revanche, si vous
+              surchargez <code>drawScreen()</code> ou <code>mouseClicked()</code> <strong>sans appeler super</strong>,
+              vous devez ajouter manuellement ces appels :
+            </p>
+          </div>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Dropdown.renderDeferredDropdown()</div>
+              <div class="method-desc">Dessine la liste deroulante ouverte. Appele automatiquement par <code>EriGuiScreen.drawScreen()</code> apres le rendu du root. A appeler manuellement uniquement si vous surchargez <code>drawScreen()</code> sans <code>super</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static boolean</span> Dropdown.handleDeferredClick(<span class="param">int mouseX, int mouseY, int mouseButton</span>)</div>
+              <div class="method-desc">Gere le clic sur la liste deroulante ouverte. Appele automatiquement par <code>EriGuiScreen.mouseClicked()</code> avant le clic du root. Retourne <code>true</code> si le clic a ete consomme. A appeler manuellement uniquement si vous surchargez <code>mouseClicked()</code> sans <code>super</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Dropdown.resetState()</div>
+              <div class="method-desc">Reinitialise l'etat interne du Dropdown (ferme la liste). Appele automatiquement par <code>EriGuiScreen.onGuiClosed()</code>. A appeler manuellement si vous gerez la fermeture du GUI vous-meme.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -6665,7 +6745,14 @@ renderer.setStack(player.getHeldItemMainhand());</code></pre>
           <li class="method-item">
             <div>
               <div class="method-sig">showCount(<span class="param">boolean enabled</span>)</div>
-              <div class="method-desc">Affiche le nombre d'items en superposition (coin bas-droit). Defaut : <code>true</code>.</div>
+              <div class="method-desc">Affiche le texte du nombre d'items en superposition (coin bas-droit). Defaut : <code>true</code>. Independant de <code>showDurability()</code> — vous pouvez cacher le compteur tout en gardant la barre de durabilite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showDurability(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Affiche la barre de durabilite sous l'icone (pour les items avec durabilite). Defaut : <code>true</code>. Independant de <code>showCount()</code> — par exemple, <code>showCount(false).showDurability(true)</code> affiche la barre de durabilite sans le texte du compteur.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>

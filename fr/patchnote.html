@@ -76,6 +76,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.2.1"><span class="nav-dot"></span>v1.2.1</a></li>
         <li><a href="#v1.2.0"><span class="nav-dot"></span>v1.2.0</a></li>
         <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
         <li><a href="#v1.0.0"><span class="nav-dot"></span>v1.0.0</a></li>
@@ -95,6 +96,40 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.2.1 ===== -->
+    <section class="doc-section" id="v1.2.1">
+      <h2>v1.2.1 <span class="badge badge-cyan">26 Mars 2026</span></h2>
+
+      <h3>Label : nouveaux modes scaleToFit() et wrapped()</h3>
+      <ul>
+        <li><strong>scaleToFit(boolean)</strong> — Au lieu de tronquer le texte avec "...", reduit automatiquement l'echelle du texte pour qu'il rentre dans la largeur du composant. Mutuellement exclusif avec <code>wrapped()</code> (wrapped prend la priorite).</li>
+        <li><strong>wrapped(boolean)</strong> — Le texte passe a la ligne aux limites de mots. Si le contenu depasse la hauteur du composant, le scroll vertical a la souris est active (clippe par scissor). Mutuellement exclusif avec <code>scaleToFit()</code> (wrapped gagne).</li>
+      </ul>
+
+      <h3>Tooltip : support du \n litteral depuis les fichiers .lang</h3>
+      <p>
+        <code>Tooltip.render()</code> normalise desormais les <code>\\n</code> litteraux (provenant des fichiers <code>.lang</code>) en vrais retours a la ligne avant le decoupage. Les <code>\n</code> dans les chaines Java et les <code>\\n</code> des fichiers <code>.lang</code> fonctionnent tous les deux.
+      </p>
+
+      <h3>Dropdown : rendu differe (toujours au-dessus)</h3>
+      <ul>
+        <li>La liste deroulante est desormais rendue APRES tous les autres composants (rendu differe), garantissant qu'elle apparait toujours par-dessus.</li>
+        <li>Le clic sur la liste fonctionne meme quand le Dropdown est a l'interieur d'un <code>ScrollPanel</code>.</li>
+        <li>Nouvelles methodes statiques : <code>Dropdown.renderDeferredDropdown()</code>, <code>Dropdown.handleDeferredClick()</code>, <code>Dropdown.resetState()</code>.</li>
+        <li><code>EriGuiScreen</code> appelle automatiquement ces methodes — aucune action necessaire pour les ecrans standard.</li>
+      </ul>
+
+      <h3>ItemStackRenderer : showDurability() separe de showCount()</h3>
+      <p>
+        Nouvelle methode <code>showDurability(boolean)</code> independante de <code>showCount(boolean)</code>. Permet d'afficher la barre de durabilite sans le texte du compteur, ou inversement. Les deux sont actifs par defaut.
+      </p>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version — uniquement des ajouts et ameliorations.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.2.0 ===== -->

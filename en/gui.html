@@ -998,6 +998,20 @@ addComponent(new Label(400, 200, 600, 30)
             </div>
             <span class="method-badge mb-fluent">FLUENT</span>
           </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">scaleToFit(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">If <code>true</code>, instead of truncating text with "...", automatically reduces the text scale so it fits exactly within the component width. Mutually exclusive with <code>wrapped()</code> at render time — if both are active, <code>wrapped</code> takes priority.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">wrapped(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">If <code>true</code>, text wraps to multiple lines at word boundaries instead of being truncated. If the wrapped content exceeds the component height, vertical mouse scroll is enabled (scissor clipped). Mutually exclusive with <code>scaleToFit()</code> — <code>wrapped</code> wins if both are active.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
         </ul>
 
         <h3>Advanced example</h3>
@@ -1026,6 +1040,20 @@ addComponent(new Label(400, 300, 500, 24)
     .color(Colors.LIGHT_GRAY)
     .clip(true)                      // Cut off with "..."
     .scrollOnHover(true)             // Scroll when hovered to show full text
+);
+
+// Auto-shrink text to fit within the width (scaleToFit)
+addComponent(new Label(400, 340, 200, 24)
+    .text("VeryLongPlayerNameThatDoesNotFit")
+    .color(Colors.GRAY)
+    .scaleToFit(true)                // Reduces font scale to fit in 200px
+);
+
+// Multi-line wrapped text with scroll if it overflows
+addComponent(new Label(400, 380, 500, 80)
+    .text("This is a long description that will automatically wrap at word boundaries when it exceeds the component width. If the wrapped text exceeds the component height, the player can scroll with the mouse wheel.")
+    .color(Colors.LIGHT_GRAY)
+    .wrapped(true)                   // Word-wrap instead of truncating
 );</code></pre>
         </div>
       </div>
@@ -3877,7 +3905,7 @@ button.shake(10);     // horizontal oscillation</code></pre>
         <thead><tr><th>Feature</th><th>Details</th></tr></thead>
         <tbody>
           <tr><td>Single-line tooltip</td><td><code>.tooltip("text")</code></td></tr>
-          <tr><td>Multi-line tooltip</td><td>Use <code>\n</code> to split into multiple lines</td></tr>
+          <tr><td>Multi-line tooltip</td><td>Use <code>\n</code> in Java strings or literal <code>\\n</code> from <code>.lang</code> files — both work automatically</td></tr>
           <tr><td>Configurable delay</td><td><code>.tooltipDelay(ticks)</code> — default 15 ticks (0.75 s)</td></tr>
           <tr><td>Auto-positioning</td><td>Repositions automatically to avoid screen edges</td></tr>
           <tr><td>Automatic rendering</td><td>Rendered by <code>EriGuiScreen</code> — zero boilerplate</td></tr>
@@ -3891,6 +3919,16 @@ button.shake(10);     // horizontal oscillation</code></pre>
     .originalSize(120, 30)
     .onClick(() -> buyItem())
     .tooltip("Buy the selected item\nPrice: 100 coins");</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-label"><span>Java — Tooltip from a .lang file</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// In en_US.lang: tooltip.item.info=Line 1\nLine 2\nLine 3
+// The literal \\n from .lang files is automatically normalized to real newlines
+new Button("Info")
+    .originalPos(100, 50)
+    .originalSize(120, 30)
+    .tooltip(I18n.format("tooltip.item.info")); // Renders as 3 lines</code></pre>
       </div>
 
       <div class="code-block">
@@ -5668,6 +5706,48 @@ root.add(dd);</code></pre>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
         </ul>
+
+        <h3>Deferred rendering</h3>
+        <div class="info-box tip">
+          <div class="ib-icon">✔</div>
+          <div class="ib-body">
+            <div class="ib-title">The drop-down list always renders on top</div>
+            <p>
+              The <code>Dropdown</code> uses deferred rendering: its list is drawn AFTER all other
+              components, ensuring it always appears on top. Click handling works even when the
+              Dropdown is inside a <code>ScrollPanel</code>.
+            </p>
+            <p>
+              If you use <code>EriGuiScreen</code>, everything is automatic. However, if you
+              override <code>drawScreen()</code> or <code>mouseClicked()</code> <strong>without calling super</strong>,
+              you must manually add these calls:
+            </p>
+          </div>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Dropdown.renderDeferredDropdown()</div>
+              <div class="method-desc">Draws the open drop-down list. Called automatically by <code>EriGuiScreen.drawScreen()</code> after root rendering. Only call manually if you override <code>drawScreen()</code> without <code>super</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static boolean</span> Dropdown.handleDeferredClick(<span class="param">int mouseX, int mouseY, int mouseButton</span>)</div>
+              <div class="method-desc">Handles clicks on the open drop-down list. Called automatically by <code>EriGuiScreen.mouseClicked()</code> before root click handling. Returns <code>true</code> if the click was consumed. Only call manually if you override <code>mouseClicked()</code> without <code>super</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static void</span> Dropdown.resetState()</div>
+              <div class="method-desc">Resets the internal Dropdown state (closes the list). Called automatically by <code>EriGuiScreen.onGuiClosed()</code>. Only call manually if you handle GUI closing yourself.</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -5988,7 +6068,14 @@ renderer.setStack(player.getHeldItemMainhand());</code></pre>
           <li class="method-item">
             <div>
               <div class="method-sig">showCount(<span class="param">boolean enabled</span>)</div>
-              <div class="method-desc">Displays the item count as an overlay (bottom-right corner). Default: <code>true</code>.</div>
+              <div class="method-desc">Displays the item count text as an overlay (bottom-right corner). Default: <code>true</code>. Independent from <code>showDurability()</code> — you can hide the count while keeping the durability bar.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">showDurability(<span class="param">boolean enabled</span>)</div>
+              <div class="method-desc">Displays the durability bar below the icon (for items with durability). Default: <code>true</code>. Independent from <code>showCount()</code> — for example, <code>showCount(false).showDurability(true)</code> renders the durability bar without the count text.</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>

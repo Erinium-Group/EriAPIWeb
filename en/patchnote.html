@@ -76,6 +76,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.2.1"><span class="nav-dot"></span>v1.2.1</a></li>
         <li><a href="#v1.2.0"><span class="nav-dot"></span>v1.2.0</a></li>
         <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
         <li><a href="#v1.0.0"><span class="nav-dot"></span>v1.0.0</a></li>
@@ -95,6 +96,40 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.2.1 ===== -->
+    <section class="doc-section" id="v1.2.1">
+      <h2>v1.2.1 <span class="badge badge-cyan">March 26, 2026</span></h2>
+
+      <h3>Label: new scaleToFit() and wrapped() modes</h3>
+      <ul>
+        <li><strong>scaleToFit(boolean)</strong> — Instead of truncating text with "...", automatically reduces the text scale so it fits exactly within the component width. Mutually exclusive with <code>wrapped()</code> (wrapped takes priority).</li>
+        <li><strong>wrapped(boolean)</strong> — Text wraps to multiple lines at word boundaries. If the wrapped content exceeds the component height, vertical mouse scroll is enabled (scissor clipped). Mutually exclusive with <code>scaleToFit()</code> (wrapped wins).</li>
+      </ul>
+
+      <h3>Tooltip: literal \n support from .lang files</h3>
+      <p>
+        <code>Tooltip.render()</code> now normalizes literal <code>\\n</code> (from <code>.lang</code> files) to real newlines before splitting. Both <code>\n</code> in Java strings and <code>\\n</code> from <code>.lang</code> files now work.
+      </p>
+
+      <h3>Dropdown: deferred rendering (always on top)</h3>
+      <ul>
+        <li>The drop-down list is now rendered AFTER all other components (deferred rendering), ensuring it always appears on top.</li>
+        <li>Click handling works even when the Dropdown is inside a <code>ScrollPanel</code>.</li>
+        <li>New static methods: <code>Dropdown.renderDeferredDropdown()</code>, <code>Dropdown.handleDeferredClick()</code>, <code>Dropdown.resetState()</code>.</li>
+        <li><code>EriGuiScreen</code> calls these methods automatically — no action needed for standard screens.</li>
+      </ul>
+
+      <h3>ItemStackRenderer: separate showDurability() from showCount()</h3>
+      <p>
+        New method <code>showDurability(boolean)</code> independent from <code>showCount(boolean)</code>. Allows rendering the durability bar without the count text, or vice versa. Both default to <code>true</code>.
+      </p>
+
+      <h3>Bug fixes</h3>
+      <ul>
+        <li>No bug fixes in this release — additions and improvements only.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.2.0 ===== -->
