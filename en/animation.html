@@ -1,0 +1,2417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Block Animation — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+
+  <meta name="description" content="EriAPI 3D Block Animation — Animate Minecraft blocks with Blockbench models and .erianim files. TESR, keyframes, easings, events, dynamic textures. Forge 1.12.2.">
+  <meta name="keywords" content="EriAPI, Minecraft block animation, Blockbench Forge 1.12.2, TESR, AnimatedBlockTileEntity, EriAnimBlock, erianim, keyframe, easing, Java 8">
+  <meta name="author" content="EriniumGroup">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://eriapi.netlify.app/en/animation.html">
+
+  <meta property="og:title" content="3D Block Animation — EriAPI">
+  <meta property="og:description" content="EriAPI 3D Block Animation — Animate Minecraft blocks with Blockbench models and .erianim files. TESR, keyframes, easings, events, dynamic textures.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://eriapi.netlify.app/en/animation.html">
+  <meta property="og:site_name" content="EriAPI Documentation">
+
+  <link rel="alternate" hreflang="en" href="https://eriapi.netlify.app/en/animation.html">
+  <link rel="alternate" hreflang="fr" href="https://eriapi.netlify.app/fr/animation.html">
+  <link rel="alternate" hreflang="x-default" href="https://eriapi.netlify.app/en/animation.html">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.2.0 &middot; 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="../fr/animation.html">FR</a>
+    <a href="animation.html" class="active">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Main navigation">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Home</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="animation.html" class="nav-page-link active"><span class="nav-dot"></span>Animation Blocks 3D</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link"><span class="nav-dot"></span>Network GUI</a></li>
+        <li><a href="patchnote.html" class="nav-page-link"><span class="nav-dot"></span>Patchnote</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-search">
+      <input type="text" id="nav-search" placeholder="Search..." autocomplete="off" />
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Overview</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#quick-start"><span class="nav-dot"></span>Quick Start</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Builders</div>
+      <ul>
+        <li><a href="#eri-anim-block"><span class="nav-dot"></span>EriAnimBlock</a></li>
+        <li><a href="#eriblock-method"><span class="nav-dot"></span>EriBlock + Custom TE</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">TileEntity</div>
+      <ul>
+        <li><a href="#tile-entity"><span class="nav-dot"></span>AnimatedBlockTileEntity</a></li>
+        <li><a href="#te-callbacks"><span class="nav-dot"></span>Callbacks</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">.erianim Format</div>
+      <ul>
+        <li><a href="#format-erianim"><span class="nav-dot"></span>File Structure</a></li>
+        <li><a href="#tracks"><span class="nav-dot"></span>Track Types</a></li>
+        <li><a href="#events-erianim"><span class="nav-dot"></span>Events in .erianim</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Behaviors</div>
+      <ul>
+        <li><a href="#end-behaviors"><span class="nav-dot"></span>EndBehaviors</a></li>
+        <li><a href="#easings"><span class="nav-dot"></span>Easings</a></li>
+        <li><a href="#anim-states"><span class="nav-dot"></span>AnimStates</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Advanced</div>
+      <ul>
+        <li><a href="#events-forge"><span class="nav-dot"></span>Forge Events</a></li>
+        <li><a href="#dynamic-textures"><span class="nav-dot"></span>Dynamic Textures</a></li>
+        <li><a href="#debug-commands"><span class="nav-dot"></span>Debug Commands</a></li>
+        <li><a href="#file-structure"><span class="nav-dot"></span>File Structure</a></li>
+        <li><a href="#performance"><span class="nav-dot"></span>Performance</a></li>
+        <li><a href="#erianim-editor"><span class="nav-dot"></span>EriAnim Editor</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ======================================================
+         INTRODUCTION
+    ====================================================== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>3D Block Animation</h1>
+        <p class="subtitle">
+          Animate Minecraft blocks with 3D Blockbench models and <code>.erianim.json</code> animation files.
+          Lootbox that opens, machine that spins, door that pivots — anything is possible.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.anim</span>
+          <span class="badge badge-gray">Forge 1.12.2</span>
+          <span class="badge badge-gray">EriAPI 1.2.0+</span>
+        </div>
+      </div>
+
+      <h2>Introduction</h2>
+      <p>
+        The <strong>3D Block Animation</strong> module allows you to create Minecraft blocks that are rendered
+        with <strong>3D Blockbench models</strong> and animated using <strong>.erianim.json files</strong>.
+      </p>
+      <p>
+        Unlike standard Minecraft blocks which are simple cubes with textures on each face,
+        an animated block uses a <strong>TileEntity</strong> (an entity stored in the world that holds data)
+        and a <strong>TESR</strong> (TileEntity Special Renderer — a rendering system that draws the 3D model instead of the cube).
+      </p>
+
+      <h3>Key concepts for beginners</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">TileEntity</strong> — A Java object attached to a block in the world. It stores data (which model to display, which animation to play, etc.) and survives server restarts.</li>
+        <li><strong style="color:var(--text);">TESR</strong> (TileEntity Special Renderer) — The code that draws the 3D model every frame. It reads data from the TileEntity and applies animation transformations.</li>
+        <li><strong style="color:var(--text);">Blockbench</strong> — A free software (<a href="https://www.blockbench.net/" target="_blank" style="color:var(--accent);">blockbench.net</a>) for creating 3D models in the Minecraft format. You design your model with cubes, texture it, then export it as JSON.</li>
+        <li><strong style="color:var(--text);">.erianim.json file</strong> — An EriAPI JSON file that describes animations: which groups of cubes move, how they move, at what speed, with which effects.</li>
+      </ul>
+
+      <h3>The creation pipeline</h3>
+      <p>Here are the steps of the process, from creation to in-game animation:</p>
+      <ol style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2.2;">
+        <li><strong style="color:var(--text);">Modeling</strong> — Create the 3D model in Blockbench. Organize cubes into <em>groups</em> (each group can be animated independently).</li>
+        <li><strong style="color:var(--text);">Export</strong> — Export the model in "Java Block/Item" format (.json).</li>
+        <li><strong style="color:var(--text);">Animation</strong> — Create the <code>.erianim.json</code> file that describes the animations (manually or with the EriAnim editor).</li>
+        <li><strong style="color:var(--text);">Integration</strong> — Register the block in Java code with <code>EriAnimBlock.create()</code>.</li>
+        <li><strong style="color:var(--text);">Runtime</strong> — The TESR reads the model and the animation, and draws the animated block on screen.</li>
+      </ol>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Everything is automatic</div>
+          <p>When you use <code>EriAnimBlock.create()</code>, EriAPI automatically registers the TileEntity,
+          the TESR, the blockstate, and the item rendering in hand. You don't need to touch any OpenGL code or create additional classes.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         QUICK START
+    ====================================================== -->
+    <section class="doc-section" id="quick-start">
+      <h2>Quick Start</h2>
+      <p>
+        Here is how to create a complete animated block in 5 steps. At the end, you will have a block that plays an animation when right-clicked.
+      </p>
+
+      <h3>Step 1 — Create the model in Blockbench</h3>
+      <p>
+        Open <a href="https://www.blockbench.net/" target="_blank" style="color:var(--accent);">Blockbench</a> and create a new project of type
+        <strong>"Java Block/Item"</strong>. Design your model by organizing cubes into <strong>named groups</strong>.
+      </p>
+      <p>
+        For example, for a lootbox: a <code>base</code> group for the pedestal, a <code>lid</code> group for the cover,
+        a <code>lock</code> group for the padlock. Each group can be animated separately.
+      </p>
+      <p>
+        Export via <strong>File > Export > Export Java Block/Item Model</strong>. The generated file is a <code>.json</code>
+        that you will place in your mod.
+      </p>
+
+      <h3>Step 2 — Create the .erianim.json file</h3>
+      <p>
+        Create a JSON file that describes the animations of your block. Here is a minimal example with an "open"
+        animation that rotates the lootbox lid:
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — my_lootbox.erianim.json</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+  "format_version": 1,
+  "model": "mymod:block/my_lootbox",
+  "animations": {
+    "open": {
+      "duration": 15,
+      "endBehavior": "freeze",
+      "tracks": {
+        "lid": {
+          "rotation": [
+            { "tick": 0,  "value": [0, 0, 0],    "easing": "linear" },
+            { "tick": 15, "value": [-110, 0, 0],  "easing": "ease_out_back" }
+          ]
+        },
+        "lock": {
+          "translation": [
+            { "tick": 0,  "value": [0, 0, 0],  "easing": "linear" },
+            { "tick": 8,  "value": [0, -3, 0],  "easing": "ease_out" }
+          ],
+          "visible": [
+            { "tick": 8, "value": false }
+          ]
+        }
+      },
+      "events": [
+        { "tick": 0,  "type": "sound", "value": "minecraft:block.chest.open", "volume": 1.0, "pitch": 1.2 },
+        { "tick": 15, "type": "callback", "value": "open_complete" }
+      ]
+    }
+  }
+}</code></pre>
+      </div>
+
+      <h3>Step 3 — Place the files in the correct folders</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>File structure</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-text">src/main/resources/assets/mymod/
+  models/block/my_lootbox.json              &larr; Blockbench model (export)
+  animations/block/my_lootbox.erianim.json  &larr; Animation file
+  textures/blocks/my_lootbox/               &larr; Model PNG textures
+    base.png
+    lid.png
+    lock.png
+  blockstates/my_lootbox.json               &larr; Blockstate (auto-generated)</code></pre>
+      </div>
+
+      <h3>Step 4 — Register the block in Java</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Register the animated block</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
+import fr.eri.eriapi.anim.EriAnimBlock;
+import net.minecraft.block.material.Material;
+
+public class MyBlocks {
+
+    public static void init() {
+        EriAnimBlock.create("mymod", "my_lootbox")
+            .material(Material.IRON)
+            .hardness(5.0f)
+            .resistance(10.0f)
+            .model("mymod:block/my_lootbox")
+            .animation("mymod:block/my_lootbox")
+            .renderDistance(64)
+            .onRightClick(ctx -> {
+                // Get the block's TileEntity
+                AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+                    ctx.world.getTileEntity(ctx.pos);
+                if (te != null) {
+                    te.playAnimation("open");
+                }
+            })
+            .register();
+    }
+}</code></pre>
+      </div>
+
+      <h3>Step 5 — Test in-game</h3>
+      <p>
+        Place the block in the world and right-click it. The lid opens with a chest sound, the padlock falls and disappears,
+        and at the end of the animation the <code>"open_complete"</code> callback is triggered.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Reminder: ContentRegistry</div>
+          <p>Don't forget to call <code>ContentRegistry.register(this)</code> in your <code>@Mod</code> class before declaring your blocks.
+          This is required for EriAPI to properly register blocks, TileEntities, and TESRs with Forge.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ANIM BLOCK BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="eri-anim-block">
+      <h2>EriAnimBlock — The Builder (recommended)</h2>
+      <p>
+        <code>EriAnimBlock</code> is the simplest way to create an animated block. It is a <strong>builder</strong>
+        (a fluent API where you chain methods) that automatically configures everything needed:
+        the TileEntity, the TESR, the blockstate, and the item rendering in hand.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriAnimBlock</div>
+            <div class="package-path">fr.eri.eriapi.anim.EriAnimBlock</div>
+          </div>
+          <span class="badge badge-cyan">Builder</span>
+        </div>
+        <p>Builder for animated blocks with 3D Blockbench models. Automatically configures TileEntity + TESR + blockstate + item renderer.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static EriAnimBlock</span> create(<span class="param">String modId</span>, <span class="param">String registryName</span>)</div>
+              <div class="method-desc">Creates a new builder. The <code>modId</code> is your mod's identifier (e.g., <code>"mymod"</code>). The <code>registryName</code> is the block's internal name (e.g., <code>"lootbox"</code>).</div>
+            </div>
+            <span class="method-badge mb-getter">Static</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> material(<span class="param">Material mat</span>)</div>
+              <div class="method-desc">Sets the block's material (e.g., <code>Material.IRON</code>, <code>Material.WOOD</code>, <code>Material.ROCK</code>). Determines step sound, whether the block is flammable, etc.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> hardness(<span class="param">float hardness</span>)</div>
+              <div class="method-desc">Sets the block's hardness (time to break). Examples: stone = 1.5, iron = 5.0, obsidian = 50.0.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> resistance(<span class="param">float resistance</span>)</div>
+              <div class="method-desc">Sets the explosion resistance. Higher values make the block more resistant to TNT and creepers.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> harvestTool(<span class="param">String tool</span>, <span class="param">int level</span>)</div>
+              <div class="method-desc">Sets the required tool and minimum harvest level to break the block. Tools: <code>"pickaxe"</code>, <code>"axe"</code>, <code>"shovel"</code>. Levels: 0 = wood, 1 = stone, 2 = iron, 3 = diamond.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> soundType(<span class="param">SoundType sound</span>)</div>
+              <div class="method-desc">Sets the block's sound type (walking on it, breaking it, placing it). Examples: <code>SoundType.METAL</code>, <code>SoundType.WOOD</code>, <code>SoundType.STONE</code>.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> lightLevel(<span class="param">float light</span>)</div>
+              <div class="method-desc">Sets the light level emitted by the block (0.0 to 1.0). A torch = 0.9375, glowstone = 1.0.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> creativeTab(<span class="param">CreativeTabs tab</span>)</div>
+              <div class="method-desc">Sets the creative menu tab where the block appears.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> drops(<span class="param">Item item</span>, <span class="param">int min</span>, <span class="param">int max</span>)</div>
+              <div class="method-desc">Sets what the block drops when broken. <code>min</code> and <code>max</code> define the random quantity range.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> silkTouchable(<span class="param">boolean silk</span>)</div>
+              <div class="method-desc">If <code>true</code>, the block can be collected with Silk Touch.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> model(<span class="param">String modelId</span>)</div>
+              <div class="method-desc">
+                <strong>Required.</strong> Sets the Blockbench model to use.
+                Format: <code>"modid:path/model"</code> (without the <code>.json</code> extension).
+                The file must be at <code>assets/modid/models/path/model.json</code>.
+                <br>Example: <code>"mymod:block/lootbox"</code> &rarr; <code>assets/mymod/models/block/lootbox.json</code>
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> animation(<span class="param">String animFileId</span>)</div>
+              <div class="method-desc">
+                <strong>Required.</strong> Sets the <code>.erianim.json</code> animation file.
+                Format: <code>"modid:path/anim"</code> (without the <code>.erianim.json</code> extension).
+                The file must be at <code>assets/modid/animations/path/anim.erianim.json</code>.
+                <br>Example: <code>"mymod:animations/lootbox"</code> &rarr; <code>assets/mymod/animations/animations/lootbox.erianim.json</code>
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> renderDistance(<span class="param">double distance</span>)</div>
+              <div class="method-desc">Sets the maximum distance (in blocks) at which the 3D model is rendered. Default: <code>64</code> blocks. Beyond that, the block is invisible.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> defaultAnimation(<span class="param">String animName</span>)</div>
+              <div class="method-desc">Sets an animation that plays automatically when the block is loaded (with LOOP EndBehavior). Ideal for idle/breathing. Leave empty for no automatic animation.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> tileEntity(<span class="param">Class&lt;?&gt; tileClass</span>)</div>
+              <div class="method-desc">
+                Replaces the automatic TileEntity with a custom class. The class <strong>must</strong> extend
+                <code>AnimatedBlockTileEntity</code> and have a <strong>no-argument constructor</strong>.
+                Use this when you need custom callbacks (see <a href="#te-callbacks">Callbacks</a> section).
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> onRightClick(<span class="param">Consumer&lt;BlockActionContext&gt; handler</span>)</div>
+              <div class="method-desc">Code executed when a player right-clicks the block. The <code>BlockActionContext</code> contains <code>world</code>, <code>pos</code>, <code>player</code>, <code>hand</code>, <code>facing</code>.</div>
+            </div>
+            <span class="method-badge mb-setter">Callback</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> onBreak(<span class="param">Consumer&lt;BlockActionContext&gt; handler</span>)</div>
+              <div class="method-desc">Code executed when the block is broken by a player.</div>
+            </div>
+            <span class="method-badge mb-setter">Callback</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> onPlace(<span class="param">Consumer&lt;BlockActionContext&gt; handler</span>)</div>
+              <div class="method-desc">Code executed when the block is placed by a player.</div>
+            </div>
+            <span class="method-badge mb-setter">Callback</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> register()</div>
+              <div class="method-desc">
+                Registers the block. Automatically configures: TileEntity, TESR, render type <code>ENTITYBLOCK_ANIMATED</code>,
+                item renderer, and <code>opaque/fullCube = false</code>. If no custom TileEntity is specified, uses <code>AnimatedBlockTileEntityGeneric</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-getter">Final</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Full example with all options</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriAnimBlock.create("mymod", "refining_machine")
+    .material(Material.IRON)
+    .hardness(5.0f)
+    .resistance(10.0f)
+    .harvestTool("pickaxe", 2)
+    .soundType(SoundType.METAL)
+    .lightLevel(0.5f)
+    .model("mymod:block/refining_machine")
+    .animation("mymod:block/refining_machine")
+    .renderDistance(48)
+    .defaultAnimation("idle_breathe")
+    .onRightClick(ctx -> {
+        AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null && !te.isAnimating()) {
+            te.playAnimation("process", EndBehavior.WAIT_SERVER);
+        }
+    })
+    .onBreak(ctx -> {
+        // Drop items when the block is broken
+        dropItems(ctx.world, ctx.pos);
+    })
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERIBLOCK + CUSTOM TE METHOD
+    ====================================================== -->
+    <section class="doc-section" id="eriblock-method">
+      <h2>Alternative method: EriBlock + Custom TileEntity</h2>
+      <p>
+        If you need <strong>complex server-side logic</strong> in your animated block (inventory management, conditional
+        interactions, animation chaining...), you can create a subclass of <code>AnimatedBlockTileEntity</code>
+        and pass it to the builder via <code>.tileEntity()</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Custom TileEntity with callbacks</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
+import fr.eri.eriapi.anim.AnimationEvent;
+
+public class TileLootbox extends AnimatedBlockTileEntity {
+
+    private boolean isOpen = false;
+
+    // No-argument constructor is REQUIRED
+    public TileLootbox() {
+        super("mymod:block/lootbox", "mymod:block/lootbox");
+        //     ^--- modelId            ^--- animFileId
+    }
+
+    @Override
+    protected void onAnimationCallback(String callbackName) {
+        if ("open_complete".equals(callbackName)) {
+            isOpen = true;
+            // Give rewards to the player, etc.
+        }
+    }
+
+    @Override
+    protected void onAnimationComplete(String animName) {
+        if ("close".equals(animName)) {
+            isOpen = false;
+        }
+    }
+
+    @Override
+    protected void onAnimationEvent(AnimationEvent event) {
+        if (event.getType() == AnimationEvent.EventType.PARTICLE) {
+            // Spawn custom particles
+            spawnParticles(event.getCount(), event.getSpread());
+        }
+    }
+
+    public boolean isOpen() { return isOpen; }
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Register with the custom TE</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriAnimBlock.create("mymod", "lootbox")
+    .material(Material.WOOD)
+    .hardness(3.0f)
+    .model("mymod:block/lootbox")
+    .animation("mymod:block/lootbox")
+    .tileEntity(TileLootbox.class)  // &larr; Our custom TE
+    .onRightClick(ctx -> {
+        TileLootbox te = (TileLootbox) ctx.world.getTileEntity(ctx.pos);
+        if (te != null && !te.isOpen()) {
+            te.playAnimation("open");
+        }
+    })
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANIMATED BLOCK TILE ENTITY
+    ====================================================== -->
+    <section class="doc-section" id="tile-entity">
+      <h2>AnimatedBlockTileEntity</h2>
+      <p>
+        This is the core of the animation system. Every animated block in the world has an <code>AnimatedBlockTileEntity</code>
+        that stores the animation state (which animation is playing, at which point, paused or not, etc.).
+      </p>
+      <p>
+        All control methods (<code>playAnimation</code>, <code>pauseAnimation</code>, etc.) must be called
+        <strong>server-side</strong>. The TileEntity automatically sends network packets to clients to synchronize the animation.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimatedBlockTileEntity</div>
+            <div class="package-path">fr.eri.eriapi.anim.AnimatedBlockTileEntity</div>
+          </div>
+          <span class="badge badge-purple">TileEntity</span>
+        </div>
+        <p>TileEntity for blocks rendered with Blockbench models and animated via <code>.erianim</code> files. Implements <code>ITickable</code> but returns immediately when the state is IDLE/FROZEN/PAUSED/WAITING_SERVER to avoid any overhead.</p>
+
+        <h4 style="margin-top:20px;color:var(--accent);">Constructors</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig">AnimatedBlockTileEntity()</div>
+              <div class="method-desc">Empty constructor. The modelId and animFileId will be configured by the builder or manually via setters.</div>
+            </div>
+            <span class="method-badge mb-getter">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">AnimatedBlockTileEntity(<span class="param">String modelId</span>)</div>
+              <div class="method-desc">Constructor with the Blockbench model identifier. E.g., <code>"mymod:block/lootbox"</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Constructor</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">AnimatedBlockTileEntity(<span class="param">String modelId</span>, <span class="param">String animFileId</span>)</div>
+              <div class="method-desc">Full constructor. <code>modelId</code> = 3D model, <code>animFileId</code> = animation file.</div>
+            </div>
+            <span class="method-badge mb-getter">Constructor</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:20px;color:var(--accent);">Animation control (server only)</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> playAnimation(<span class="param">String animName</span>)</div>
+              <div class="method-desc">
+                Plays the animation by name. Uses the default <code>EndBehavior</code> defined in the <code>.erianim.json</code> file.
+                Automatically sends a packet to all clients that can see the block.
+                <br><strong>Side:</strong> Server only. Does nothing if called client-side.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> playAnimation(<span class="param">String animName</span>, <span class="param">EndBehavior endBehaviorOverride</span>)</div>
+              <div class="method-desc">
+                Plays the animation with a different <code>EndBehavior</code> than the one in the <code>.erianim.json</code> file.
+                Pass <code>null</code> to use the file's default behavior.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> pauseAnimation()</div>
+              <div class="method-desc">
+                Pauses the animation at the current tick. The block freezes at its current position.
+                Only has an effect if the state is <code>PLAYING</code>.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resumeAnimation()</div>
+              <div class="method-desc">
+                Resumes a paused animation. The block continues where it left off.
+                Only has an effect if the state is <code>PAUSED</code>.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resetAnimation()</div>
+              <div class="method-desc">
+                Resets the animation. If the current animation has a <code>EndBehavior</code> of type <code>ROLLBACK</code> and a
+                <code>rollbackDuration &gt; 0</code>, the block replays the animation in reverse (smooth return to the initial position).
+                Otherwise, returns instantly to the starting position.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resetAnimation(<span class="param">boolean instant</span>)</div>
+              <div class="method-desc">
+                Resets the animation. If <code>instant</code> is <code>true</code>, always returns immediately to the starting position
+                (ignores rollback). If <code>false</code>, uses rollback if the <code>EndBehavior</code> is <code>ROLLBACK</code>.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> stopAnimation()</div>
+              <div class="method-desc">
+                Immediately stops the animation. No rollback, no <code>onAnimationComplete</code> callback.
+                The block transitions directly to the <code>IDLE</code> state. Use to abruptly cut an animation.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:20px;color:var(--accent);">State and progress</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> isAnimating()</div>
+              <div class="method-desc">Returns <code>true</code> if the block is currently playing an animation (<code>PLAYING</code> or <code>ROLLING_BACK</code>). Returns <code>false</code> for all other states (IDLE, FROZEN, PAUSED, WAITING_SERVER).</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimState</span> getAnimState()</div>
+              <div class="method-desc">Returns the current animation state. See the <a href="#anim-states">AnimStates</a> section for the list of possible states.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getCurrentAnimation()</div>
+              <div class="method-desc">Returns the name of the current animation, or an empty string <code>""</code> if no animation is active.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">float</span> getAnimationProgress()</div>
+              <div class="method-desc">
+                Returns the animation progress between <code>0.0</code> (start) and <code>1.0</code> (end).
+                Returns <code>0.0</code> if no animation is active. Returns <code>1.0</code> if the animation is in
+                <code>FROZEN</code> or <code>WAITING_SERVER</code> state.
+                <br><strong>Side:</strong> Client and server.
+              </div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getCurrentAnimName()</div>
+              <div class="method-desc">Returns the internal name of the current animation. Identical to <code>getCurrentAnimation()</code>.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:20px;color:var(--accent);">Dynamic textures</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setTexture(<span class="param">String target</span>, <span class="param">String value</span>)</div>
+              <div class="method-desc">
+                Replaces a model texture with another one in real-time. <code>target</code> is the original texture key
+                (defined in the Blockbench model, e.g., <code>"side_core"</code>). <code>value</code> is the replacement texture key
+                (e.g., <code>"side_core_active"</code>). The replacement texture must exist in the model's texture map.
+                The change is automatically synchronized to clients.
+                <br><strong>Side:</strong> Server only.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> clearTexture(<span class="param">String target</span>)</div>
+              <div class="method-desc">Removes a specific texture override. The model reverts to the original texture for this key.
+                <br><strong>Side:</strong> Server only.</div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> clearAllTextures()</div>
+              <div class="method-desc">Removes all texture overrides. The model reverts to all its original textures.
+                <br><strong>Side:</strong> Server only.</div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">Map&lt;String, String&gt;</span> getTextureOverrides()</div>
+              <div class="method-desc">Returns the map of current texture overrides (target &rarr; value). Read-only.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:20px;color:var(--accent);">Configuration</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setAnimFileId(<span class="param">String animFileId</span>)</div>
+              <div class="method-desc">Changes the animation file used by this TileEntity. Useful for loading different animations on the same model at runtime.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getAnimFileId()</div>
+              <div class="method-desc">Returns the current animation file identifier.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setModelId(<span class="param">String modelId</span>)</div>
+              <div class="method-desc">Changes the 3D model used by this TileEntity.</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getModelId()</div>
+              <div class="method-desc">Returns the current 3D model identifier.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setMaxRenderDistance(<span class="param">double distance</span>)</div>
+              <div class="method-desc">Changes the maximum render distance (in blocks).</div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         CALLBACKS
+    ====================================================== -->
+    <section class="doc-section" id="te-callbacks">
+      <h2>TileEntity Callbacks</h2>
+      <p>
+        If you create a subclass of <code>AnimatedBlockTileEntity</code>, you can override 3 callback methods
+        to react to animation events. These callbacks are called <strong>server-side only</strong>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Overridable callbacks</div>
+            <div class="package-path">In your AnimatedBlockTileEntity subclass</div>
+          </div>
+          <span class="badge badge-cyan">Protected</span>
+        </div>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationEvent(<span class="param">AnimationEvent event</span>)</div>
+              <div class="method-desc">
+                Called every time an event from the <code>.erianim.json</code> file is triggered (sound, particle, callback, hide/show group).
+                The <code>event</code> parameter contains the type (<code>event.getType()</code>), the value (<code>event.getValue()</code>),
+                and type-specific properties (volume, pitch, count, spread).
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationComplete(<span class="param">String animName</span>)</div>
+              <div class="method-desc">
+                Called when an animation finishes and its <code>EndBehavior</code> is resolved. For example, called after a freeze,
+                after a rollback completes, or when a <code>LOOP_COUNT</code> reaches its last iteration.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationCallback(<span class="param">String callbackName</span>)</div>
+              <div class="method-desc">
+                Called when a <code>"callback"</code> type event fires in the <code>.erianim.json</code> file.
+                The <code>callbackName</code> corresponds to the <code>"value"</code> field of the event.
+                This is the primary way to synchronize server logic with the animation.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Server</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Callback examples</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">public class TileMachine extends AnimatedBlockTileEntity {
+
+    public TileMachine() {
+        super("mymod:block/machine", "mymod:block/machine");
+    }
+
+    @Override
+    protected void onAnimationCallback(String callbackName) {
+        switch (callbackName) {
+            case "produce_item":
+                // The animation reached the point where the item is created
+                produceOutput();
+                break;
+            case "consume_fuel":
+                // The animation reached the point where fuel is consumed
+                consumeFuel();
+                break;
+        }
+    }
+
+    @Override
+    protected void onAnimationComplete(String animName) {
+        if ("process".equals(animName)) {
+            // The processing animation is complete
+            // Restart if there is still fuel
+            if (hasFuel()) {
+                playAnimation("process");
+            }
+        }
+    }
+
+    @Override
+    protected void onAnimationEvent(AnimationEvent event) {
+        if (event.getType() == AnimationEvent.EventType.PARTICLE) {
+            // Spawn smoke particles server-side
+            // Particles will be visible to all nearby players
+            if (world instanceof WorldServer) {
+                ((WorldServer) world).spawnParticle(
+                    EnumParticleTypes.SMOKE_NORMAL,
+                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                    event.getCount(), event.getSpread(), 0.1, event.getSpread(),
+                    0.01);
+            }
+        }
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         .ERIANIM.JSON FORMAT
+    ====================================================== -->
+    <section class="doc-section" id="format-erianim">
+      <h2>.erianim.json File Format</h2>
+      <p>
+        The <code>.erianim.json</code> file is a JSON file that describes all animations for a block.
+        A single file can contain <strong>multiple animations</strong> (idle, open, close, process...).
+      </p>
+
+      <h3>Root structure</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — Root structure</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+  "format_version": 1,
+  "model": "mymod:block/my_machine",
+  "animations": {
+    "idle_breathe": { ... },
+    "open": { ... },
+    "close": { ... },
+    "process": { ... }
+  }
+}</code></pre>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left;">
+            <th style="padding:8px 12px;color:var(--text);">Field</th>
+            <th style="padding:8px 12px;color:var(--text);">Type</th>
+            <th style="padding:8px 12px;color:var(--text);">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>format_version</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Format version. Currently <code>1</code>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>model</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">string</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Associated Blockbench model identifier (e.g., <code>"mymod:block/machine"</code>). Informational.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>animations</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">object</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">An object where each key is the <strong>animation name</strong> and the value is its definition.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Animation structure</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — Animation definition</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+  "duration": 40,
+  "endBehavior": "freeze",
+  "rollbackDuration": 10,
+  "blendIn": 5,
+  "blendOut": 0,
+  "loopCount": 3,
+  "loopPause": 20,
+  "tracks": { ... },
+  "events": [ ... ]
+}</code></pre>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left;">
+            <th style="padding:8px 12px;color:var(--text);">Field</th>
+            <th style="padding:8px 12px;color:var(--text);">Type</th>
+            <th style="padding:8px 12px;color:var(--text);">Default</th>
+            <th style="padding:8px 12px;color:var(--text);">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>duration</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">20</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Total duration in ticks (20 ticks = 1 second).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>endBehavior</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">string</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">"freeze"</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">What to do when the animation ends. See <a href="#end-behaviors">EndBehaviors</a>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>rollbackDuration</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">10</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Return animation duration in ticks (for <code>endBehavior: "rollback"</code>).</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>blendIn</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">0</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Blend-in duration (in ticks) from the previous pose. <code>0</code> = no blending.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>blendOut</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">0</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Blend-out duration (in ticks). <code>0</code> = no blending.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>loopCount</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">0</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Number of loops for <code>endBehavior: "loop_count"</code>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>loopPause</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">0</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Pause in ticks between each loop for <code>endBehavior: "loop_pause"</code>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>tracks</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">object</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">{}</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Animation tracks for each model group. Key = group name.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>events</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">array</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">[]</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">List of events triggered at specific ticks during the animation.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         TRACK TYPES
+    ====================================================== -->
+    <section class="doc-section" id="tracks">
+      <h2>Track Types</h2>
+      <p>
+        Each group of your Blockbench model can have one or more <strong>tracks</strong> (animation channels).
+        Each track contains a list of <strong>keyframes</strong> — points in time where you define
+        a value. The system automatically interpolates between keyframes using the chosen easing function.
+      </p>
+      <p>
+        Here are the 7 available track types:
+      </p>
+
+      <!-- ROTATION -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">rotation</div>
+            <div class="package-path">Pose — absolute orientation</div>
+          </div>
+          <span class="badge badge-cyan">Keyframe [x, y, z]</span>
+        </div>
+        <p>
+          Defines the absolute rotation of the group in degrees (0-359) on each axis.
+          This is the fixed orientation of the group at a given instant.
+          Values are interpolated between keyframes.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Rotation track</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"rotation": [
+  { "tick": 0,  "value": [0, 0, 0],     "easing": "linear" },
+  { "tick": 20, "value": [-90, 0, 0],   "easing": "ease_out_back" },
+  { "tick": 40, "value": [-90, 45, 0],  "easing": "ease_in_out" }
+]</code></pre>
+        </div>
+      </div>
+
+      <!-- ROTATE -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">rotate</div>
+            <div class="package-path">Cumulative rotation — multi-turn</div>
+          </div>
+          <span class="badge badge-cyan">Keyframe [x, y, z]</span>
+        </div>
+        <p>
+          Cumulative rotation in degrees since the beginning of the animation. Unlike <code>rotation</code>,
+          values are not limited to 0-359: you can go beyond 360 to make multiple turns.
+          For example, <code>[0, 720, 0]</code> = 2 full turns on the Y axis.
+          Adds on top of the pose rotation (<code>rotation</code>).
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Rotate track (2 full turns on Y)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"rotate": [
+  { "tick": 0,  "value": [0, 0, 0],     "easing": "linear" },
+  { "tick": 60, "value": [0, 720, 0],   "easing": "ease_in_out" }
+]</code></pre>
+        </div>
+      </div>
+
+      <!-- TRANSLATION -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">translation</div>
+            <div class="package-path">Position — displacement</div>
+          </div>
+          <span class="badge badge-cyan">Keyframe [x, y, z]</span>
+        </div>
+        <p>
+          Moves the group in Blockbench pixels (1 Blockbench pixel = 1/16 of a Minecraft block).
+          <code>[0, 16, 0]</code> = move 1 block upward.
+          <code>[0, -4, 0]</code> = move 0.25 blocks downward.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Translation track (the group goes down then back up)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"translation": [
+  { "tick": 0,  "value": [0, 0, 0],    "easing": "linear" },
+  { "tick": 10, "value": [0, -3, 0],   "easing": "ease_out" },
+  { "tick": 20, "value": [0, 0, 0],    "easing": "ease_in" }
+]</code></pre>
+        </div>
+      </div>
+
+      <!-- SCALE -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">scale</div>
+            <div class="package-path">Scale — size</div>
+          </div>
+          <span class="badge badge-cyan">Keyframe [x, y, z]</span>
+        </div>
+        <p>
+          Changes the size of the group on each axis. <code>[1, 1, 1]</code> = normal size.
+          <code>[2, 2, 2]</code> = double size. <code>[0, 0, 0]</code> = invisible (crushed to zero).
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Scale track (the group grows then returns)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"scale": [
+  { "tick": 0,  "value": [1, 1, 1],      "easing": "linear" },
+  { "tick": 10, "value": [1.5, 1.5, 1.5], "easing": "ease_out_back" },
+  { "tick": 20, "value": [1, 1, 1],      "easing": "ease_in" }
+]</code></pre>
+        </div>
+      </div>
+
+      <!-- VISIBLE -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">visible</div>
+            <div class="package-path">Visibility — show/hide</div>
+          </div>
+          <span class="badge badge-gray">Instant</span>
+        </div>
+        <p>
+          Shows or hides a group at a specific tick. <strong>No interpolation</strong> — it is an on/off switch.
+          The <code>value</code> field is a boolean: <code>true</code> = visible, <code>false</code> = invisible.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Visible track (the padlock disappears at tick 8)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"visible": [
+  { "tick": 0, "value": true },
+  { "tick": 8, "value": false }
+]</code></pre>
+        </div>
+      </div>
+
+      <!-- SPIN -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">spin</div>
+            <div class="package-path">Continuous rotation — degrees/tick</div>
+          </div>
+          <span class="badge badge-purple">SpinKeyframe</span>
+        </div>
+        <p>
+          Rotates the group continuously at a given speed (in degrees per tick).
+          Unlike <code>rotation</code> which defines a fixed angle, <code>spin</code> defines a <strong>rotation speed</strong>
+          that accumulates frame after frame. Ideal for gears, fans, etc.
+        </p>
+        <p>
+          You can change the spin speed during the animation. The easing controls the transition
+          between the old and new speed.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Spin track (accelerates then decelerates)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"spin": [
+  { "tick": 0,  "axis": "y", "speed": 0,   "easing": "linear" },
+  { "tick": 10, "axis": "y", "speed": 18,  "easing": "ease_in" },
+  { "tick": 30, "axis": "y", "speed": 18,  "easing": "linear" },
+  { "tick": 40, "axis": "y", "speed": 0,   "easing": "ease_out" }
+]</code></pre>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:6px 10px;color:var(--text);">Field</th>
+              <th style="padding:6px 10px;color:var(--text);">Type</th>
+              <th style="padding:6px 10px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>tick</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">int</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Tick when this speed takes effect.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>axis</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">string</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Rotation axis: <code>"x"</code>, <code>"y"</code>, or <code>"z"</code>. Default: <code>"y"</code>.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>speed</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">float</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Rotation speed in degrees per tick. <code>18</code> = 1 full turn in 20 ticks (1 second). <code>0</code> = stop.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>easing</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">string</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Easing function for the transition to this speed. Default: <code>"linear"</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TEXTURE -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">texture</div>
+            <div class="package-path">Texture change — instant swap</div>
+          </div>
+          <span class="badge badge-gray">Instant</span>
+        </div>
+        <p>
+          Changes the texture of a face or element of the model at a specific tick.
+          <strong>No interpolation</strong> — the change is instant.
+          Replacement textures must be declared in the Blockbench model's texture map.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>JSON — Texture track (the screen turns on at tick 10)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code class="language-json">"texture": [
+  { "tick": 0,  "target": "screen", "value": "screen_off" },
+  { "tick": 10, "target": "screen", "value": "screen_on" }
+]</code></pre>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:6px 10px;color:var(--text);">Field</th>
+              <th style="padding:6px 10px;color:var(--text);">Type</th>
+              <th style="padding:6px 10px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>tick</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">int</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Tick when the texture change applies.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>target</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">string</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Texture key to replace (name in the model's texture map, e.g., <code>"screen"</code>).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 10px;"><code>value</code></td>
+              <td style="padding:6px 10px;color:var(--text-muted);">string</td>
+              <td style="padding:6px 10px;color:var(--text-muted);">Replacement texture key (e.g., <code>"screen_on"</code>).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Standard keyframe format</h3>
+      <p>
+        The <code>rotation</code>, <code>rotate</code>, <code>translation</code>, and <code>scale</code> tracks all use
+        the same keyframe format:
+      </p>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left;">
+            <th style="padding:8px 12px;color:var(--text);">Field</th>
+            <th style="padding:8px 12px;color:var(--text);">Type</th>
+            <th style="padding:8px 12px;color:var(--text);">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>tick</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">int</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Position in time (in ticks). <code>0</code> = start of the animation.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>value</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">float[3]</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Value [x, y, z]. Degrees for rotation/rotate, BB pixels for translation, factor for scale.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>easing</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">string</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Interpolation function. Default: <code>"linear"</code>. See <a href="#easings">Easings</a>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EVENTS IN .ERIANIM
+    ====================================================== -->
+    <section class="doc-section" id="events-erianim">
+      <h2>Events in .erianim.json</h2>
+      <p>
+        Events are actions triggered at specific ticks during the animation. They are listed in the <code>"events"</code> array
+        of each animation. Each event has a <code>tick</code> and a <code>type</code>.
+      </p>
+
+      <h3>The 6 event types</h3>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);text-align:left;">
+            <th style="padding:8px 12px;color:var(--text);">Type</th>
+            <th style="padding:8px 12px;color:var(--text);">Description</th>
+            <th style="padding:8px 12px;color:var(--text);">Additional fields</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>sound</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Plays a Minecraft sound at the block's position. The sound is audible to all nearby players.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (sound ResourceLocation), <code>volume</code> (default: 1.0), <code>pitch</code> (default: 1.0)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>particle</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Triggers the <code>onAnimationEvent()</code> callback in the TileEntity. You handle particle spawning in your Java code.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (particle name), <code>count</code> (default: 1), <code>spread</code> (default: 0.5)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>callback</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Calls <code>onAnimationCallback(value)</code> in the TileEntity. This is the primary way to synchronize server logic with the animation.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (callback name)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>hide_group</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Hides a model group. The event is dispatched server-side for information. The renderer uses the <code>visible</code> track client-side.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (group name)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>show_group</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Shows a model group. Same behavior as <code>hide_group</code> but in reverse.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (group name)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>cut</code></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Immediately stops the animation and resets the block to the <code>IDLE</code> state. Equivalent to calling <code>resetAnimationInstant()</code>.</td>
+            <td style="padding:8px 12px;color:var(--text-muted);"><code>value</code> (ignored)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — Event examples</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">"events": [
+  {
+    "tick": 0,
+    "type": "sound",
+    "value": "minecraft:block.anvil.use",
+    "volume": 0.8,
+    "pitch": 1.5
+  },
+  {
+    "tick": 10,
+    "type": "particle",
+    "value": "smoke",
+    "count": 5,
+    "spread": 0.3
+  },
+  {
+    "tick": 20,
+    "type": "callback",
+    "value": "halfway_done"
+  },
+  {
+    "tick": 5,
+    "type": "hide_group",
+    "value": "lock"
+  },
+  {
+    "tick": 30,
+    "type": "show_group",
+    "value": "reward"
+  },
+  {
+    "tick": 40,
+    "type": "cut"
+  }
+]</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         END BEHAVIORS
+    ====================================================== -->
+    <section class="doc-section" id="end-behaviors">
+      <h2>EndBehaviors</h2>
+      <p>
+        The <code>EndBehavior</code> determines what happens when an animation reaches its last tick.
+        It is defined in the <code>.erianim.json</code> file (<code>"endBehavior"</code> field) or can be
+        overridden in Java via <code>te.playAnimation("open", EndBehavior.LOOP)</code>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EndBehavior</div>
+            <div class="package-path">fr.eri.eriapi.anim.EndBehavior</div>
+          </div>
+          <span class="badge badge-purple">Enum</span>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:8px 12px;color:var(--text);">Value</th>
+              <th style="padding:8px 12px;color:var(--text);">JSON</th>
+              <th style="padding:8px 12px;color:var(--text);">Description</th>
+              <th style="padding:8px 12px;color:var(--text);">Use case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>FREEZE</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"freeze"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Stays frozen on the last frame indefinitely.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Open door, open chest, pulled lever.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>ROLLBACK</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"rollback"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Replays the animation in reverse over <code>rollbackDuration</code> ticks to return to frame 0.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Button that springs back up, machine that gradually powers down.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>ROLLBACK_INSTANT</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"rollback_instant"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Returns instantly to frame 0 without a return animation.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Flash animation, quick visual impact.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>WAIT_SERVER</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"wait_server"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Stays frozen on the last frame and waits for a server call (<code>te.resetAnimation()</code>) to return.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Machine processing, chest awaiting confirmation. The server decides when to reset.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>LOOP</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"loop"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Infinite loop. The animation automatically restarts from the beginning at each end.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Spinning gear, pulsing flame, looping idle.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>LOOP_COUNT</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"loop_count"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Loops N times (configured by <code>loopCount</code>) then freezes on the last frame.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Charge animation (3 blinks), repeated light signal.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>LOOP_PAUSE</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>"loop_pause"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Infinite loop with a pause of <code>loopPause</code> ticks between each cycle.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Machine that processes in batches (cycle, pause, cycle, pause...).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Override the EndBehavior in code</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">AnimatedBlockTileEntity te = (AnimatedBlockTileEntity) world.getTileEntity(pos);
+
+// Use the default EndBehavior from the .erianim.json file
+te.playAnimation("process");
+
+// Force a different EndBehavior
+te.playAnimation("process", EndBehavior.LOOP);
+te.playAnimation("open", EndBehavior.WAIT_SERVER);
+te.playAnimation("flash", EndBehavior.ROLLBACK_INSTANT);
+
+// Pass null = use the file's default
+te.playAnimation("idle", null);</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         EASINGS
+    ====================================================== -->
+    <section class="doc-section" id="easings">
+      <h2>Easings</h2>
+      <p>
+        Easing functions control <strong>how</strong> a value transitions from one keyframe to another.
+        Instead of a linear (constant) movement, you can have acceleration, deceleration, bounce, etc.
+        The easing is defined in each keyframe by the <code>"easing"</code> field.
+      </p>
+      <p>
+        Each function takes a normalized time <code>t</code> between 0 and 1 and returns an interpolated value.
+        Some functions (ELASTIC, BOUNCE, BACK, SPRING) can return values outside 0-1, which produces overshoot effects.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">Easing</div>
+            <div class="package-path">fr.eri.eriapi.gui.anim.Easing</div>
+          </div>
+          <span class="badge badge-purple">Enum — 13 functions</span>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:8px 12px;color:var(--text);">JSON Name</th>
+              <th style="padding:8px 12px;color:var(--text);">Java Enum</th>
+              <th style="padding:8px 12px;color:var(--text);">Description</th>
+              <th style="padding:8px 12px;color:var(--text);">Typical usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"linear"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>LINEAR</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Constant movement, no acceleration. <code>f(t) = t</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Mechanical rotations, machine movements.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_in"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_IN</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Starts slow, accelerates at the end. <code>f(t) = t^2</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Object starting to move, vehicle starting up.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_out"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_OUT</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Starts fast, slows down at the end. <code>f(t) = t(2-t)</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Door closing, object settling down.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_in_out"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_IN_OUT</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Slow at start and end, fast in the middle.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Natural movements, lids, levers.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_in_cubic"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_IN_CUBIC</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Like ease_in but more pronounced. <code>f(t) = t^3</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Falls, strong accelerations.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_out_cubic"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_OUT_CUBIC</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Like ease_out but more pronounced. Faster braking.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Heavy object stopping, dampened bounce.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"bounce"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>BOUNCE</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Bounce on arrival, like a ball hitting the ground.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Object falling and bouncing, button clicking.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"elastic"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>ELASTIC</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Elastic oscillation on arrival, like a spring. Overshoots the target then returns.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Pop-up, element appearing with punch.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_in_back"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_IN_BACK</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Pulls back slightly before moving forward (overshoot at entry).</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Strike preparation, wind-up before a jump.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_out_back"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_OUT_BACK</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Overshoots the target then returns (overshoot at exit). Very satisfying "pop" effect.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Chest lid opening with punch, item growing.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_in_expo"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_IN_EXPO</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Exponential start — very slow then explosion. <code>f(t) = 2^(10(t-1))</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Energy charge, power build-up.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"ease_out_expo"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>EASE_OUT_EXPO</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Exponential deceleration — brakes much harder than cubic. <code>f(t) = 1 - 2^(-10t)</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Emergency braking, abrupt stop.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>"spring"</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><code>SPRING</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Physical spring simulation — dampened oscillations. <code>f(t) = 1 - cos(t*4.5*PI) * e^(-6t)</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Antennas, flexible elements, hit feedback.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Notation in JSON</div>
+          <p>In the <code>.erianim.json</code> file, the easing is written in lowercase with underscores or hyphens.
+          Both notations are accepted: <code>"ease_out_back"</code> and <code>"ease-out-back"</code> are equivalent.
+          Uppercase is also accepted. If the name is not recognized, <code>LINEAR</code> is used by default.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ANIM STATES
+    ====================================================== -->
+    <section class="doc-section" id="anim-states">
+      <h2>AnimStates</h2>
+      <p>
+        The TileEntity's animation state is accessible via <code>te.getAnimState()</code>.
+        It allows you to know exactly what the block is doing at a given moment.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimState</div>
+            <div class="package-path">fr.eri.eriapi.anim.AnimState</div>
+          </div>
+          <span class="badge badge-purple">Enum</span>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:8px 12px;color:var(--text);">State</th>
+              <th style="padding:8px 12px;color:var(--text);">Description</th>
+              <th style="padding:8px 12px;color:var(--text);">Server tick?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>IDLE</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">No animation in progress. The block is at rest. The TESR displays the model's default pose.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">No</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PLAYING</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">The animation is currently playing. Events are triggered and tracks are interpolated.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Yes</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>PAUSED</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">The animation is paused at a specific tick. The block is frozen at the position where it was paused.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">No</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>FROZEN</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">The animation is finished and frozen on the last frame (<code>endBehavior = FREEZE</code> or completed <code>LOOP_COUNT</code>).</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">No</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>ROLLING_BACK</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">The animation is playing in reverse, returning to frame 0 (<code>endBehavior = ROLLBACK</code>).</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Yes</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>WAITING_SERVER</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">The animation is finished and waiting for a server signal (<code>te.resetAnimation()</code>) to return to IDLE.</td>
+              <td style="padding:8px 12px;color:var(--text-muted);">No</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Check the animation state</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">AnimatedBlockTileEntity te = (AnimatedBlockTileEntity) world.getTileEntity(pos);
+
+// Check if an animation is in progress
+if (te.isAnimating()) {
+    // PLAYING or ROLLING_BACK
+}
+
+// Check a specific state
+if (te.getAnimState() == AnimState.WAITING_SERVER) {
+    // The animation is finished, the server must act
+    te.resetAnimation();
+}
+
+// Check the progress
+float progress = te.getAnimationProgress(); // 0.0 to 1.0
+if (progress > 0.5f) {
+    // The animation has passed the halfway point
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FORGE EVENTS
+    ====================================================== -->
+    <section class="doc-section" id="events-forge">
+      <h2>Forge Events</h2>
+      <p>
+        The animation module publishes 4 Forge events on the <code>MinecraftForge.EVENT_BUS</code>.
+        They are all <strong>cancelable</strong> (<code>@Cancelable</code>) and fired <strong>server-side only</strong>.
+        You can listen to them with the EriAPI event system or with <code>@SubscribeEvent</code>.
+      </p>
+
+      <!-- AnimationStartEvent -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimationStartEvent</div>
+            <div class="package-path">fr.eri.eriapi.anim.event.AnimationStartEvent</div>
+          </div>
+          <span class="badge badge-cyan">@Cancelable</span>
+        </div>
+        <p>Fired <strong>before</strong> an animation starts. If canceled, the animation is not played.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">World</span> getWorld()</div>
+              <div class="method-desc">The world where the block is located.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">BlockPos</span> getPos()</div>
+              <div class="method-desc">The block's position.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimatedBlockTileEntity</span> getTileEntity()</div>
+              <div class="method-desc">The animated block's TileEntity.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getAnimName()</div>
+              <div class="method-desc">The name of the animation that is about to play.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EndBehavior</span> getEndBehavior()</div>
+              <div class="method-desc">The effective EndBehavior (override or file default).</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- AnimationEndEvent -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimationEndEvent</div>
+            <div class="package-path">fr.eri.eriapi.anim.event.AnimationEndEvent</div>
+          </div>
+          <span class="badge badge-cyan">@Cancelable</span>
+        </div>
+        <p>Fired when an animation reaches its last tick, <strong>before</strong> the EndBehavior is applied. If canceled, the animation is frozen on the last frame (FROZEN).</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">World</span> getWorld()</div>
+              <div class="method-desc">The world where the block is located.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">BlockPos</span> getPos()</div>
+              <div class="method-desc">The block's position.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimatedBlockTileEntity</span> getTileEntity()</div>
+              <div class="method-desc">The animated block's TileEntity.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getAnimName()</div>
+              <div class="method-desc">The name of the animation that is ending.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EndBehavior</span> getEndBehavior()</div>
+              <div class="method-desc">The EndBehavior that is about to be applied.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- AnimationResetEvent -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimationResetEvent</div>
+            <div class="package-path">fr.eri.eriapi.anim.event.AnimationResetEvent</div>
+          </div>
+          <span class="badge badge-cyan">@Cancelable</span>
+        </div>
+        <p>Fired <strong>before</strong> an animation is reset. If canceled, the reset is not applied.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">World</span> getWorld()</div>
+              <div class="method-desc">The world where the block is located.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">BlockPos</span> getPos()</div>
+              <div class="method-desc">The block's position.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimatedBlockTileEntity</span> getTileEntity()</div>
+              <div class="method-desc">The animated block's TileEntity.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getPreviousAnim()</div>
+              <div class="method-desc">The name of the animation that was in progress before the reset.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> isInstant()</div>
+              <div class="method-desc"><code>true</code> if the reset is instant, <code>false</code> if a rollback is used.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- AnimationLoopEvent -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimationLoopEvent</div>
+            <div class="package-path">fr.eri.eriapi.anim.event.AnimationLoopEvent</div>
+          </div>
+          <span class="badge badge-cyan">@Cancelable</span>
+        </div>
+        <p>Fired when a looping animation is about to restart (LOOP, LOOP_COUNT, LOOP_PAUSE). If canceled, the animation stops looping and freezes (FROZEN).</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">World</span> getWorld()</div>
+              <div class="method-desc">The world where the block is located.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">BlockPos</span> getPos()</div>
+              <div class="method-desc">The block's position.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimatedBlockTileEntity</span> getTileEntity()</div>
+              <div class="method-desc">The animated block's TileEntity.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getAnimName()</div>
+              <div class="method-desc">The name of the looping animation.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> getCurrentLoop()</div>
+              <div class="method-desc">Current iteration number (starts at 0). The first time the animation ends = 0.</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> getMaxLoops()</div>
+              <div class="method-desc">Maximum number of loops for <code>LOOP_COUNT</code>, or <code>-1</code> for infinite loops (<code>LOOP</code> and <code>LOOP_PAUSE</code>).</div>
+            </div>
+            <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Listener examples</h3>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Listen to events with EriEvents</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.event.*;
+import fr.eri.eriapi.event.EriEvents;
+
+// Prevent certain animations from playing
+EriEvents.on(AnimationStartEvent.class, e -> {
+    if ("forbidden_anim".equals(e.getAnimName())) {
+        e.setCanceled(true); // The animation will not play
+    }
+});
+
+// React when an animation finishes
+EriEvents.on(AnimationEndEvent.class, e -> {
+    if ("charge".equals(e.getAnimName())) {
+        // Give a buff to the nearest player
+        giveBuffToNearestPlayer(e.getWorld(), e.getPos());
+    }
+});
+
+// Stop a loop after a condition
+EriEvents.on(AnimationLoopEvent.class, e -> {
+    if ("production".equals(e.getAnimName())) {
+        TileMachine te = (TileMachine) e.getTileEntity();
+        if (!te.hasFuel()) {
+            e.setCanceled(true); // Stops the loop, freezes the block
+        }
+    }
+});
+
+// Prevent a reset
+EriEvents.on(AnimationResetEvent.class, e -> {
+    if (isBlockLocked(e.getPos())) {
+        e.setCanceled(true); // The reset is not applied
+    }
+});</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DYNAMIC TEXTURES
+    ====================================================== -->
+    <section class="doc-section" id="dynamic-textures">
+      <h2>Dynamic Textures</h2>
+      <p>
+        You can change the textures of an animated block in real-time, in two ways:
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Via the .erianim.json file</strong> — with the <code>texture</code> track, textures change automatically during the animation.</li>
+        <li><strong style="color:var(--text);">Via the Java API</strong> — with <code>te.setTexture()</code>, you change textures from server code at any time.</li>
+      </ul>
+
+      <h3>Texture priority</h3>
+      <p>When the TESR looks for which texture to display, it checks in this order:</p>
+      <ol style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Animation override</strong> (texture track from .erianim.json) — highest priority.</li>
+        <li><strong style="color:var(--text);">TileEntity override</strong> (<code>te.setTexture()</code>) — medium priority.</li>
+        <li><strong style="color:var(--text);">Original model texture</strong> — lowest priority (default).</li>
+      </ol>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Change textures via the API</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">AnimatedBlockTileEntity te = (AnimatedBlockTileEntity) world.getTileEntity(pos);
+
+// Change a specific texture
+te.setTexture("screen", "screen_active");
+
+// The model's "screen" texture will be replaced by "screen_active"
+// The change is automatically synchronized to all clients
+
+// Restore the original texture
+te.clearTexture("screen");
+
+// Restore ALL original textures
+te.clearAllTextures();
+
+// Check current overrides
+Map&lt;String, String&gt; overrides = te.getTextureOverrides();
+// overrides = {"screen" -> "screen_active", ...}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Use callbacks for server logic + textures</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">public class TileReactor extends AnimatedBlockTileEntity {
+
+    public TileReactor() {
+        super("mymod:block/reactor", "mymod:block/reactor");
+    }
+
+    @Override
+    protected void onAnimationCallback(String callbackName) {
+        switch (callbackName) {
+            case "activate_core":
+                // The animation reached the point where the core should light up
+                setTexture("core", "core_glowing");
+                setTexture("panel", "panel_active");
+                break;
+            case "deactivate_core":
+                clearAllTextures();
+                break;
+        }
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         DEBUG COMMANDS
+    ====================================================== -->
+    <section class="doc-section" id="debug-commands">
+      <h2>Debug Commands</h2>
+      <p>
+        EriAPI automatically registers the <code>/erianim</code> command for testing and debugging animations in-game.
+        All subcommands require OP level 2, except <code>reload</code> which requires OP level 3.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">CommandEriAnim</div>
+            <div class="package-path">fr.eri.eriapi.anim.command.CommandEriAnim</div>
+          </div>
+          <span class="badge badge-gray">OP 2+</span>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:8px 12px;color:var(--text);">Command</th>
+              <th style="padding:8px 12px;color:var(--text);">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim play &lt;x&gt; &lt;y&gt; &lt;z&gt; &lt;anim&gt; [endBehavior]</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Plays an animation on the animated block at the given position. The EndBehavior is optional (uses the .erianim file's default).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim reset &lt;x&gt; &lt;y&gt; &lt;z&gt; [true|false]</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Resets the animation. <code>true</code> = instant, <code>false</code> (default) = uses rollback if applicable.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim stop &lt;x&gt; &lt;y&gt; &lt;z&gt;</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Immediately stops the animation (no rollback, no callback).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim list &lt;x&gt; &lt;y&gt; &lt;z&gt;</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Lists all available animations in the block's .erianim file, with their duration, EndBehavior, number of tracks and events.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim state &lt;x&gt; &lt;y&gt; &lt;z&gt;</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Displays the block's full state: model, anim file, state, current animation, progress, texture overrides.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim perf</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);">Enables performance tracking and displays stats: number of blocks rendered, average render time, cache sizes. Run a second time to view data.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:8px 12px;"><code>/erianim reload</code></td>
+              <td style="padding:8px 12px;color:var(--text-muted);"><strong>(OP 3)</strong> Clears model and animation caches. Files will be reloaded on the next render. Ideal for testing modifications without restarting the server.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         FILE STRUCTURE
+    ====================================================== -->
+    <section class="doc-section" id="file-structure">
+      <h2>File Structure</h2>
+      <p>
+        Here is where to place each file in your mod for the animation system to work correctly.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>File structure within the mod</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-text">src/main/resources/assets/mymod/
+  models/
+    block/
+      my_machine.json                     &larr; Blockbench model (export "Java Block/Item")
+  animations/
+    block/
+      my_machine.erianim.json             &larr; EriAPI animation file
+  textures/
+    blocks/
+      my_machine/                         &larr; Model texture folder
+        base.png                          &larr; Main texture
+        panel.png                         &larr; Panel texture
+        screen_off.png                    &larr; Screen off
+        screen_on.png                     &larr; Screen on (for texture swap)
+  blockstates/
+    my_machine.json                       &larr; Blockstate (auto-generated by EriAnimBlock)</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Path resolution</div>
+          <p>
+            The <strong>modelId</strong> <code>"mymod:block/my_machine"</code> resolves to
+            <code>assets/mymod/models/block/my_machine.json</code>.
+          </p>
+          <p>
+            The <strong>animFileId</strong> <code>"mymod:block/my_machine"</code> resolves to
+            <code>assets/mymod/animations/block/my_machine.erianim.json</code>.
+          </p>
+          <p>Textures are resolved via the texture map in the Blockbench model (<code>"textures"</code> section of the JSON).</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         PERFORMANCE
+    ====================================================== -->
+    <section class="doc-section" id="performance">
+      <h2>Performance</h2>
+      <p>
+        The animation system is designed to support <strong>500 to 1000 concurrent players</strong>.
+        Here are the built-in optimizations and best practices to maintain good performance.
+      </p>
+
+      <h3>Built-in optimizations</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Fast exit in update()</strong> — The <code>ITickable.update()</code> method returns immediately for IDLE, FROZEN, PAUSED, and WAITING_SERVER states. Only blocks in PLAYING or ROLLING_BACK state consume server CPU time.</li>
+        <li><strong style="color:var(--text);">IDLE render cache</strong> — When the block is IDLE and nothing has changed, the TESR skips pose calculation and reuses the last render. A <code>idleRenderDirty</code> flag controls re-evaluation.</li>
+        <li><strong style="color:var(--text);">Model and animation caches</strong> — Blockbench models and .erianim files are parsed once then cached (<code>AnimModelCache</code> and <code>EriAnimCache</code>). Reload is available via <code>/erianim reload</code>.</li>
+        <li><strong style="color:var(--text);">Sorted events</strong> — Animation events are sorted by tick, allowing O(n) dispatch with early exit when the tick exceeds the current tick.</li>
+      </ul>
+
+      <h3>Best practices</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Reduce renderDistance</strong> — For decorative or non-critical blocks, use a renderDistance of 32 or 48 instead of 64.</li>
+        <li><strong style="color:var(--text);">Avoid unnecessary infinite loops</strong> — A block in <code>LOOP</code> consumes server CPU every tick to dispatch events. If you have no events, prefer an IDLE animation without events using a spin track.</li>
+        <li><strong style="color:var(--text);">Use WAIT_SERVER for long processes</strong> — Instead of looping, play an animation once then wait for the server signal. This avoids continuous ticking.</li>
+        <li><strong style="color:var(--text);">Fewer groups = fewer calculations</strong> — Each animated group requires transformation calculations. Merge groups that move together in Blockbench.</li>
+        <li><strong style="color:var(--text);">Monitor with /erianim perf</strong> — Use the in-game command to check render time and identify problematic blocks.</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERIANIM EDITOR
+    ====================================================== -->
+    <section class="doc-section" id="erianim-editor">
+      <h2>EriAnim Editor</h2>
+      <p>
+        The <strong>EriAnim editor</strong> is a desktop tool (Electron application) that allows you to create
+        and visually edit <code>.erianim.json</code> files without writing JSON by hand.
+      </p>
+
+      <h3>Features</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Visual timeline</strong> — Displays tracks and keyframes on an interactive timeline. Drag and drop to move keyframes.</li>
+        <li><strong style="color:var(--text);">3D Preview</strong> — Preview the animation in real-time with the Blockbench model loaded in the editor.</li>
+        <li><strong style="color:var(--text);">Keyframe editor</strong> — Form to edit values, easing, and tick of each keyframe.</li>
+        <li><strong style="color:var(--text);">Direct export</strong> — Generates the <code>.erianim.json</code> file ready to be integrated into your mod.</li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Where to find the editor</div>
+          <p>
+            The EriAnim editor is an internal tool of EriniumGroup. If you are working on a mod that uses EriAPI,
+            contact the team to get access. In the meantime, you can always create <code>.erianim.json</code> files
+            by hand following the documentation on this page.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <p>&copy; 2025 EriniumGroup &mdash; EriAPI Documentation</p>
+</footer>
+
+</body>
+</html>
