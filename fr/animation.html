@@ -1170,18 +1170,36 @@ EriCommand.create("machine")
         (walk, attack) l'interrompent temporairement. Penser a configurer
         <code>endBehavior: "loop"</code> dans le <code>.erianim.json</code>.
       </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Ou placer ce code</div>
+          <p>
+            Ces exemples s'appliquent dans ta classe d'entite Java qui etend
+            <code>EntityLiving</code> (ou <code>EntityCreature</code>, <code>EntityMob</code>, etc.)
+            et implemente <code>IAnimatedEntity</code>. <code>EriEntity</code> est un builder
+            de configuration — il ne fournit pas de callbacks comportementaux dans la version actuelle.
+          </p>
+        </div>
+      </div>
+
       <div class="code-wrapper">
         <div class="code-label">
           <span>Java &mdash; Entite avec animation idle</span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">@Override
-public void onUpdate() {
-    super.onUpdate();
-    if (!world.isRemote) {
-        // Lancer idle si aucune animation n'est en cours
-        if (dataManager.get(ANIM_NAME).isEmpty()) {
-            playAnimation("idle");
+        <pre><code class="language-java">// Dans ta classe entite Java (extends EntityLiving implements IAnimatedEntity)
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (!world.isRemote) {
+            // Lancer idle si aucune animation n'est en cours
+            if (dataManager.get(ANIM_NAME).isEmpty()) {
+                playAnimation("idle");
+            }
         }
     }
 }</code></pre>
@@ -1197,16 +1215,20 @@ public void onUpdate() {
           <span>Java &mdash; Entite avec animation de marche</span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">@Override
-public void onUpdate() {
-    super.onUpdate();
-    if (!world.isRemote) {
-        double speed = Math.sqrt(motionX * motionX + motionZ * motionZ);
-        String current = dataManager.get(ANIM_NAME);
-        if (speed &gt; 0.01 &amp;&amp; !"walk".equals(current)) {
-            playAnimation("walk");       // Commence a marcher
-        } else if (speed &lt;= 0.01 &amp;&amp; "walk".equals(current)) {
-            playAnimation("idle");       // Revient en idle
+        <pre><code class="language-java">// Dans ta classe entite Java (extends EntityLiving implements IAnimatedEntity)
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (!world.isRemote) {
+            double speed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+            String current = dataManager.get(ANIM_NAME);
+            if (speed &gt; 0.01 &amp;&amp; !"walk".equals(current)) {
+                playAnimation("walk");       // Commence a marcher
+            } else if (speed &lt;= 0.01 &amp;&amp; "walk".equals(current)) {
+                playAnimation("idle");       // Revient en idle
+            }
         }
     }
 }</code></pre>
@@ -1222,13 +1244,17 @@ public void onUpdate() {
           <span>Java &mdash; Entite avec animation d'attaque</span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">@Override
-public boolean attackEntityAsMob(Entity target) {
-    boolean result = super.attackEntityAsMob(target);
-    if (result &amp;&amp; !world.isRemote) {
-        playAnimation("attack");         // Lance l'animation d'attaque
+        <pre><code class="language-java">// Dans ta classe entite Java (extends EntityMob implements IAnimatedEntity)
+public class EntityMonstre extends EntityMob implements IAnimatedEntity {
+
+    @Override
+    public boolean attackEntityAsMob(Entity target) {
+        boolean result = super.attackEntityAsMob(target);
+        if (result &amp;&amp; !world.isRemote) {
+            playAnimation("attack");         // Lance l'animation d'attaque
+        }
+        return result;
     }
-    return result;
 }</code></pre>
       </div>
 
