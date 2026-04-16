@@ -103,6 +103,13 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Exemples pratiques</div>
+      <ul>
+        <li><a href="#trigger-examples"><span class="nav-dot"></span>Declencher une animation</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">Format .erianim</div>
       <ul>
         <li><a href="#format-erianim"><span class="nav-dot"></span>Structure du fichier</a></li>
@@ -1036,6 +1043,215 @@ public class TileLootbox extends AnimatedBlockTileEntity {
     <div class="section-divider"></div>
 
     <!-- ======================================================
+         TRIGGER EXAMPLES
+    ====================================================== -->
+    <section class="doc-section" id="trigger-examples">
+      <h2>Declencher une animation</h2>
+      <p>
+        Cette section regroupe les cas concrets les plus courants pour declencher une
+        animation : sur un clic droit, chaque tick, en reponse a un event Forge, depuis
+        une commande, ou en fonction du comportement d'une entite (idle, walk, attack).
+        Tous les exemples sont cote serveur — EriAPI synchronise automatiquement l'etat
+        d'animation aux clients.
+      </p>
+
+      <h3>Block &mdash; Clic droit (ouvrir une lootbox)</h3>
+      <p>
+        Utilise le callback <code>onRightClick</code> du builder <code>EriAnimBlock</code>.
+        Verifie toujours <code>isAnimating()</code> pour eviter de relancer une animation
+        deja en cours. <code>playAnimation()</code> envoie automatiquement les packets
+        reseau aux clients.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; EriAnimBlock avec callback onRightClick</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// EriAnimBlock avec callback onRightClick
+EriAnimBlock.create("monmod", "lootbox")
+    .animation("monmod:block/lootbox")
+    .onRightClick(ctx -&gt; {
+        AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null &amp;&amp; !te.isAnimating()) {
+            te.playAnimation("open");  // Declenche l'animation "open"
+        }
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>Block &mdash; Tick continu (machine qui tourne)</h3>
+      <p>
+        Pour une machine qui doit animer en boucle tant qu'elle est active, on sous-classe
+        <code>AnimatedBlockTileEntity</code> et on surcharge <code>update()</code>.
+        L'animation est relancee chaque fois qu'elle se termine.
+        <code>resetAnimation()</code> remet le modele en position neutre.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Sous-classe avec update()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Sous-classe AnimatedBlockTileEntity avec ITickable
+public class TileMachine extends AnimatedBlockTileEntity {
+
+    private boolean running = false;
+
+    @Override
+    public void update() {
+        super.update();
+        if (!world.isRemote &amp;&amp; running &amp;&amp; !isAnimating()) {
+            // Relance l'animation en boucle
+            playAnimation("spin");
+        }
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+        if (!running) resetAnimation();
+    }
+}</code></pre>
+      </div>
+
+      <h3>Block &mdash; Reagir a un event externe (explosion, joueur qui approche)</h3>
+      <p>
+        On peut declencher une animation depuis n'importe quel event Forge via
+        <code>EriEvents</code>. Ici, tous les blocks animes dans un rayon de 5 blocs
+        autour d'une explosion jouent l'animation <code>"shake"</code>.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Declenchement via EriEvents</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Via EriEvents - bloquer l'animation quand une explosion explose a cote
+EriEvents.on(ExplosionEvent.Detonate.class)
+    .handle(e -&gt; {
+        BlockPos center = e.getExplosion().getPosition().toBlockPos();
+        // Chercher notre block dans un rayon de 5 blocs
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(
+                center.add(-5,-5,-5), center.add(5,5,5))) {
+            TileEntity te = e.world.getTileEntity(pos);
+            if (te instanceof AnimatedBlockTileEntity) {
+                ((AnimatedBlockTileEntity) te).playAnimation("shake");
+            }
+        }
+    });</code></pre>
+      </div>
+
+      <h3>Block &mdash; Declencher depuis une commande</h3>
+      <p>
+        Utile pour debugger ou offrir une commande admin. Le builder <code>EriCommand</code>
+        fournit deja l'argument <code>PosArg</code> avec auto-completion.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Commande custom</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans un EriCommand
+EriCommand.create("machine")
+    .sub("start")
+        .arg(PosArg.of("pos"))
+        .execute(ctx -&gt; {
+            BlockPos pos = ctx.getPos("pos");
+            TileEntity te = ctx.getSender().world.getTileEntity(pos);
+            if (te instanceof AnimatedBlockTileEntity) {
+                ((AnimatedBlockTileEntity) te).playAnimation("run");
+                ctx.reply("Animation demarree.");
+            }
+        })
+    .register();</code></pre>
+      </div>
+
+      <h3>Entite &mdash; Animation idle (toujours active)</h3>
+      <p>
+        L'animation <code>"idle"</code> tourne en permanence. Les autres animations
+        (walk, attack) l'interrompent temporairement. Penser a configurer
+        <code>endBehavior: "loop"</code> dans le <code>.erianim.json</code>.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Entite avec animation idle</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Override
+public void onUpdate() {
+    super.onUpdate();
+    if (!world.isRemote) {
+        // Lancer idle si aucune animation n'est en cours
+        if (dataManager.get(ANIM_NAME).isEmpty()) {
+            playAnimation("idle");
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3>Entite &mdash; Animation de marche (basee sur le mouvement)</h3>
+      <p>
+        On deduit l'etat d'animation de la vitesse de l'entite. La transition
+        walk &harr; idle est automatique des qu'un seuil de vitesse est franchi.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Entite avec animation de marche</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Override
+public void onUpdate() {
+    super.onUpdate();
+    if (!world.isRemote) {
+        double speed = Math.sqrt(motionX * motionX + motionZ * motionZ);
+        String current = dataManager.get(ANIM_NAME);
+        if (speed &gt; 0.01 &amp;&amp; !"walk".equals(current)) {
+            playAnimation("walk");       // Commence a marcher
+        } else if (speed &lt;= 0.01 &amp;&amp; "walk".equals(current)) {
+            playAnimation("idle");       // Revient en idle
+        }
+    }
+}</code></pre>
+      </div>
+
+      <h3>Entite &mdash; Animation d'attaque (au moment de frapper)</h3>
+      <p>
+        <code>attackEntityAsMob</code> est appele cote serveur quand l'entite frappe.
+        On declenche l'animation apres avoir confirme que le coup a atterri.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Entite avec animation d'attaque</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Override
+public boolean attackEntityAsMob(Entity target) {
+    boolean result = super.attackEntityAsMob(target);
+    if (result &amp;&amp; !world.isRemote) {
+        playAnimation("attack");         // Lance l'animation d'attaque
+    }
+    return result;
+}</code></pre>
+      </div>
+
+      <h3>Item anime &mdash; Note importante</h3>
+      <div class="info-box warn">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Pas de lecture d'animation pour les items</div>
+          <p>
+            <code>EriItem.animatedModel()</code> affiche le modele Blockbench 3D en main
+            et dans l'inventaire, mais ne dispose pas d'un systeme de lecture
+            d'animations. Le modele est affiche dans sa pose statique (position des
+            groupes telle que definie dans le JSON Blockbench, sans keyframes
+            appliquees). Pour des items avec animations jouables, utiliser
+            <code>EriAnimBlock</code> pose dans le monde a la place.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
          FORMAT .ERIANIM.JSON
     ====================================================== -->
     <section class="doc-section" id="format-erianim">
@@ -1905,6 +2121,300 @@ if (progress > 0.5f) {
     <div class="section-divider"></div>
 
     <!-- ======================================================
+         ITEMS ANIMES
+    ====================================================== -->
+    <section class="doc-section" id="animated-items">
+      <h2>Items animes <span class="badge badge-cyan">v1.3.1</span></h2>
+      <p>
+        Depuis la version 1.3.1, il est possible d'utiliser la methode <code>.animatedModel()</code> sur un
+        <code>EriItem</code> pour rendre l'item avec un <strong>modele Blockbench 3D</strong> au lieu de la
+        texture 2D standard. L'item sera affiche en 3D dans la main du joueur et dans l'inventaire.
+      </p>
+      <p>
+        Le rendu est delegue a un <code>TileEntityItemStackRenderer</code> interne
+        (<code>AnimatedBlockItemRenderer</code>) qui utilise le meme pipeline de rendu que
+        <code>AnimatedBlockTESR</code> — groupes, elements, faces, UV, textures.
+      </p>
+
+      <h3>Utilisation</h3>
+      <p>
+        Il suffit d'appeler <code>.animatedModel("modid:item/nom")</code> dans la chaine du builder.
+        Le modele JSON Blockbench doit se trouver dans <code>assets/{modid}/models/item/{nom}.json</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Item avec modele 3D Blockbench</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriItem.create("monmod", "epee_fancy")
+    .maxStackSize(1)
+    .rarity(EnumRarity.EPIC)
+    .animatedModel("monmod:item/epee_fancy")  // Modele Blockbench 3D
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Textures dans le JSON Blockbench</div>
+          <p>
+            Les textures de l'item sont definies directement dans le fichier JSON du modele Blockbench,
+            pas dans le code Java. Le renderer lit automatiquement les textures referees par le modele.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Emplacement du fichier modele</div>
+          <p>
+            Le modele JSON Blockbench doit etre place dans <code>assets/{modid}/models/item/{nom}.json</code>.
+            L'identifiant passe a <code>animatedModel()</code> utilise le format <code>"modid:item/nom"</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ENTITES ANIMEES
+    ====================================================== -->
+    <section class="doc-section" id="animated-entities">
+      <h2>Entites animees <span class="badge badge-cyan">v1.3.0</span></h2>
+      <p>
+        Le systeme d'entites animees permet de creer des <strong>entites Minecraft custom</strong> rendues avec des
+        <strong>modeles Blockbench 3D</strong> et des animations <code>.erianim.json</code>. Il repose sur trois
+        composants : le builder <code>EriEntity</code>, le renderer <code>AnimatedEntityRenderer</code>, et
+        l'interface <code>IAnimatedEntity</code>.
+      </p>
+
+      <h3>EriEntity — Builder fluent</h3>
+      <p>
+        <code>EriEntity</code> est le builder pour definir une entite custom. Il stocke la configuration
+        (modele, textures, animations, hitbox, sieges) dans un <code>EntityDefinition</code> enregistre dans
+        le <code>ContentRegistry</code>.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Enregistrement manuel</div>
+          <p>
+            Contrairement a <code>EriItem</code> et <code>EriBlock</code>, <code>EriEntity</code>
+            ne gere <strong>pas</strong> l'enregistrement automatique dans Forge. Le mod doit enregistrer
+            les <code>EntityEntry</code> lui-meme dans <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>
+            en utilisant <code>ContentRegistry.getEntityDefs()</code> pour recuperer les definitions.
+          </p>
+        </div>
+      </div>
+
+      <h4>Methodes du builder</h4>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>create(String modId, String registryName)</code></td><td>Cree un nouveau builder. Methode statique.</td></tr>
+            <tr><td><code>model(String modelId)</code></td><td>Definit le modele Blockbench (ex: <code>"monmod:entity/monstre"</code>).</td></tr>
+            <tr><td><code>texture(String key, String path)</code></td><td>Associe une cle de texture du modele a un chemin de ResourceLocation.</td></tr>
+            <tr><td><code>animation(String name, String animId)</code></td><td>Associe un nom d'animation (ex: "idle", "walk") a un identifiant .erianim.</td></tr>
+            <tr><td><code>hitbox(float width, float height)</code></td><td>Definit les dimensions de la hitbox.</td></tr>
+            <tr><td><code>seat(float x, float y, float z)</code></td><td>Ajoute un siege passager simple (coordonnees Blockbench pixels).</td></tr>
+            <tr><td><code>seat(float x, float y, float z, String attachedGroup)</code></td><td>Ajoute un siege attache a un groupe du modele.</td></tr>
+            <tr><td><code>seat(float x, float y, float z, float yawOffset, String attachedGroup, boolean lockCamera)</code></td><td>Siege complet : rotation yaw, groupe attache, verrouillage camera.</td></tr>
+            <tr><td><code>spawnEgg(int primary, int secondary)</code></td><td>Active un spawn egg (couleurs 0xRRGGBB).</td></tr>
+            <tr><td><code>creativeTab(String tabName)</code></td><td>Onglet creatif pour le spawn egg.</td></tr>
+            <tr><td><code>register()</code></td><td>Enregistre la definition dans le ContentRegistry.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>IAnimatedEntity — Interface entite</h3>
+      <p>
+        L'entite Java doit implementer l'interface <code>IAnimatedEntity</code> pour fournir les poses
+        d'animation au renderer. Deux methodes a implementer :
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>AnimationPose getCurrentPose(float partialTicks)</code></td><td>Retourne la pose interpolee courante, ou <code>null</code> si aucune animation n'est active (IDLE).</td></tr>
+            <tr><td><code>AnimState getAnimState()</code></td><td>Retourne l'etat d'animation courant de l'entite.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>AnimatedEntityRenderer — Renderer</h3>
+      <p>
+        Le renderer d'entite qui affiche le modele Blockbench avec animations. Le pipeline de rendu
+        est identique a <code>AnimatedBlockTESR</code>. S'enregistre via
+        <code>RenderingRegistry.registerEntityRenderingHandler()</code>.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode statique</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>factory(String modelId)</code></td><td>Cree une <code>IRenderFactory</code> pour le modele donne (ombre par defaut: 0.5).</td></tr>
+            <tr><td><code>factory(String modelId, float shadowSize)</code></td><td>Factory avec taille d'ombre personnalisee.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>EntitySeat — Systeme de sieges</h3>
+      <p>
+        Chaque entite peut avoir un ou plusieurs sieges pour les passagers. Les coordonnees sont en
+        <strong>pixels Blockbench</strong> (meme espace que le modele).
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Champ</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>x, y, z</code></td><td><code>float</code></td><td>Position du siege en pixels Blockbench (local a l'entite).</td></tr>
+            <tr><td><code>yawOffset</code></td><td><code>float</code></td><td>Rotation yaw du passager en degres (defaut: 0).</td></tr>
+            <tr><td><code>attachedGroup</code></td><td><code>String</code></td><td>Nom du groupe du modele auquel le siege est attache (peut etre null). Le siege suit les animations du groupe.</td></tr>
+            <tr><td><code>lockCamera</code></td><td><code>boolean</code></td><td>Si true, la camera du joueur assis est verrouillee (defaut: false).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exemple complet</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Entite animee complete</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// 1. Definir l'entite via EriEntity builder (dans preInit)
+EriEntity.create("monmod", "monstre")
+    .model("monmod:entity/monstre")
+    .texture("body", "monmod:textures/entity/monstre/body")
+    .animation("idle", "monmod:entity/monstre_idle")
+    .animation("walk", "monmod:entity/monstre_walk")
+    .hitbox(0.8f, 1.8f)
+    .seat(0.0f, 24.0f, 0.0f)
+    .register();
+
+// 2. Classe d'entite — gestion de l'etat d'animation via DataParameters
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+
+    // DataParameters pour sync serveur -&gt; client
+    private static final DataParameter&lt;String&gt; ANIM_NAME =
+        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.STRING);
+    private static final DataParameter&lt;Integer&gt; ANIM_TICK =
+        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.VARINT);
+
+    private final AnimationController controller = new AnimationController();
+
+    public EntityMonstre(World world) {
+        super(world);
+        setSize(0.8f, 1.8f);
+    }
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        dataManager.register(ANIM_NAME, "");
+        dataManager.register(ANIM_TICK, 0);
+    }
+
+    // Appeler cote serveur pour lancer une animation
+    public void playAnimation(String name) {
+        dataManager.set(ANIM_NAME, name);
+        dataManager.set(ANIM_TICK, 0);
+    }
+
+    public void stopAnimation() {
+        dataManager.set(ANIM_NAME, "");
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (!world.isRemote) {
+            String name = dataManager.get(ANIM_NAME);
+            if (!name.isEmpty()) {
+                dataManager.set(ANIM_TICK, dataManager.get(ANIM_TICK) + 1);
+            }
+        }
+    }
+
+    // --- IAnimatedEntity ---
+
+    @Override
+    public AnimationPose getCurrentPose(float partialTicks) {
+        String animName = dataManager.get(ANIM_NAME);
+        if (animName.isEmpty()) return null;
+
+        // Charger le fichier d'animation depuis le cache
+        AnimationFile animFile = EriAnimCache.get("monmod:entity/monstre_" + animName);
+        if (animFile == null) return null;
+
+        AnimationDef animDef = animFile.getAnimations().values().iterator().next();
+        if (animDef == null) return null;
+
+        float tickFloat = dataManager.get(ANIM_TICK) + partialTicks;
+        return controller.computePose(
+            animDef,
+            AnimState.PLAYING,
+            tickFloat,
+            animDef.getDuration(),
+            10,    // rollbackDuration (non utilise ici)
+            null,  // blendPose
+            1.0f   // blendProgress
+        );
+    }
+
+    @Override
+    public AnimState getAnimState() {
+        return dataManager.get(ANIM_NAME).isEmpty() ? AnimState.IDLE : AnimState.PLAYING;
+    }
+}
+
+// 3. Enregistrer le renderer (ClientProxy.preInit)
+RenderingRegistry.registerEntityRenderingHandler(
+    EntityMonstre.class,
+    AnimatedEntityRenderer.factory("monmod:entity/monstre")
+);
+
+// 4. Enregistrer dans Forge (RegistryEvent.Register&lt;EntityEntry&gt;)
+for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
+    // Enregistrer EntityEntry avec EntityRegistry.registerModEntity(...)
+    // Associer AnimatedEntityRenderer via RenderingRegistry (client only)
+}</code></pre>
+      </div>
+
+      <div class="info-box warn">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Gestion manuelle de l'etat d'animation</div>
+          <p>
+            Contrairement aux blocs animes qui disposent d'un <code>AnimatedBlockTileEntity</code> cote
+            serveur, les entites gerent leur etat d'animation manuellement via des
+            <code>DataParameters</code> Forge. Seuls le nom de l'animation et le tick courant sont
+            synchronises serveur&rarr;client. Le calcul de la pose (<code>AnimationController</code>)
+            est purement client-side, execute chaque frame.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">ContentRegistry.getEntityDefs()</div>
+          <p>
+            Utilisez <code>ContentRegistry.getEntityDefs()</code> dans votre handler
+            <code>RegistryEvent.Register&lt;EntityEntry&gt;</code> pour recuperer toutes les definitions
+            d'entites enregistrees via <code>EriEntity</code>. Chaque <code>EntityDefinition</code> contient
+            le modId, le registryName, le modelId, les textures, animations, hitbox et sieges.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
          EVENTS FORGE
     ====================================================== -->
     <section class="doc-section" id="events-forge">
@@ -2417,299 +2927,6 @@ Map&lt;String, String&gt; overrides = te.getTextureOverrides();
       </div>
     </section>
 
-    <div class="section-divider"></div>
-
-    <!-- ======================================================
-         ITEMS ANIMES
-    ====================================================== -->
-    <section class="doc-section" id="animated-items">
-      <h2>Items animes <span class="badge badge-cyan">v1.3.1</span></h2>
-      <p>
-        Depuis la version 1.3.1, il est possible d'utiliser la methode <code>.animatedModel()</code> sur un
-        <code>EriItem</code> pour rendre l'item avec un <strong>modele Blockbench 3D</strong> au lieu de la
-        texture 2D standard. L'item sera affiche en 3D dans la main du joueur et dans l'inventaire.
-      </p>
-      <p>
-        Le rendu est delegue a un <code>TileEntityItemStackRenderer</code> interne
-        (<code>AnimatedBlockItemRenderer</code>) qui utilise le meme pipeline de rendu que
-        <code>AnimatedBlockTESR</code> — groupes, elements, faces, UV, textures.
-      </p>
-
-      <h3>Utilisation</h3>
-      <p>
-        Il suffit d'appeler <code>.animatedModel("modid:item/nom")</code> dans la chaine du builder.
-        Le modele JSON Blockbench doit se trouver dans <code>assets/{modid}/models/item/{nom}.json</code>.
-      </p>
-
-      <div class="code-wrapper">
-        <div class="code-label">
-          <span>Java — Item avec modele 3D Blockbench</span>
-          <button class="copy-btn">Copier</button>
-        </div>
-        <pre><code class="language-java">EriItem.create("monmod", "epee_fancy")
-    .maxStackSize(1)
-    .rarity(EnumRarity.EPIC)
-    .animatedModel("monmod:item/epee_fancy")  // Modele Blockbench 3D
-    .register();</code></pre>
-      </div>
-
-      <div class="info-box tip">
-        <div class="ib-icon">&#10003;</div>
-        <div class="ib-body">
-          <div class="ib-title">Textures dans le JSON Blockbench</div>
-          <p>
-            Les textures de l'item sont definies directement dans le fichier JSON du modele Blockbench,
-            pas dans le code Java. Le renderer lit automatiquement les textures referees par le modele.
-          </p>
-        </div>
-      </div>
-
-      <div class="info-box info">
-        <div class="ib-icon">&#8505;</div>
-        <div class="ib-body">
-          <div class="ib-title">Emplacement du fichier modele</div>
-          <p>
-            Le modele JSON Blockbench doit etre place dans <code>assets/{modid}/models/item/{nom}.json</code>.
-            L'identifiant passe a <code>animatedModel()</code> utilise le format <code>"modid:item/nom"</code>.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ======================================================
-         ENTITES ANIMEES
-    ====================================================== -->
-    <section class="doc-section" id="animated-entities">
-      <h2>Entites animees <span class="badge badge-cyan">v1.3.0</span></h2>
-      <p>
-        Le systeme d'entites animees permet de creer des <strong>entites Minecraft custom</strong> rendues avec des
-        <strong>modeles Blockbench 3D</strong> et des animations <code>.erianim.json</code>. Il repose sur trois
-        composants : le builder <code>EriEntity</code>, le renderer <code>AnimatedEntityRenderer</code>, et
-        l'interface <code>IAnimatedEntity</code>.
-      </p>
-
-      <h3>EriEntity — Builder fluent</h3>
-      <p>
-        <code>EriEntity</code> est le builder pour definir une entite custom. Il stocke la configuration
-        (modele, textures, animations, hitbox, sieges) dans un <code>EntityDefinition</code> enregistre dans
-        le <code>ContentRegistry</code>.
-      </p>
-
-      <div class="info-box info">
-        <div class="ib-icon">&#8505;</div>
-        <div class="ib-body">
-          <div class="ib-title">Enregistrement manuel</div>
-          <p>
-            Contrairement a <code>EriItem</code> et <code>EriBlock</code>, <code>EriEntity</code>
-            ne gere <strong>pas</strong> l'enregistrement automatique dans Forge. Le mod doit enregistrer
-            les <code>EntityEntry</code> lui-meme dans <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>
-            en utilisant <code>ContentRegistry.getEntityDefs()</code> pour recuperer les definitions.
-          </p>
-        </div>
-      </div>
-
-      <h4>Methodes du builder</h4>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>create(String modId, String registryName)</code></td><td>Cree un nouveau builder. Methode statique.</td></tr>
-            <tr><td><code>model(String modelId)</code></td><td>Definit le modele Blockbench (ex: <code>"monmod:entity/monstre"</code>).</td></tr>
-            <tr><td><code>texture(String key, String path)</code></td><td>Associe une cle de texture du modele a un chemin de ResourceLocation.</td></tr>
-            <tr><td><code>animation(String name, String animId)</code></td><td>Associe un nom d'animation (ex: "idle", "walk") a un identifiant .erianim.</td></tr>
-            <tr><td><code>hitbox(float width, float height)</code></td><td>Definit les dimensions de la hitbox.</td></tr>
-            <tr><td><code>seat(float x, float y, float z)</code></td><td>Ajoute un siege passager simple (coordonnees Blockbench pixels).</td></tr>
-            <tr><td><code>seat(float x, float y, float z, String attachedGroup)</code></td><td>Ajoute un siege attache a un groupe du modele.</td></tr>
-            <tr><td><code>seat(float x, float y, float z, float yawOffset, String attachedGroup, boolean lockCamera)</code></td><td>Siege complet : rotation yaw, groupe attache, verrouillage camera.</td></tr>
-            <tr><td><code>spawnEgg(int primary, int secondary)</code></td><td>Active un spawn egg (couleurs 0xRRGGBB).</td></tr>
-            <tr><td><code>creativeTab(String tabName)</code></td><td>Onglet creatif pour le spawn egg.</td></tr>
-            <tr><td><code>register()</code></td><td>Enregistre la definition dans le ContentRegistry.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>IAnimatedEntity — Interface entite</h3>
-      <p>
-        L'entite Java doit implementer l'interface <code>IAnimatedEntity</code> pour fournir les poses
-        d'animation au renderer. Deux methodes a implementer :
-      </p>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>AnimationPose getCurrentPose(float partialTicks)</code></td><td>Retourne la pose interpolee courante, ou <code>null</code> si aucune animation n'est active (IDLE).</td></tr>
-            <tr><td><code>AnimState getAnimState()</code></td><td>Retourne l'etat d'animation courant de l'entite.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>AnimatedEntityRenderer — Renderer</h3>
-      <p>
-        Le renderer d'entite qui affiche le modele Blockbench avec animations. Le pipeline de rendu
-        est identique a <code>AnimatedBlockTESR</code>. S'enregistre via
-        <code>RenderingRegistry.registerEntityRenderingHandler()</code>.
-      </p>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Methode statique</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>factory(String modelId)</code></td><td>Cree une <code>IRenderFactory</code> pour le modele donne (ombre par defaut: 0.5).</td></tr>
-            <tr><td><code>factory(String modelId, float shadowSize)</code></td><td>Factory avec taille d'ombre personnalisee.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>EntitySeat — Systeme de sieges</h3>
-      <p>
-        Chaque entite peut avoir un ou plusieurs sieges pour les passagers. Les coordonnees sont en
-        <strong>pixels Blockbench</strong> (meme espace que le modele).
-      </p>
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Champ</th><th>Type</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>x, y, z</code></td><td><code>float</code></td><td>Position du siege en pixels Blockbench (local a l'entite).</td></tr>
-            <tr><td><code>yawOffset</code></td><td><code>float</code></td><td>Rotation yaw du passager en degres (defaut: 0).</td></tr>
-            <tr><td><code>attachedGroup</code></td><td><code>String</code></td><td>Nom du groupe du modele auquel le siege est attache (peut etre null). Le siege suit les animations du groupe.</td></tr>
-            <tr><td><code>lockCamera</code></td><td><code>boolean</code></td><td>Si true, la camera du joueur assis est verrouillee (defaut: false).</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>Exemple complet</h3>
-      <div class="code-wrapper">
-        <div class="code-label">
-          <span>Java — Entite animee complete</span>
-          <button class="copy-btn">Copier</button>
-        </div>
-        <pre><code class="language-java">// 1. Definir l'entite via EriEntity builder (dans preInit)
-EriEntity.create("monmod", "monstre")
-    .model("monmod:entity/monstre")
-    .texture("body", "monmod:textures/entity/monstre/body")
-    .animation("idle", "monmod:entity/monstre_idle")
-    .animation("walk", "monmod:entity/monstre_walk")
-    .hitbox(0.8f, 1.8f)
-    .seat(0.0f, 24.0f, 0.0f)
-    .register();
-
-// 2. Classe d'entite — gestion de l'etat d'animation via DataParameters
-public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
-
-    // DataParameters pour sync serveur -&gt; client
-    private static final DataParameter&lt;String&gt; ANIM_NAME =
-        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.STRING);
-    private static final DataParameter&lt;Integer&gt; ANIM_TICK =
-        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.VARINT);
-
-    private final AnimationController controller = new AnimationController();
-
-    public EntityMonstre(World world) {
-        super(world);
-        setSize(0.8f, 1.8f);
-    }
-
-    @Override
-    protected void entityInit() {
-        super.entityInit();
-        dataManager.register(ANIM_NAME, "");
-        dataManager.register(ANIM_TICK, 0);
-    }
-
-    // Appeler cote serveur pour lancer une animation
-    public void playAnimation(String name) {
-        dataManager.set(ANIM_NAME, name);
-        dataManager.set(ANIM_TICK, 0);
-    }
-
-    public void stopAnimation() {
-        dataManager.set(ANIM_NAME, "");
-    }
-
-    @Override
-    public void onUpdate() {
-        super.onUpdate();
-        if (!world.isRemote) {
-            String name = dataManager.get(ANIM_NAME);
-            if (!name.isEmpty()) {
-                dataManager.set(ANIM_TICK, dataManager.get(ANIM_TICK) + 1);
-            }
-        }
-    }
-
-    // --- IAnimatedEntity ---
-
-    @Override
-    public AnimationPose getCurrentPose(float partialTicks) {
-        String animName = dataManager.get(ANIM_NAME);
-        if (animName.isEmpty()) return null;
-
-        // Charger le fichier d'animation depuis le cache
-        AnimationFile animFile = EriAnimCache.get("monmod:entity/monstre_" + animName);
-        if (animFile == null) return null;
-
-        AnimationDef animDef = animFile.getAnimations().values().iterator().next();
-        if (animDef == null) return null;
-
-        float tickFloat = dataManager.get(ANIM_TICK) + partialTicks;
-        return controller.computePose(
-            animDef,
-            AnimState.PLAYING,
-            tickFloat,
-            animDef.getDuration(),
-            10,    // rollbackDuration (non utilise ici)
-            null,  // blendPose
-            1.0f   // blendProgress
-        );
-    }
-
-    @Override
-    public AnimState getAnimState() {
-        return dataManager.get(ANIM_NAME).isEmpty() ? AnimState.IDLE : AnimState.PLAYING;
-    }
-}
-
-// 3. Enregistrer le renderer (ClientProxy.preInit)
-RenderingRegistry.registerEntityRenderingHandler(
-    EntityMonstre.class,
-    AnimatedEntityRenderer.factory("monmod:entity/monstre")
-);
-
-// 4. Enregistrer dans Forge (RegistryEvent.Register&lt;EntityEntry&gt;)
-for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
-    // Enregistrer EntityEntry avec EntityRegistry.registerModEntity(...)
-    // Associer AnimatedEntityRenderer via RenderingRegistry (client only)
-}</code></pre>
-      </div>
-
-      <div class="info-box warn">
-        <div class="ib-icon">&#9888;</div>
-        <div class="ib-body">
-          <div class="ib-title">Gestion manuelle de l'etat d'animation</div>
-          <p>
-            Contrairement aux blocs animes qui disposent d'un <code>AnimatedBlockTileEntity</code> cote
-            serveur, les entites gerent leur etat d'animation manuellement via des
-            <code>DataParameters</code> Forge. Seuls le nom de l'animation et le tick courant sont
-            synchronises serveur&rarr;client. Le calcul de la pose (<code>AnimationController</code>)
-            est purement client-side, execute chaque frame.
-          </p>
-        </div>
-      </div>
-
-      <div class="info-box tip">
-        <div class="ib-icon">&#10003;</div>
-        <div class="ib-body">
-          <div class="ib-title">ContentRegistry.getEntityDefs()</div>
-          <p>
-            Utilisez <code>ContentRegistry.getEntityDefs()</code> dans votre handler
-            <code>RegistryEvent.Register&lt;EntityEntry&gt;</code> pour recuperer toutes les definitions
-            d'entites enregistrees via <code>EriEntity</code>. Chaque <code>EntityDefinition</code> contient
-            le modId, le registryName, le modelId, les textures, animations, hitbox et sieges.
-          </p>
-        </div>
-      </div>
-    </section>
 
   </main>
 </div>
