@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Animation de Blocks 3D — EriAPI</title>
+  <title>Animation System — EriAPI</title>
   <link rel="stylesheet" href="../assets/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="../assets/script.js" defer></script>
 
-  <meta name="description" content="EriAPI Animation de Blocks 3D — Animez des blocks Minecraft avec des modeles Blockbench et des fichiers .erianim. TESR, keyframes, easings, events, textures dynamiques. Forge 1.12.2.">
-  <meta name="keywords" content="EriAPI, animation block Minecraft, Blockbench Forge 1.12.2, TESR, AnimatedBlockTileEntity, EriAnimBlock, erianim, keyframe, easing, Java 8">
+  <meta name="description" content="EriAPI Animation System — Animez blocs, items et entites Minecraft avec des modeles Blockbench et des fichiers .erianim.json. TESR, keyframes, easings, events, textures dynamiques. Pipeline unifie. Forge 1.12.2.">
+  <meta name="keywords" content="EriAPI, animation Minecraft, animation bloc, animation item, animation entite, Blockbench Forge 1.12.2, TESR, AnimatedBlockTileEntity, EriAnimBlock, IAnimatedEntity, erianim, keyframe, easing, Java 8">
   <meta name="author" content="EriniumGroup">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://eriapi.netlify.app/fr/animation.html">
 
-  <meta property="og:title" content="Animation de Blocks 3D — EriAPI">
-  <meta property="og:description" content="EriAPI Animation de Blocks 3D — Animez des blocks Minecraft avec des modeles Blockbench et des fichiers .erianim. TESR, keyframes, easings, events, textures dynamiques.">
+  <meta property="og:title" content="Animation System — EriAPI">
+  <meta property="og:description" content="EriAPI Animation System — Animez blocs, items et entites Minecraft avec des modeles Blockbench et des fichiers .erianim.json. TESR, keyframes, easings, events, textures dynamiques. Pipeline unifie.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://eriapi.netlify.app/fr/animation.html">
   <meta property="og:site_name" content="EriAPI Documentation">
@@ -61,7 +61,7 @@
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
-        <li><a href="animation.html" class="nav-page-link active"><span class="nav-dot"></span>Animation Blocks 3D</a></li>
+        <li><a href="animation.html" class="nav-page-link active"><span class="nav-dot"></span>Animation System</a></li>
         <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
         <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
@@ -121,6 +121,14 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Items &amp; Entites</div>
+      <ul>
+        <li><a href="#animated-items"><span class="nav-dot"></span>Items animes</a></li>
+        <li><a href="#animated-entities"><span class="nav-dot"></span>Entites animees</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">Avance</div>
       <ul>
         <li><a href="#events-forge"><span class="nav-dot"></span>Events Forge</a></li>
@@ -142,10 +150,10 @@
     ====================================================== -->
     <section class="doc-section section-intro" id="introduction">
       <div class="hero">
-        <h1>Animation de Blocks 3D</h1>
+        <h1>Animation System</h1>
         <p class="subtitle">
-          Animez des blocks Minecraft avec des modeles 3D Blockbench et des fichiers d'animation <code>.erianim.json</code>.
-          Lootbox qui s'ouvre, machine qui tourne, porte qui pivote — tout est possible.
+          Animez des blocs, items et entites Minecraft avec des modeles 3D Blockbench et des fichiers <code>.erianim.json</code>.
+          Lootbox qui s'ouvre, machine qui tourne, entite avec animation idle — le meme pipeline pour tout.
         </p>
         <div class="badge-row">
           <span class="badge badge-cyan">fr.eri.eriapi.anim</span>
@@ -325,6 +333,7 @@ public class MonBlocks {
           <div class="ib-title">Rappel : ContentRegistry</div>
           <p>N'oublie pas d'appeler <code>ContentRegistry.register(this)</code> dans ta classe <code>@Mod</code> avant de declarer tes blocks.
           C'est necessaire pour que EriAPI enregistre correctement les blocks, TileEntities et TESR aupres de Forge.</p>
+          <p>Le TESR (<code>AnimatedBlockTESR</code>) est automatiquement enregistre par <code>ContentRegistry</code> pour tous les blocs crees via <code>EriAnimBlock</code>. Aucun appel manuel a <code>ClientRegistry.bindTileEntitySpecialRenderer()</code> n'est necessaire.</p>
         </div>
       </div>
     </section>
@@ -831,6 +840,8 @@ public class TileLootbox extends AnimatedBlockTileEntity {
                 (definie dans le modele Blockbench, ex: <code>"side_core"</code>). <code>value</code> est la cle de la texture de remplacement
                 (ex: <code>"side_core_active"</code>). La texture de remplacement doit exister dans la map de textures du modele.
                 La modification est synchronisee automatiquement aux clients.
+                <br><strong>Resolution des cles :</strong> Le parametre <code>target</code> est resolu a la fois par la cle JSON et par la valeur du modele Blockbench.
+                Par exemple, si le modele contient <code>"beam": "rarity_beam"</code>, alors <code>setTexture("beam", ...)</code> et <code>setTexture("rarity_beam", ...)</code> fonctionnent tous les deux.
                 <br><strong>Cote :</strong> Serveur uniquement.
               </div>
             </div>
@@ -2401,6 +2412,300 @@ Map&lt;String, String&gt; overrides = te.getTextureOverrides();
             L'editeur EriAnim est un outil interne a EriniumGroup. Si tu travailles sur un mod qui utilise EriAPI,
             contacte l'equipe pour obtenir l'acces. En attendant, tu peux toujours creer les fichiers <code>.erianim.json</code>
             a la main en suivant la documentation de cette page.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ITEMS ANIMES
+    ====================================================== -->
+    <section class="doc-section" id="animated-items">
+      <h2>Items animes <span class="badge badge-cyan">v1.3.1</span></h2>
+      <p>
+        Depuis la version 1.3.1, il est possible d'utiliser la methode <code>.animatedModel()</code> sur un
+        <code>EriItem</code> pour rendre l'item avec un <strong>modele Blockbench 3D</strong> au lieu de la
+        texture 2D standard. L'item sera affiche en 3D dans la main du joueur et dans l'inventaire.
+      </p>
+      <p>
+        Le rendu est delegue a un <code>TileEntityItemStackRenderer</code> interne
+        (<code>AnimatedBlockItemRenderer</code>) qui utilise le meme pipeline de rendu que
+        <code>AnimatedBlockTESR</code> — groupes, elements, faces, UV, textures.
+      </p>
+
+      <h3>Utilisation</h3>
+      <p>
+        Il suffit d'appeler <code>.animatedModel("modid:item/nom")</code> dans la chaine du builder.
+        Le modele JSON Blockbench doit se trouver dans <code>assets/{modid}/models/item/{nom}.json</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Item avec modele 3D Blockbench</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriItem.create("monmod", "epee_fancy")
+    .maxStackSize(1)
+    .rarity(EnumRarity.EPIC)
+    .animatedModel("monmod:item/epee_fancy")  // Modele Blockbench 3D
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Textures dans le JSON Blockbench</div>
+          <p>
+            Les textures de l'item sont definies directement dans le fichier JSON du modele Blockbench,
+            pas dans le code Java. Le renderer lit automatiquement les textures referees par le modele.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Emplacement du fichier modele</div>
+          <p>
+            Le modele JSON Blockbench doit etre place dans <code>assets/{modid}/models/item/{nom}.json</code>.
+            L'identifiant passe a <code>animatedModel()</code> utilise le format <code>"modid:item/nom"</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ENTITES ANIMEES
+    ====================================================== -->
+    <section class="doc-section" id="animated-entities">
+      <h2>Entites animees <span class="badge badge-cyan">v1.3.0</span></h2>
+      <p>
+        Le systeme d'entites animees permet de creer des <strong>entites Minecraft custom</strong> rendues avec des
+        <strong>modeles Blockbench 3D</strong> et des animations <code>.erianim.json</code>. Il repose sur trois
+        composants : le builder <code>EriEntity</code>, le renderer <code>AnimatedEntityRenderer</code>, et
+        l'interface <code>IAnimatedEntity</code>.
+      </p>
+
+      <h3>EriEntity — Builder fluent</h3>
+      <p>
+        <code>EriEntity</code> est le builder pour definir une entite custom. Il stocke la configuration
+        (modele, textures, animations, hitbox, sieges) dans un <code>EntityDefinition</code> enregistre dans
+        le <code>ContentRegistry</code>.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Enregistrement manuel</div>
+          <p>
+            Contrairement a <code>EriItem</code> et <code>EriBlock</code>, <code>EriEntity</code>
+            ne gere <strong>pas</strong> l'enregistrement automatique dans Forge. Le mod doit enregistrer
+            les <code>EntityEntry</code> lui-meme dans <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>
+            en utilisant <code>ContentRegistry.getEntityDefs()</code> pour recuperer les definitions.
+          </p>
+        </div>
+      </div>
+
+      <h4>Methodes du builder</h4>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>create(String modId, String registryName)</code></td><td>Cree un nouveau builder. Methode statique.</td></tr>
+            <tr><td><code>model(String modelId)</code></td><td>Definit le modele Blockbench (ex: <code>"monmod:entity/monstre"</code>).</td></tr>
+            <tr><td><code>texture(String key, String path)</code></td><td>Associe une cle de texture du modele a un chemin de ResourceLocation.</td></tr>
+            <tr><td><code>animation(String name, String animId)</code></td><td>Associe un nom d'animation (ex: "idle", "walk") a un identifiant .erianim.</td></tr>
+            <tr><td><code>hitbox(float width, float height)</code></td><td>Definit les dimensions de la hitbox.</td></tr>
+            <tr><td><code>seat(float x, float y, float z)</code></td><td>Ajoute un siege passager simple (coordonnees Blockbench pixels).</td></tr>
+            <tr><td><code>seat(float x, float y, float z, String attachedGroup)</code></td><td>Ajoute un siege attache a un groupe du modele.</td></tr>
+            <tr><td><code>seat(float x, float y, float z, float yawOffset, String attachedGroup, boolean lockCamera)</code></td><td>Siege complet : rotation yaw, groupe attache, verrouillage camera.</td></tr>
+            <tr><td><code>spawnEgg(int primary, int secondary)</code></td><td>Active un spawn egg (couleurs 0xRRGGBB).</td></tr>
+            <tr><td><code>creativeTab(String tabName)</code></td><td>Onglet creatif pour le spawn egg.</td></tr>
+            <tr><td><code>register()</code></td><td>Enregistre la definition dans le ContentRegistry.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>IAnimatedEntity — Interface entite</h3>
+      <p>
+        L'entite Java doit implementer l'interface <code>IAnimatedEntity</code> pour fournir les poses
+        d'animation au renderer. Deux methodes a implementer :
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>AnimationPose getCurrentPose(float partialTicks)</code></td><td>Retourne la pose interpolee courante, ou <code>null</code> si aucune animation n'est active (IDLE).</td></tr>
+            <tr><td><code>AnimState getAnimState()</code></td><td>Retourne l'etat d'animation courant de l'entite.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>AnimatedEntityRenderer — Renderer</h3>
+      <p>
+        Le renderer d'entite qui affiche le modele Blockbench avec animations. Le pipeline de rendu
+        est identique a <code>AnimatedBlockTESR</code>. S'enregistre via
+        <code>RenderingRegistry.registerEntityRenderingHandler()</code>.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Methode statique</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>factory(String modelId)</code></td><td>Cree une <code>IRenderFactory</code> pour le modele donne (ombre par defaut: 0.5).</td></tr>
+            <tr><td><code>factory(String modelId, float shadowSize)</code></td><td>Factory avec taille d'ombre personnalisee.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>EntitySeat — Systeme de sieges</h3>
+      <p>
+        Chaque entite peut avoir un ou plusieurs sieges pour les passagers. Les coordonnees sont en
+        <strong>pixels Blockbench</strong> (meme espace que le modele).
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Champ</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>x, y, z</code></td><td><code>float</code></td><td>Position du siege en pixels Blockbench (local a l'entite).</td></tr>
+            <tr><td><code>yawOffset</code></td><td><code>float</code></td><td>Rotation yaw du passager en degres (defaut: 0).</td></tr>
+            <tr><td><code>attachedGroup</code></td><td><code>String</code></td><td>Nom du groupe du modele auquel le siege est attache (peut etre null). Le siege suit les animations du groupe.</td></tr>
+            <tr><td><code>lockCamera</code></td><td><code>boolean</code></td><td>Si true, la camera du joueur assis est verrouillee (defaut: false).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exemple complet</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Entite animee complete</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// 1. Definir l'entite via EriEntity builder (dans preInit)
+EriEntity.create("monmod", "monstre")
+    .model("monmod:entity/monstre")
+    .texture("body", "monmod:textures/entity/monstre/body")
+    .animation("idle", "monmod:entity/monstre_idle")
+    .animation("walk", "monmod:entity/monstre_walk")
+    .hitbox(0.8f, 1.8f)
+    .seat(0.0f, 24.0f, 0.0f)
+    .register();
+
+// 2. Classe d'entite — gestion de l'etat d'animation via DataParameters
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+
+    // DataParameters pour sync serveur -&gt; client
+    private static final DataParameter&lt;String&gt; ANIM_NAME =
+        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.STRING);
+    private static final DataParameter&lt;Integer&gt; ANIM_TICK =
+        EntityDataManager.createKey(EntityMonstre.class, DataSerializers.VARINT);
+
+    private final AnimationController controller = new AnimationController();
+
+    public EntityMonstre(World world) {
+        super(world);
+        setSize(0.8f, 1.8f);
+    }
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        dataManager.register(ANIM_NAME, "");
+        dataManager.register(ANIM_TICK, 0);
+    }
+
+    // Appeler cote serveur pour lancer une animation
+    public void playAnimation(String name) {
+        dataManager.set(ANIM_NAME, name);
+        dataManager.set(ANIM_TICK, 0);
+    }
+
+    public void stopAnimation() {
+        dataManager.set(ANIM_NAME, "");
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (!world.isRemote) {
+            String name = dataManager.get(ANIM_NAME);
+            if (!name.isEmpty()) {
+                dataManager.set(ANIM_TICK, dataManager.get(ANIM_TICK) + 1);
+            }
+        }
+    }
+
+    // --- IAnimatedEntity ---
+
+    @Override
+    public AnimationPose getCurrentPose(float partialTicks) {
+        String animName = dataManager.get(ANIM_NAME);
+        if (animName.isEmpty()) return null;
+
+        // Charger le fichier d'animation depuis le cache
+        AnimationFile animFile = EriAnimCache.get("monmod:entity/monstre_" + animName);
+        if (animFile == null) return null;
+
+        AnimationDef animDef = animFile.getAnimations().values().iterator().next();
+        if (animDef == null) return null;
+
+        float tickFloat = dataManager.get(ANIM_TICK) + partialTicks;
+        return controller.computePose(
+            animDef,
+            AnimState.PLAYING,
+            tickFloat,
+            animDef.getDuration(),
+            10,    // rollbackDuration (non utilise ici)
+            null,  // blendPose
+            1.0f   // blendProgress
+        );
+    }
+
+    @Override
+    public AnimState getAnimState() {
+        return dataManager.get(ANIM_NAME).isEmpty() ? AnimState.IDLE : AnimState.PLAYING;
+    }
+}
+
+// 3. Enregistrer le renderer (ClientProxy.preInit)
+RenderingRegistry.registerEntityRenderingHandler(
+    EntityMonstre.class,
+    AnimatedEntityRenderer.factory("monmod:entity/monstre")
+);
+
+// 4. Enregistrer dans Forge (RegistryEvent.Register&lt;EntityEntry&gt;)
+for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
+    // Enregistrer EntityEntry avec EntityRegistry.registerModEntity(...)
+    // Associer AnimatedEntityRenderer via RenderingRegistry (client only)
+}</code></pre>
+      </div>
+
+      <div class="info-box warn">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Gestion manuelle de l'etat d'animation</div>
+          <p>
+            Contrairement aux blocs animes qui disposent d'un <code>AnimatedBlockTileEntity</code> cote
+            serveur, les entites gerent leur etat d'animation manuellement via des
+            <code>DataParameters</code> Forge. Seuls le nom de l'animation et le tick courant sont
+            synchronises serveur&rarr;client. Le calcul de la pose (<code>AnimationController</code>)
+            est purement client-side, execute chaque frame.
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">ContentRegistry.getEntityDefs()</div>
+          <p>
+            Utilisez <code>ContentRegistry.getEntityDefs()</code> dans votre handler
+            <code>RegistryEvent.Register&lt;EntityEntry&gt;</code> pour recuperer toutes les definitions
+            d'entites enregistrees via <code>EriEntity</code>. Chaque <code>EntityDefinition</code> contient
+            le modId, le registryName, le modelId, les textures, animations, hitbox et sieges.
           </p>
         </div>
       </div>

@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.0-SNAPSHOT · 1.12.2</span>
+  <span class="version-badge">v1.3.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="content.html" class="active">FR</a>
@@ -61,6 +61,7 @@
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link active"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="animation.html" class="nav-page-link"><span class="nav-dot"></span>Animation System</a></li>
         <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
         <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
@@ -110,6 +111,13 @@
         <li><a href="#shaped-recipe"><span class="nav-dot"></span>Shaped (avec forme)</a></li>
         <li><a href="#shapeless-recipe"><span class="nav-dot"></span>Shapeless (sans forme)</a></li>
         <li><a href="#smelting-recipe"><span class="nav-dot"></span>Smelting (four)</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Entites</div>
+      <ul>
+        <li><a href="#eri-entity"><span class="nav-dot"></span>EriEntity</a></li>
       </ul>
     </div>
 
@@ -517,6 +525,18 @@ EriBlock.create("monmod", "bloc_piege")
               <div class="method-desc">Ouvre le sous-builder armure. Appelle <code>.done()</code> pour revenir a l'<code>EriItem</code>. Voir <a href="#armor-builder">ArmorBuilder</a>.</div>
             </div>
             <span class="method-badge mb-fluent">Sous-builder</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriItem</span> animatedModel(<span class="param">String modelId</span>)</div>
+              <div class="method-desc">
+                Configure l'item pour utiliser un modele 3D Blockbench anime en main et en inventaire.
+                Le rendu est delegue a un <code>TileEntityItemStackRenderer</code> interne.
+                <code>modelId</code> est au format <code>"modid:item/nom"</code> (ex: <code>"eriniumfaction:item/faction_sword"</code>).
+                Le fichier JSON Blockbench doit etre dans <code>assets/{modid}/models/item/{nom}.json</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
           </li>
           <li class="method-item">
             <div>
@@ -1006,7 +1026,7 @@ public static void initArmure() {
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriBlock</span> onPlace(<span class="param">Consumer&lt;BlockActionContext&gt; action</span>)</div>
-              <div class="method-desc">Callback execute quand le bloc est place par un joueur.</div>
+              <div class="method-desc">Callback execute quand le bloc est place par un joueur. Le callback est declenche dans <code>onBlockPlacedBy</code>, ce qui garantit que <code>ctx.getPlayer()</code> retourne toujours le joueur qui a place le bloc (jamais <code>null</code>).</div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
           </li>
@@ -1495,6 +1515,264 @@ public class MonMod {
             .register();
     }
 }</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ENTITY
+    ====================================================== -->
+    <section class="doc-section" id="eri-entity">
+      <h2>EriEntity <span class="badge badge-cyan">v1.3.0</span></h2>
+      <p>
+        <code>EriEntity</code> est le builder fluent pour enregistrer des entites custom avec un modele
+        Blockbench anime. Il fonctionne de pair avec <code>AnimatedEntityRenderer</code> et l'interface
+        <code>IAnimatedEntity</code> pour le rendu anime des entites.
+      </p>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Enregistrement manuel</div>
+          <p>
+            Contrairement a <code>EriItem</code> et <code>EriBlock</code>, <code>EriEntity</code>
+            ne gere <strong>pas</strong> l'enregistrement automatique dans Forge. Les definitions sont
+            stockees dans <code>ContentRegistry</code>, mais le mod doit les enregistrer lui-meme dans
+            <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>. Cela permet d'utiliser des sous-classes
+            custom de <code>EntityLivingBase</code>.
+          </p>
+        </div>
+      </div>
+
+      <h3>Classes principales</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Classe</th><th>Package</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>EriEntity</code></td><td><code>fr.eri.eriapi.content</code></td><td>Builder fluent pour definir une entite</td></tr>
+            <tr><td><code>EntityDefinition</code></td><td><code>fr.eri.eriapi.content</code></td><td>POJO contenant la configuration de l'entite</td></tr>
+            <tr><td><code>EntitySeat</code></td><td><code>fr.eri.eriapi.content</code></td><td>Definition d'un siege passager</td></tr>
+            <tr><td><code>AnimatedEntityRenderer</code></td><td><code>fr.eri.eriapi.anim</code></td><td>Renderer d'entite utilisant des modeles Blockbench</td></tr>
+            <tr><td><code>IAnimatedEntity</code></td><td><code>fr.eri.eriapi.anim</code></td><td>Interface pour les entites avec animation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methodes du builder EriEntity</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> create(<span class="type">String</span> modId, <span class="type">String</span> registryName)</div>
+              <div class="method-desc">Cree un nouveau builder d'entite. Methode statique.</div>
+            </div>
+            <span class="method-badge mb-abstract">Factory</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> model(<span class="type">String</span> modelId)</div>
+              <div class="method-desc">Definit le modele Blockbench (ex: <code>"eriniumfaction:entity/monstre"</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> texture(<span class="type">String</span> key, <span class="type">String</span> path)</div>
+              <div class="method-desc">Associe une cle de texture du modele a un chemin de ResourceLocation.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> animation(<span class="type">String</span> name, <span class="type">String</span> animId)</div>
+              <div class="method-desc">Associe un nom d'animation (ex: "idle", "walk") a un identifiant d'animation .erianim.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> hitbox(<span class="type">float</span> width, <span class="type">float</span> height)</div>
+              <div class="method-desc">Definit les dimensions de la hitbox (defaut: 0.6 x 1.8).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> seat(<span class="type">float</span> x, <span class="type">float</span> y, <span class="type">float</span> z)</div>
+              <div class="method-desc">Ajoute un siege passager simple aux coordonnees Blockbench donnees.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> seat(<span class="type">float</span> x, <span class="type">float</span> y, <span class="type">float</span> z, <span class="type">String</span> attachedGroup)</div>
+              <div class="method-desc">Ajoute un siege attache a un groupe du modele (suit les animations du groupe).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> seat(<span class="type">float</span> x, <span class="type">float</span> y, <span class="type">float</span> z, <span class="type">float</span> yawOffset, <span class="type">String</span> attachedGroup, <span class="type">boolean</span> lockCamera)</div>
+              <div class="method-desc">Ajoute un siege complet avec rotation yaw, groupe attache et verrouillage camera.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> spawnEgg(<span class="type">int</span> primary, <span class="type">int</span> secondary)</div>
+              <div class="method-desc">Active un spawn egg avec les couleurs primaire et secondaire (format 0xRRGGBB).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> creativeTab(<span class="type">String</span> tabName)</div>
+              <div class="method-desc">Definit l'onglet creatif pour le spawn egg.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> register()</div>
+              <div class="method-desc">Enregistre la definition dans le ContentRegistry. Le mod doit ensuite enregistrer l'EntityEntry manuellement.</div>
+            </div>
+            <span class="method-badge mb-abstract">Terminal</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>AnimatedEntityRenderer</h3>
+      <p>
+        Le renderer d'entite qui affiche un modele Blockbench avec animations. Le pipeline de rendu
+        (groupes, elements, faces, UV) est identique a <code>AnimatedBlockTESR</code>.
+      </p>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">IRenderFactory&lt;T&gt;</span> factory(<span class="type">String</span> modelId)</div>
+              <div class="method-desc">Cree une factory pour <code>RenderingRegistry.registerEntityRenderingHandler()</code>.</div>
+            </div>
+            <span class="method-badge mb-abstract">Factory</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">IRenderFactory&lt;T&gt;</span> factory(<span class="type">String</span> modelId, <span class="type">float</span> shadowSize)</div>
+              <div class="method-desc">Factory avec taille d'ombre personnalisee.</div>
+            </div>
+            <span class="method-badge mb-abstract">Factory</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>IAnimatedEntity</h3>
+      <p>
+        Interface que les entites doivent implementer pour supporter le rendu anime.
+        Le renderer verifie cette interface pour obtenir la pose d'animation.
+      </p>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimationPose</span> getCurrentPose(<span class="type">float</span> partialTicks)</div>
+              <div class="method-desc">Retourne la pose interpolee courante, ou <code>null</code> si aucune animation n'est active.</div>
+            </div>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">AnimState</span> getAnimState()</div>
+              <div class="method-desc">Retourne l'etat d'animation courant de l'entite.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <h3>EntitySeat</h3>
+      <p>
+        Chaque entite peut avoir un ou plusieurs sieges pour les passagers. Les coordonnees sont en
+        <strong>pixels Blockbench</strong> (meme espace de coordonnees que le modele).
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Champ</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>x, y, z</code></td><td><code>float</code></td><td>Position du siege en pixels Blockbench (local a l'entite).</td></tr>
+            <tr><td><code>yawOffset</code></td><td><code>float</code></td><td>Rotation yaw du passager en degres (defaut: 0).</td></tr>
+            <tr><td><code>attachedGroup</code></td><td><code>String</code></td><td>Nom du groupe du modele auquel le siege est attache (peut etre null). Le siege suit les animations du groupe.</td></tr>
+            <tr><td><code>lockCamera</code></td><td><code>boolean</code></td><td>Si true, la camera du joueur assis est verrouillee (defaut: false).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple complet EriEntity</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.*;
+import fr.eri.eriapi.content.EriEntity;
+import fr.eri.eriapi.content.ContentRegistry;
+import fr.eri.eriapi.content.EntityDefinition;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+
+// 1. Definir l'entite via le builder (dans preInit)
+public class MonEntites {
+    public static void init() {
+        EriEntity.create("monmod", "monstre")
+            .model("monmod:entity/monstre")
+            .texture("body", "monmod:textures/entity/monstre/body")
+            .animation("idle", "monmod:entity/monstre_idle")
+            .animation("walk", "monmod:entity/monstre_walk")
+            .animation("attack", "monmod:entity/monstre_attack")
+            .hitbox(0.8f, 1.8f)
+            .seat(0.0f, 24.0f, 0.0f)
+            .spawnEgg(0x333333, 0x00FF00)
+            .register();
+    }
+}
+
+// 2. Creer la classe d'entite qui implemente IAnimatedEntity
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+    private AnimationController controller = new AnimationController();
+    private AnimState animState = AnimState.IDLE;
+    private String currentAnim = "";
+    private long animStartTick = 0;
+
+    public EntityMonstre(World world) {
+        super(world);
+        setSize(0.8f, 1.8f);
+    }
+
+    @Override
+    public AnimationPose getCurrentPose(float partialTicks) {
+        if (animState == AnimState.IDLE) return null;
+        // Calculer la pose via AnimationController
+        // (similaire a AnimatedBlockTileEntity.getCurrentPose)
+        return null;
+    }
+
+    @Override
+    public AnimState getAnimState() {
+        return animState;
+    }
+}
+
+// 3. Enregistrer le renderer (dans ClientProxy.preInit)
+public class ClientProxy {
+    public void preInit() {
+        RenderingRegistry.registerEntityRenderingHandler(
+            EntityMonstre.class,
+            AnimatedEntityRenderer.factory("monmod:entity/monstre", 0.5f)
+        );
+    }
+}
+
+// 4. Enregistrer l'EntityEntry (dans RegistryEvent)
+// Le mod gere cela manuellement car EriAPI ne fait pas
+// d'auto-registration pour les entites.</code></pre>
       </div>
     </section>
 

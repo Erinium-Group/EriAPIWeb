@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.2.0 · 1.12.2</span>
+  <span class="version-badge">v1.3.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -61,6 +61,7 @@
         <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Item &amp; Block Builder</a></li>
+        <li><a href="animation.html" class="nav-page-link"><span class="nav-dot"></span>Animation System</a></li>
         <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
         <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
@@ -76,6 +77,8 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.3.1"><span class="nav-dot"></span>v1.3.1</a></li>
+        <li><a href="#v1.3.0"><span class="nav-dot"></span>v1.3.0</a></li>
         <li><a href="#v1.2.1"><span class="nav-dot"></span>v1.2.1</a></li>
         <li><a href="#v1.2.0"><span class="nav-dot"></span>v1.2.0</a></li>
         <li><a href="#v1.1.0"><span class="nav-dot"></span>v1.1.0</a></li>
@@ -96,6 +99,80 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.3.1 ===== -->
+    <section class="doc-section" id="v1.3.1">
+      <h2>v1.3.1 <span class="badge badge-cyan">16 Avril 2026</span></h2>
+
+      <h3>EriItem : support .animatedModel() pour les items avec rendu Blockbench 3D</h3>
+      <p>
+        Les items crees via <code>EriItem</code> peuvent desormais utiliser un modele 3D Blockbench anime
+        en main et en inventaire, grace a la nouvelle methode <code>.animatedModel(String modelId)</code>.
+        Le rendu est delegue au meme <code>AnimatedBlockItemRenderer</code> utilise pour les blocs animes.
+      </p>
+      <ul>
+        <li><strong>EriItem.animatedModel(String)</strong> — Nouvelle methode fluent qui configure un item pour utiliser un modele Blockbench au format <code>"modid:item/nom"</code>.</li>
+        <li><strong>ContentRegistry</strong> — Branche automatiquement le TEISR (TileEntityItemStackRenderer) sur les items animes cote client, et enregistre le modele <code>builtin/entity</code> pour que Forge delegue le rendu.</li>
+        <li><strong>ItemDefinition</strong> — Nouveau champ <code>animatedModelId</code> pour stocker l'identifiant du modele.</li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriItem.create("eriniumfaction", "faction_sword")
+    .maxStackSize(1)
+    .rarity(EnumRarity.EPIC)
+    .animatedModel("eriniumfaction:item/faction_sword")
+    .register();</code></pre>
+      </div>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version — uniquement des ajouts.</li>
+      </ul>
+    </section>
+
+    <!-- ===== v1.3.0 ===== -->
+    <section class="doc-section" id="v1.3.0">
+      <h2>v1.3.0 <span class="badge badge-cyan">16 Avril 2026</span></h2>
+
+      <h3>Nouveau : AnimatedEntityRenderer — rendu anime pour les entites</h3>
+      <p>
+        Extension du pipeline de rendu Blockbench aux entites. Le renderer utilise exactement le meme
+        pipeline que <code>AnimatedBlockTESR</code> (groupes, elements, faces, UV, textures animees).
+      </p>
+      <ul>
+        <li><strong>AnimatedEntityRenderer&lt;T&gt;</strong> — <code>RenderLiving</code> qui rend un modele Blockbench avec animations. Methodes factory statiques pour l'enregistrement via <code>RenderingRegistry</code>.</li>
+        <li><strong>IAnimatedEntity</strong> — Interface que les entites implementent pour fournir leur pose d'animation au renderer. Methodes <code>getCurrentPose(partialTicks)</code> et <code>getAnimState()</code>.</li>
+      </ul>
+
+      <h3>Nouveau : EriEntity builder</h3>
+      <p>
+        Builder fluent pour definir des entites custom avec modele Blockbench, textures, animations, hitbox,
+        sieges passagers et spawn eggs. Les definitions sont stockees dans <code>ContentRegistry</code> pour
+        que le mod les enregistre dans Forge manuellement.
+      </p>
+      <ul>
+        <li><strong>EriEntity</strong> — Builder fluent : <code>model()</code>, <code>texture()</code>, <code>animation()</code>, <code>hitbox()</code>, <code>seat()</code> (3 surcharges), <code>spawnEgg()</code>, <code>creativeTab()</code>, <code>register()</code>.</li>
+        <li><strong>EntityDefinition</strong> — POJO de configuration contenant tous les parametres de l'entite.</li>
+        <li><strong>EntitySeat</strong> — Definition d'un siege passager avec position Blockbench, yaw offset, groupe attache, et verrouillage camera.</li>
+        <li><strong>ContentRegistry.registerEntity()</strong> / <code>getEntityDefs()</code> — Stockage et acces aux definitions d'entites.</li>
+      </ul>
+
+      <h3>Champ category dans AnimationFile</h3>
+      <p>
+        Les fichiers <code>.erianim.json</code> supportent desormais un champ optionnel <code>"category"</code>
+        (<code>"block"</code>, <code>"item"</code>, ou <code>"entity"</code>). Ce champ est informatif et indique
+        quel type de renderer est prevu pour ce fichier d'animation. Retrocompatible — le defaut est <code>"block"</code>.
+      </p>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version — uniquement des ajouts.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.2.1 ===== -->
