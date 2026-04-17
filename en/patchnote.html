@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.3.1 · 1.12.2</span>
+  <span class="version-badge">v1.3.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.3.2"><span class="nav-dot"></span>v1.3.2</a></li>
         <li><a href="#v1.3.1"><span class="nav-dot"></span>v1.3.1</a></li>
         <li><a href="#v1.3.0"><span class="nav-dot"></span>v1.3.0</a></li>
         <li><a href="#v1.2.1"><span class="nav-dot"></span>v1.2.1</a></li>
@@ -99,6 +100,44 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.3.2 ===== -->
+    <section class="doc-section" id="v1.3.2">
+      <h2>v1.3.2 <span class="badge badge-cyan">April 16, 2026</span></h2>
+
+      <h3>AnimatedItemController: animation playback for animated items</h3>
+      <p>
+        Items created with <code>EriItem.animatedModel()</code> can now play
+        <code>.erianim.json</code> animations in real time. The new
+        <code>AnimatedItemController</code> exposes a simple static API
+        (<code>play</code> / <code>stop</code> / <code>isPlaying</code>) and shares playback
+        state per <code>modelId</code> for every item using the same model.
+      </p>
+      <ul>
+        <li><strong>AnimatedItemController</strong> &mdash; New client-only controller in <code>fr.eri.eriapi.anim</code>. Handles looping (EndBehavior LOOP), one-shot playback, and per-modelId state.</li>
+        <li><strong>AnimatedBlockItemRenderer</strong> &mdash; The renderer now queries the controller every frame and feeds the pose to the TESR pipeline through a proxy TileEntity. No more static pose.</li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Example</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriItem.create("mymod", "sword")
+    .animatedModel("mymod:item/sword")
+    .onRightClick(ctx -&gt; {
+        if (ctx.world.isRemote) {
+            AnimatedItemController.play("mymod:item/sword", "swing");
+        }
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>Bug fixes</h3>
+      <ul>
+        <li>Documentation <code>animation.html</code> &mdash; removed the &ldquo;no animation playback&rdquo; warning and replaced it with documentation for the new controller.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.3.1 ===== -->

@@ -1258,17 +1258,50 @@ public class EntityMonster extends EntityMob implements IAnimatedEntity {
 }</code></pre>
       </div>
 
-      <h3>Animated Item &mdash; Important note</h3>
-      <div class="info-box warn">
-        <div class="ib-icon">&#9888;</div>
+      <h3>Animated Item &mdash; Animation playback <span class="badge badge-cyan">v1.3.2</span></h3>
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Animated items do not play animations</div>
+          <div class="ib-title">Animation playback is supported</div>
           <p>
-            <code>EriItem.animatedModel()</code> displays the 3D Blockbench model in
-            hand and in the inventory, but does not support animation playback. The
-            model is shown in its static pose (group positions as defined in the
-            Blockbench JSON, without keyframes applied). For items with playable
-            animations, use <code>EriAnimBlock</code> placed in the world instead.
+            <code>AnimatedItemController</code> plays <code>.erianim.json</code>
+            animations on animated items in real time. Playback state is shared
+            <strong>per modelId</strong>: all items rendered with the same model
+            share the same animation.
+          </p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Play an animation on an item</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Declare the item with an animated model
+EriItem.create("mymod", "sword")
+    .animatedModel("mymod:item/sword")
+    .onRightClick(ctx -&gt; {
+        if (ctx.world.isRemote) {
+            AnimatedItemController.play("mymod:item/sword", "use");
+        }
+    })
+    .register();
+
+// From anywhere on the client side
+AnimatedItemController.play("mymod:item/sword", "mymod:item/sword_anims", "idle"); // explicit animFileId
+AnimatedItemController.play("mymod:item/sword", "swing");  // animFileId = modelId
+AnimatedItemController.stop("mymod:item/sword");
+boolean playing = AnimatedItemController.isPlaying("mymod:item/sword");</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">animFileId format</div>
+          <p>
+            <code>animFileId</code> follows the same format as blocks:
+            <code>"modid:path"</code> resolves to
+            <code>assets/modid/animations/path.erianim.json</code>.
           </p>
         </div>
       </div>

@@ -1258,18 +1258,50 @@ public class EntityMonstre extends EntityMob implements IAnimatedEntity {
 }</code></pre>
       </div>
 
-      <h3>Item anime &mdash; Note importante</h3>
-      <div class="info-box warn">
-        <div class="ib-icon">&#9888;</div>
+      <h3>Item anime &mdash; Lecture d'animations <span class="badge badge-cyan">v1.3.2</span></h3>
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
-          <div class="ib-title">Pas de lecture d'animation pour les items</div>
+          <div class="ib-title">Lecture d'animations supportee</div>
           <p>
-            <code>EriItem.animatedModel()</code> affiche le modele Blockbench 3D en main
-            et dans l'inventaire, mais ne dispose pas d'un systeme de lecture
-            d'animations. Le modele est affiche dans sa pose statique (position des
-            groupes telle que definie dans le JSON Blockbench, sans keyframes
-            appliquees). Pour des items avec animations jouables, utiliser
-            <code>EriAnimBlock</code> pose dans le monde a la place.
+            <code>AnimatedItemController</code> permet de jouer des animations
+            <code>.erianim.json</code> en temps reel sur les items animes. L'etat
+            de lecture est partage par <strong>modelId</strong> : tous les items
+            rendus avec le meme modele partagent la meme animation.
+          </p>
+        </div>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Jouer une animation sur un item</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Declarer l'item avec modele anime
+EriItem.create("monmod", "epee")
+    .animatedModel("monmod:item/epee")
+    .onRightClick(ctx -&gt; {
+        if (ctx.world.isRemote) {
+            AnimatedItemController.play("monmod:item/epee", "use");
+        }
+    })
+    .register();
+
+// Depuis n'importe ou cote client
+AnimatedItemController.play("monmod:item/epee", "monmod:item/epee_anims", "idle"); // animFileId explicite
+AnimatedItemController.play("monmod:item/epee", "swing");  // animFileId = modelId
+AnimatedItemController.stop("monmod:item/epee");
+boolean playing = AnimatedItemController.isPlaying("monmod:item/epee");</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Format de l'animFileId</div>
+          <p>
+            <code>animFileId</code> suit le meme format que les blocs :
+            <code>"modid:path"</code> resout vers
+            <code>assets/modid/animations/path.erianim.json</code>.
           </p>
         </div>
       </div>
