@@ -590,8 +590,11 @@ public class MonItems {
       ====================================================== -->
       <h3 id="item-model">Item simple — modele et texture</h3>
       <p>
-        Pour un item classique en 2D, tu n'as <strong>rien d'autre a faire</strong> que de placer la texture au bon endroit.
-        EriAPI genere automatiquement le fichier <code>models/item/nom.json</code> qui pointe vers ta texture.
+        Pour un item classique en 2D, tu dois fournir <strong>deux fichiers</strong> dans
+        <code>src/main/resources/assets/monmod/</code> : le modele JSON et la texture PNG. EriAPI enregistre
+        la resource location du modele via <code>ModelLoader.setCustomModelResourceLocation()</code>, mais les
+        fichiers JSON (modeles et blockstates) doivent etre fournis par le developpeur dans
+        <code>src/main/resources/</code>. Ces fichiers sont inclus dans le JAR du mod a la compilation.
       </p>
 
       <div class="code-wrapper">
@@ -602,14 +605,15 @@ public class MonItems {
         <pre><code class="language-java">EriItem.create("monmod", "rubis")
     .maxStackSize(64)
     .register();
-// -> Texture attendue : assets/monmod/textures/items/rubis.png (16x16 ou 64x64)</code></pre>
+// -> Texture attendue : assets/monmod/textures/items/rubis.png (16x16 ou 64x64)
+// -> Modele JSON attendu : assets/monmod/models/item/rubis.json</code></pre>
       </div>
 
-      <p>Le JSON est genere automatiquement par EriAPI au chargement du mod :</p>
+      <p>Fichier modele a creer manuellement dans <code>src/main/resources/assets/monmod/models/item/rubis.json</code> :</p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — models/item/rubis.json (auto-genere)</span>
+          <span>JSON — models/item/rubis.json (a creer manuellement)</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-json">{
@@ -624,9 +628,9 @@ public class MonItems {
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
           <div class="ib-title">Item tenu en main (outil, epee...)</div>
-          <p>Pour un item qui doit etre tenu correctement en main (style outil), fournis toi-meme le JSON dans
-          <code>assets/monmod/models/item/nom.json</code> avec <code>"parent": "item/handheld"</code> a la place
-          de <code>"item/generated"</code>. EriAPI detecte le fichier existant et ne l'ecrase pas.</p>
+          <p>Pour un item qui doit etre tenu correctement en main (style outil), utilise
+          <code>"parent": "item/handheld"</code> a la place de <code>"item/generated"</code> dans le JSON
+          du modele.</p>
         </div>
       </div>
 
@@ -1214,10 +1218,13 @@ public class MonBlocs {
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
           <div class="ib-title">Modele et texture du bloc</div>
-          <p>Place la texture a <code>assets/monmod/textures/blocks/minerai_rubis.png</code> (16x16 px).
-          EriAPI genere automatiquement un modele JSON simple qui applique cette texture sur les 6 faces du bloc.
-          Pour des modeles personnalises (blocs non cubiques), tu devras fournir ton propre JSON dans
-          <code>assets/monmod/models/block/</code>.</p>
+          <p>Place la texture a <code>src/main/resources/assets/monmod/textures/blocks/minerai_rubis.png</code>
+          (16x16 px). Tu dois aussi fournir <strong>manuellement</strong> le blockstate et le modele dans
+          <code>src/main/resources/assets/monmod/blockstates/minerai_rubis.json</code> et
+          <code>src/main/resources/assets/monmod/models/block/minerai_rubis.json</code>. EriAPI enregistre
+          uniquement la resource location du modele via <code>ModelLoader</code> — il ne genere aucun fichier
+          JSON. Voir la section <a href="#block-textures">Bloc cube — Textures et modele JSON</a> pour le
+          contenu des fichiers.</p>
         </div>
       </div>
     </section>
@@ -1230,9 +1237,11 @@ public class MonBlocs {
     <section class="doc-section" id="block-textures">
       <h2>Bloc cube — Textures et modele JSON</h2>
       <p>
-        Quand tu enregistres un <code>EriBlock</code> cubique, EriAPI cherche automatiquement les fichiers
-        de rendu (blockstate + model) et <strong>genere ceux qui manquent</strong>. Tu choisis entre deux cas :
-        une seule texture pour les 6 faces, ou une texture differente par face.
+        Quand tu enregistres un <code>EriBlock</code> cubique, EriAPI enregistre la resource location du
+        modele aupres de Forge via <code>ModelLoader.setCustomModelResourceLocation()</code>, mais
+        <strong>aucun fichier JSON n'est genere automatiquement</strong>. Tu dois fournir toi-meme le
+        blockstate, le modele de bloc et le modele d'item dans <code>src/main/resources/assets/&lt;modid&gt;/</code>.
+        Ces fichiers sont inclus dans le JAR du mod a la compilation.
       </p>
 
       <div class="code-wrapper">
@@ -1248,18 +1257,20 @@ public class MonBlocs {
 
       <h3>Cas 1 — Une seule texture pour toutes les faces</h3>
       <p>
-        Place une unique texture PNG et laisse EriAPI generer tout le reste. C'est le cas le plus frequent.
+        Place une texture PNG et fournis le blockstate + le modele de bloc + le modele d'item. C'est le cas
+        le plus frequent.
       </p>
 
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><code>assets/monmod/textures/blocks/mon_bloc.png</code> &mdash; la texture (16x16, ou 64x64 recommande)</li>
-        <li><code>assets/monmod/blockstates/mon_bloc.json</code> &mdash; <strong>auto-genere</strong></li>
-        <li><code>assets/monmod/models/block/mon_bloc.json</code> &mdash; <strong>auto-genere</strong></li>
+        <li><code>src/main/resources/assets/monmod/textures/blocks/mon_bloc.png</code> &mdash; la texture (16x16, ou 64x64 recommande)</li>
+        <li><code>src/main/resources/assets/monmod/blockstates/mon_bloc.json</code> &mdash; <strong>a creer manuellement</strong></li>
+        <li><code>src/main/resources/assets/monmod/models/block/mon_bloc.json</code> &mdash; <strong>a creer manuellement</strong></li>
+        <li><code>src/main/resources/assets/monmod/models/item/mon_bloc.json</code> &mdash; <strong>a creer manuellement</strong> (pour l'item en inventaire)</li>
       </ul>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — blockstates/mon_bloc.json (auto-genere)</span>
+          <span>JSON — blockstates/mon_bloc.json (a creer manuellement)</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-json">{
@@ -1271,7 +1282,7 @@ public class MonBlocs {
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — models/block/mon_bloc.json (auto-genere)</span>
+          <span>JSON — models/block/mon_bloc.json (a creer manuellement)</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-json">{
@@ -1282,11 +1293,20 @@ public class MonBlocs {
 }</code></pre>
       </div>
 
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — models/item/mon_bloc.json (a creer manuellement)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-json">{
+    "parent": "monmod:block/mon_bloc"
+}</code></pre>
+      </div>
+
       <h3>Cas 2 — Une texture differente par face</h3>
       <p>
-        Pour avoir un haut, un bas et des cotes distincts (ex : four, sapin, minerai texture), tu dois fournir
-        manuellement le fichier <code>models/block/mon_bloc.json</code>. EriAPI detecte le fichier existant
-        et <strong>ne l'ecrase pas</strong>.
+        Pour avoir un haut, un bas et des cotes distincts (ex : four, sapin, minerai texture), fournis le
+        fichier <code>models/block/mon_bloc.json</code> avec les six faces.
       </p>
 
       <div class="code-wrapper">
@@ -1310,18 +1330,19 @@ public class MonBlocs {
 
       <p>Fichiers attendus dans ce cas :</p>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><code>assets/monmod/textures/blocks/mon_bloc_top.png</code></li>
-        <li><code>assets/monmod/textures/blocks/mon_bloc_bottom.png</code></li>
-        <li><code>assets/monmod/textures/blocks/mon_bloc_side.png</code></li>
+        <li><code>src/main/resources/assets/monmod/textures/blocks/mon_bloc_top.png</code></li>
+        <li><code>src/main/resources/assets/monmod/textures/blocks/mon_bloc_bottom.png</code></li>
+        <li><code>src/main/resources/assets/monmod/textures/blocks/mon_bloc_side.png</code></li>
       </ul>
 
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
           <div class="ib-title">Regle a retenir</div>
-          <p>Le fichier <code>blockstates/</code> est <strong>toujours auto-genere</strong> par EriAPI.
-          Seul le <code>models/block/nom.json</code> peut etre fourni manuellement pour des textures
-          personnalisees (1 par face, ou pour un parent different comme <code>block/cross</code>, etc.).</p>
+          <p>EriAPI ne genere <strong>aucun</strong> fichier JSON. Il enregistre uniquement la resource
+          location du modele aupres de Forge. Tous les fichiers (<code>blockstates/</code>,
+          <code>models/block/</code>, <code>models/item/</code>, <code>textures/</code>) doivent etre
+          fournis manuellement dans <code>src/main/resources/assets/&lt;modid&gt;/</code>.</p>
         </div>
       </div>
     </section>

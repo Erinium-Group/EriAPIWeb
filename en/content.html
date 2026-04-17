@@ -400,8 +400,11 @@ public class MyMod {
       ====================================================== -->
       <h3 id="item-model">Simple item — model and texture</h3>
       <p>
-        For a plain 2D item, you don't need to write <strong>any JSON</strong>. Just drop the texture in the
-        expected path and EriAPI generates the <code>models/item/name.json</code> file for you automatically.
+        For a plain 2D item, you must provide <strong>two files</strong> inside
+        <code>src/main/resources/assets/mymod/</code>: the JSON model and the PNG texture. EriAPI registers
+        the model's resource location with Forge through <code>ModelLoader.setCustomModelResourceLocation()</code>,
+        but the JSON files (models and blockstates) must be provided by the developer in
+        <code>src/main/resources/</code>. Those files are bundled into the mod JAR at compile time.
       </p>
 
       <div class="code-wrapper">
@@ -412,14 +415,15 @@ public class MyMod {
         <pre><code class="language-java">EriItem.create("mymod", "ruby")
     .maxStackSize(64)
     .register();
-// -&gt; Expected texture: assets/mymod/textures/items/ruby.png (16x16 or 64x64)</code></pre>
+// -&gt; Expected texture: assets/mymod/textures/items/ruby.png (16x16 or 64x64)
+// -&gt; Expected JSON model: assets/mymod/models/item/ruby.json</code></pre>
       </div>
 
-      <p>The JSON is generated automatically by EriAPI when the mod loads:</p>
+      <p>Model file to create manually at <code>src/main/resources/assets/mymod/models/item/ruby.json</code>:</p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — models/item/ruby.json (auto-generated)</span>
+          <span>JSON — models/item/ruby.json (create manually)</span>
           <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-json">{
@@ -434,9 +438,9 @@ public class MyMod {
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
           <div class="ib-title">Held items (tools, swords...)</div>
-          <p>For items that must be held properly in the hand (tool-style rendering), provide the JSON
-          yourself at <code>assets/mymod/models/item/name.json</code> using <code>"parent": "item/handheld"</code>
-          instead of <code>"item/generated"</code>. EriAPI detects the existing file and will not overwrite it.</p>
+          <p>For items that must be held properly in the hand (tool-style rendering), use
+          <code>"parent": "item/handheld"</code> instead of <code>"item/generated"</code> inside the model
+          JSON.</p>
         </div>
       </div>
 
@@ -917,9 +921,11 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
     <section class="doc-section" id="block-textures">
       <h2>Cube block — Textures and model JSON</h2>
       <p>
-        When you register a cubic <code>EriBlock</code>, EriAPI looks for the render files
-        (blockstate + model) and <strong>auto-generates whatever is missing</strong>. You have two options:
-        a single texture for all 6 faces, or a different texture per face.
+        When you register a cubic <code>EriBlock</code>, EriAPI registers the model's resource location with
+        Forge through <code>ModelLoader.setCustomModelResourceLocation()</code>, but <strong>no JSON file is
+        generated automatically</strong>. You must provide the blockstate, block model and item model yourself
+        inside <code>src/main/resources/assets/&lt;modid&gt;/</code>. Those files are bundled into the mod JAR
+        at compile time.
       </p>
 
       <div class="code-wrapper">
@@ -935,18 +941,19 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
 
       <h3>Case 1 — One texture for every face</h3>
       <p>
-        Drop a single PNG texture and let EriAPI generate everything else. This is the most common case.
+        Drop a PNG texture and provide the blockstate + block model + item model. This is the most common case.
       </p>
 
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><code>assets/mymod/textures/blocks/my_block.png</code> &mdash; the texture (16x16, or 64x64 recommended)</li>
-        <li><code>assets/mymod/blockstates/my_block.json</code> &mdash; <strong>auto-generated</strong></li>
-        <li><code>assets/mymod/models/block/my_block.json</code> &mdash; <strong>auto-generated</strong></li>
+        <li><code>src/main/resources/assets/mymod/textures/blocks/my_block.png</code> &mdash; the texture (16x16, or 64x64 recommended)</li>
+        <li><code>src/main/resources/assets/mymod/blockstates/my_block.json</code> &mdash; <strong>create manually</strong></li>
+        <li><code>src/main/resources/assets/mymod/models/block/my_block.json</code> &mdash; <strong>create manually</strong></li>
+        <li><code>src/main/resources/assets/mymod/models/item/my_block.json</code> &mdash; <strong>create manually</strong> (for the inventory item)</li>
       </ul>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — blockstates/my_block.json (auto-generated)</span>
+          <span>JSON — blockstates/my_block.json (create manually)</span>
           <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-json">{
@@ -958,7 +965,7 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>JSON — models/block/my_block.json (auto-generated)</span>
+          <span>JSON — models/block/my_block.json (create manually)</span>
           <button class="copy-btn">Copy</button>
         </div>
         <pre><code class="language-json">{
@@ -969,11 +976,20 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
 }</code></pre>
       </div>
 
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — models/item/my_block.json (create manually)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+    "parent": "mymod:block/my_block"
+}</code></pre>
+      </div>
+
       <h3>Case 2 — A different texture per face</h3>
       <p>
-        To have a distinct top, bottom and sides (furnace, log, ore-like blocks...), provide the
-        <code>models/block/my_block.json</code> file yourself. EriAPI detects the existing file
-        and <strong>will not overwrite it</strong>.
+        To have a distinct top, bottom and sides (furnace, log, ore-like blocks...), provide a
+        <code>models/block/my_block.json</code> listing all six faces.
       </p>
 
       <div class="code-wrapper">
@@ -997,18 +1013,19 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
 
       <p>Expected files in this case:</p>
       <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
-        <li><code>assets/mymod/textures/blocks/my_block_top.png</code></li>
-        <li><code>assets/mymod/textures/blocks/my_block_bottom.png</code></li>
-        <li><code>assets/mymod/textures/blocks/my_block_side.png</code></li>
+        <li><code>src/main/resources/assets/mymod/textures/blocks/my_block_top.png</code></li>
+        <li><code>src/main/resources/assets/mymod/textures/blocks/my_block_bottom.png</code></li>
+        <li><code>src/main/resources/assets/mymod/textures/blocks/my_block_side.png</code></li>
       </ul>
 
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
           <div class="ib-title">Rule of thumb</div>
-          <p>The <code>blockstates/</code> file is <strong>always auto-generated</strong> by EriAPI.
-          Only the <code>models/block/name.json</code> can be provided manually for custom textures
-          (per-face, or to use a different parent such as <code>block/cross</code>, etc.).</p>
+          <p>EriAPI does <strong>not</strong> generate any JSON file. It only registers the model's resource
+          location with Forge. All files (<code>blockstates/</code>, <code>models/block/</code>,
+          <code>models/item/</code>, <code>textures/</code>) must be provided manually inside
+          <code>src/main/resources/assets/&lt;modid&gt;/</code>.</p>
         </div>
       </div>
     </section>
