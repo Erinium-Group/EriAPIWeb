@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.3.1 · 1.12.2</span>
+  <span class="version-badge">v1.3.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/content.html">FR</a>
@@ -91,6 +91,8 @@
       <div class="nav-group-title">Items</div>
       <ul>
         <li><a href="#eri-item"><span class="nav-dot"></span>EriItem</a></li>
+        <li><a href="#item-model"><span class="nav-dot"></span>Model &amp; texture</a></li>
+        <li><a href="#item-3d-anim"><span class="nav-dot"></span>Animated 3D item</a></li>
         <li><a href="#food-builder"><span class="nav-dot"></span>FoodBuilder</a></li>
         <li><a href="#tool-builder"><span class="nav-dot"></span>ToolBuilder</a></li>
         <li><a href="#armor-builder"><span class="nav-dot"></span>ArmorBuilder</a></li>
@@ -101,6 +103,8 @@
       <div class="nav-group-title">Blocks</div>
       <ul>
         <li><a href="#eri-block"><span class="nav-dot"></span>EriBlock</a></li>
+        <li><a href="#block-textures"><span class="nav-dot"></span>Textures &amp; model</a></li>
+        <li><a href="#eri-anim-block"><span class="nav-dot"></span>EriAnimBlock (animated 3D)</a></li>
       </ul>
     </div>
 
@@ -388,6 +392,122 @@ public class MyMod {
     .maxStackSize(16)
     .register();</code></pre>
           </div>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           ITEM MODEL & TEXTURE
+      ====================================================== -->
+      <h3 id="item-model">Simple item — model and texture</h3>
+      <p>
+        For a plain 2D item, you don't need to write <strong>any JSON</strong>. Just drop the texture in the
+        expected path and EriAPI generates the <code>models/item/name.json</code> file for you automatically.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Minimal declaration</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriItem.create("mymod", "ruby")
+    .maxStackSize(64)
+    .register();
+// -&gt; Expected texture: assets/mymod/textures/items/ruby.png (16x16 or 64x64)</code></pre>
+      </div>
+
+      <p>The JSON is generated automatically by EriAPI when the mod loads:</p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — models/item/ruby.json (auto-generated)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "mymod:items/ruby"
+    }
+}</code></pre>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Held items (tools, swords...)</div>
+          <p>For items that must be held properly in the hand (tool-style rendering), provide the JSON
+          yourself at <code>assets/mymod/models/item/name.json</code> using <code>"parent": "item/handheld"</code>
+          instead of <code>"item/generated"</code>. EriAPI detects the existing file and will not overwrite it.</p>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           ITEM 3D ANIMATED
+      ====================================================== -->
+      <h3 id="item-3d-anim">Animated 3D item — <code>animatedModel()</code> + AnimatedItemController</h3>
+      <p>
+        The <code>.animatedModel(String modelId)</code> method lets you render the item with a
+        <strong>3D Blockbench model</strong> (Java Block/Item project type) instead of a flat 2D texture.
+        Rendering is delegated to an internal <code>TileEntityItemStackRenderer</code>, and animations are
+        driven client-side by <code>AnimatedItemController</code>.
+      </p>
+
+      <h4>Required files</h4>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><code>assets/modid/models/item/name.json</code> — exported Blockbench model (<em>Java Block/Item</em> format)</li>
+        <li><code>assets/modid/animations/item/name.erianim.json</code> — animation file (optional if no animation is needed)</li>
+        <li>All textures referenced from the Blockbench JSON, placed at the expected path</li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Declaring an animated 3D item</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedItemController;
+import fr.eri.eriapi.content.EriItem;
+import net.minecraft.item.EnumRarity;
+
+// Declaration
+EriItem.create("mymod", "animated_sword")
+    .maxStackSize(1)
+    .rarity(EnumRarity.EPIC)
+    .animatedModel("mymod:item/animated_sword")   // 3D Blockbench model
+    .onRightClick(ctx -&gt; {
+        if (ctx.world.isRemote) {
+            // Plays the "use" animation from mymod:item/animated_sword.erianim.json
+            AnimatedItemController.play("mymod:item/animated_sword", "use");
+        }
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Controlling playback from any client-side code</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Play an animation (animFileId = modelId by default)
+AnimatedItemController.play("mymod:item/animated_sword", "idle");
+
+// Play with an explicit animFileId (2nd parameter)
+AnimatedItemController.play("mymod:item/animated_sword", "mymod:item/sword_anims", "swing");
+
+// Stop the current animation
+AnimatedItemController.stop("mymod:item/animated_sword");
+
+// Check if an animation is currently playing
+boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title"><code>animFileId</code> resolution</div>
+          <p>The optional 2nd parameter of <code>play()</code> resolves to
+          <code>assets/modid/animations/path.erianim.json</code>. When omitted, EriAPI uses
+          <code>modelId</code> as the <code>animFileId</code>. Playback state is shared per
+          <strong>modelId</strong>: every item rendered with the same model plays the same animation
+          at the same time.</p>
         </div>
       </div>
     </section>
@@ -785,6 +905,253 @@ public class MyMod {
               manually.
             </p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         BLOCK TEXTURES & MODEL
+    ====================================================== -->
+    <section class="doc-section" id="block-textures">
+      <h2>Cube block — Textures and model JSON</h2>
+      <p>
+        When you register a cubic <code>EriBlock</code>, EriAPI looks for the render files
+        (blockstate + model) and <strong>auto-generates whatever is missing</strong>. You have two options:
+        a single texture for all 6 faces, or a different texture per face.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Minimal declaration (shared by both cases)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">EriBlock.create("mymod", "my_block")
+    .material(Material.ROCK)
+    .hardness(3.0f)
+    .register();</code></pre>
+      </div>
+
+      <h3>Case 1 — One texture for every face</h3>
+      <p>
+        Drop a single PNG texture and let EriAPI generate everything else. This is the most common case.
+      </p>
+
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><code>assets/mymod/textures/blocks/my_block.png</code> &mdash; the texture (16x16, or 64x64 recommended)</li>
+        <li><code>assets/mymod/blockstates/my_block.json</code> &mdash; <strong>auto-generated</strong></li>
+        <li><code>assets/mymod/models/block/my_block.json</code> &mdash; <strong>auto-generated</strong></li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — blockstates/my_block.json (auto-generated)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+    "variants": {
+        "normal": { "model": "mymod:my_block" }
+    }
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — models/block/my_block.json (auto-generated)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "mymod:blocks/my_block"
+    }
+}</code></pre>
+      </div>
+
+      <h3>Case 2 — A different texture per face</h3>
+      <p>
+        To have a distinct top, bottom and sides (furnace, log, ore-like blocks...), provide the
+        <code>models/block/my_block.json</code> file yourself. EriAPI detects the existing file
+        and <strong>will not overwrite it</strong>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON — models/block/my_block.json (create manually)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+    "parent": "block/cube",
+    "textures": {
+        "up":       "mymod:blocks/my_block_top",
+        "down":     "mymod:blocks/my_block_bottom",
+        "north":    "mymod:blocks/my_block_side",
+        "south":    "mymod:blocks/my_block_side",
+        "east":     "mymod:blocks/my_block_side",
+        "west":     "mymod:blocks/my_block_side",
+        "particle": "mymod:blocks/my_block_side"
+    }
+}</code></pre>
+      </div>
+
+      <p>Expected files in this case:</p>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><code>assets/mymod/textures/blocks/my_block_top.png</code></li>
+        <li><code>assets/mymod/textures/blocks/my_block_bottom.png</code></li>
+        <li><code>assets/mymod/textures/blocks/my_block_side.png</code></li>
+      </ul>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Rule of thumb</div>
+          <p>The <code>blockstates/</code> file is <strong>always auto-generated</strong> by EriAPI.
+          Only the <code>models/block/name.json</code> can be provided manually for custom textures
+          (per-face, or to use a different parent such as <code>block/cross</code>, etc.).</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ANIM BLOCK
+    ====================================================== -->
+    <section class="doc-section" id="eri-anim-block">
+      <h2>Animated 3D block (<code>EriAnimBlock</code>)</h2>
+      <p>
+        <code>EriAnimBlock</code> lets you create a block with a <strong>3D Blockbench model</strong>
+        and <strong>animations</strong>. Under the hood it uses a <code>TileEntity</code> + a
+        <code>TESR</code> (Tile Entity Special Renderer), both registered automatically by EriAPI.
+      </p>
+
+      <h3>Creation workflow</h3>
+      <ol style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><strong style="color:var(--text);">Model</strong> the block in Blockbench (project type <em>Java Block/Item</em>).</li>
+        <li><strong style="color:var(--text);">Export</strong> the model to JSON at <code>assets/modid/models/block/name.json</code>.</li>
+        <li><strong style="color:var(--text);">Create</strong> the animation file <code>assets/modid/animations/block/name.erianim.json</code>.</li>
+        <li><strong style="color:var(--text);">Register</strong> the block in Java through <code>EriAnimBlock.create()</code>.</li>
+      </ol>
+
+      <h3>Required files</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li><code>assets/modid/models/block/name.json</code> &mdash; exported Blockbench model</li>
+        <li><code>assets/modid/animations/block/name.erianim.json</code> &mdash; animation file</li>
+        <li>All textures referenced from the Blockbench JSON</li>
+      </ul>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriAnimBlock</div>
+            <div class="package-path">fr.eri.eriapi.anim.EriAnimBlock</div>
+          </div>
+          <span class="badge badge-cyan">Builder</span>
+        </div>
+        <p>Fluent builder for creating a 3D animated block with model and animations.</p>
+
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> create(<span class="param">String modid, String name</span>)</div>
+              <div class="method-desc">Creates a new animated block builder.</div>
+            </div>
+            <span class="method-badge mb-abstract">STATIC</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> material(<span class="param">Material mat</span>)</div>
+              <div class="method-desc">Block material (<code>Material.IRON</code>, <code>Material.WOOD</code>, etc.).</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> hardness(<span class="param">float hardness</span>)</div>
+              <div class="method-desc">Mining time.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> resistance(<span class="param">float resistance</span>)</div>
+              <div class="method-desc">Explosion resistance.</div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> animation(<span class="param">String animFileId</span>)</div>
+              <div class="method-desc">
+                <strong>Required.</strong> ID of the <code>.erianim.json</code> file in the format
+                <code>"modid:path/name"</code> (without the extension). Resolves to
+                <code>assets/modid/animations/path/name.erianim.json</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> tileEntity(<span class="param">Class&lt;?&gt; teClass</span>)</div>
+              <div class="method-desc">
+                Custom TileEntity (optional). Must extend <code>AnimatedBlockTileEntity</code> and provide a
+                <strong>no-arg constructor</strong>. If omitted, EriAPI uses
+                <code>AnimatedBlockTileEntityGeneric</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> onRightClick(<span class="param">Consumer&lt;BlockActionContext&gt; handler</span>)</div>
+              <div class="method-desc">Callback fired when the player right-clicks the block.</div>
+            </div>
+            <span class="method-badge mb-event">EVENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">Block</span> register()</div>
+              <div class="method-desc">
+                Finalizes and registers the block + the associated TileEntity + TESR. Returns the <code>Block</code> instance.
+              </div>
+            </div>
+            <span class="method-badge mb-abstract">TERMINAL</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Play an animation on right-click</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
+import fr.eri.eriapi.anim.EriAnimBlock;
+import net.minecraft.block.material.Material;
+
+EriAnimBlock.create("mymod", "special_chest")
+    .material(Material.WOOD)
+    .hardness(2.5f)
+    .animation("mymod:block/special_chest")
+    .onRightClick(ctx -&gt; {
+        AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null &amp;&amp; !te.isAnimating()) {
+            te.playAnimation("open");
+        }
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Advanced animations</div>
+          <p>For more complex behaviors (callbacks on animation events, conditional chaining, tick logic),
+          extend <code>AnimatedBlockTileEntity</code> in a subclass and pass it via
+          <code>.tileEntity(CustomTile.class)</code>. See the
+          <a href="animation.html">Animation System</a> page for full details.</p>
         </div>
       </div>
     </section>
