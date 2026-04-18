@@ -114,6 +114,7 @@
       <ul>
         <li><a href="#format-erianim"><span class="nav-dot"></span>File Structure</a></li>
         <li><a href="#tracks"><span class="nav-dot"></span>Track Types</a></li>
+        <li><a href="#element-tracks"><span class="nav-dot"></span>Element-level animation</a></li>
         <li><a href="#events-erianim"><span class="nav-dot"></span>Events in .erianim</a></li>
       </ul>
     </div>
@@ -1444,6 +1445,12 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/sword");</code></
             <td style="padding:8px 12px;color:var(--text-muted);">Animation tracks for each model group. Key = group name.</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>elementTracks</code> <span class="badge badge-cyan">v1.5.1</span></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">object</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">{}</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Animation tracks targeting individual elements inside a group. Key = <code>"groupName:elementIndex"</code> (e.g. <code>"body:2"</code>). Same structure as a group track. See <a href="#element-tracks">Element-level animation</a>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px 12px;"><code>events</code></td>
             <td style="padding:8px 12px;color:var(--text-muted);">array</td>
             <td style="padding:8px 12px;color:var(--text-muted);">[]</td>
@@ -1757,6 +1764,145 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/sword");</code></
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ELEMENT-LEVEL ANIMATION (v1.5.1)
+    ====================================================== -->
+    <section class="doc-section" id="element-tracks">
+      <h2>Element-level animation <span class="badge badge-cyan">v1.5.1</span></h2>
+      <p>
+        By default, an animation track applies to the <strong>entire Blockbench group</strong>: every cube attached to
+        the group rotates / translates / scales together around the group's pivot. Since v1.5.1, you can also animate
+        <strong>individual elements</strong> inside a group. Each element (Blockbench cube) owns a
+        <code>rotation.origin</code> (pivot) defined in the model and becomes independently animatable.
+      </p>
+
+      <h3>When to use elementTracks?</h3>
+      <ul>
+        <li>A button, a trigger, a mechanical part inside a group that must move independently of other cubes in the same group.</li>
+        <li>Multiple elements of the same group that must rotate around different pivots (e.g. turbine blades sharing a "turbine" group).</li>
+        <li>Cases where you don't want (or can't) restructure the Blockbench model into sub-groups.</li>
+      </ul>
+      <p>
+        If each moving part already deserves its own Blockbench group, just use <code>tracks</code> &mdash; it's more
+        readable and cheaper at runtime.
+      </p>
+
+      <h3>JSON format</h3>
+      <p>
+        The <code>elementTracks</code> field sits next to <code>tracks</code> in the animation definition. Keys follow
+        the <strong><code>"groupName:elementIndex"</code></strong> format, where <code>elementIndex</code> is the
+        zero-based position of the element in its Blockbench group's <code>elements</code> array. The value has the same
+        structure as a group track (rotation, rotate, translation, scale, visible, spin &mdash; see
+        <a href="#tracks">Track Types</a>).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON &mdash; element animation with endless rotation</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-json">{
+  "formatVersion": 1,
+  "modelId": "mymod:block/turret",
+  "animations": {
+    "idle": {
+      "duration": 40,
+      "endBehavior": "loop",
+      "tracks": {
+        "base": {
+          "rotation": [
+            { "tick": 0,  "value": [0, 0, 0] },
+            { "tick": 40, "value": [0, 360, 0] }
+          ]
+        }
+      },
+      "elementTracks": {
+        "body:2": {
+          "translation": [
+            { "tick": 0,  "value": [0, 0, 0] },
+            { "tick": 20, "value": [0, 2, 0] },
+            { "tick": 40, "value": [0, 0, 0] }
+          ]
+        }
+      }
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Fully backward compatible.</strong> If <code>elementTracks</code> is absent, behavior is identical to previous versions: only group tracks apply and no extra OpenGL matrix is pushed per element.
+      </div>
+
+      <h3>Java API</h3>
+      <p>
+        The entire animation stack (<code>AnimationDef</code>, <code>AnimationPose</code>, <code>AnimationController</code>,
+        <code>AnimatedBlockTESR</code>, <code>AnimatedEntityRenderer</code>) supports element poses. You can read an
+        element pose with <code>AnimationPose.getElement(String groupName, int elementIndex)</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; AnimationDef</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Check for element tracks before iterating
+if (animDef.hasElementTracks()) {
+    for (Map.Entry&lt;String, GroupTrack&gt; entry : animDef.getElementTracks().entrySet()) {
+        // entry.getKey() = "body:2"
+        // entry.getValue() = GroupTrack
+    }
+}
+
+// Direct access via group + index
+GroupTrack t = animDef.getElementTrack("body", 2);
+
+// Canonical key (static helper)
+String key = AnimationDef.elementTrackKey("body", 2); // -&gt; "body:2"</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; AnimationPose</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">AnimationPose pose = controller.getCurrentPose(partialTicks);
+
+// Group pose
+AnimationPose.GroupPose bodyPose = pose.getGroup("body");
+
+// Element pose (null if no track exists for that element)
+AnimationPose.GroupPose elemPose = pose.getElement("body", 2);
+if (elemPose != null) {
+    if (!elemPose.visible) return; // element is hidden
+    float rotY = elemPose.rotation[1];
+    // ...
+}</code></pre>
+      </div>
+
+      <h3>Rendering &mdash; transform order</h3>
+      <p>
+        In <code>AnimatedBlockTESR</code> and <code>AnimatedEntityRenderer</code>, for each animated element, the OpenGL
+        matrix is pushed around the element's <code>rotationOrigin</code> in this order:
+      </p>
+      <ol>
+        <li><code>translate(rotationOrigin)</code></li>
+        <li>Element's static JSON rotation (if <code>rotation</code> is set in the Blockbench model).</li>
+        <li>Animated translation (<code>elemPose.translation / 16</code>, converted from Blockbench pixels).</li>
+        <li>Animated rotations (<code>rotation</code> Z/Y/X then <code>cumulativeRotation</code> Y/X/Z &mdash; the <em>spin</em> part).</li>
+        <li>Animated scale (<code>elemPose.scale</code>).</li>
+        <li><code>translate(-rotationOrigin)</code>.</li>
+        <li>Render the element's faces.</li>
+      </ol>
+      <p>
+        The element's static JSON rotation is preserved &mdash; the animation applies <em>on top</em>, in the local pivot
+        space. If the element has neither an animated pose nor a static rotation, no extra matrix is pushed (optimization:
+        the zero-cost path of previous versions).
+      </p>
     </section>
 
     <div class="section-divider"></div>

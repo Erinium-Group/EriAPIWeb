@@ -114,6 +114,7 @@
       <ul>
         <li><a href="#format-erianim"><span class="nav-dot"></span>Structure du fichier</a></li>
         <li><a href="#tracks"><span class="nav-dot"></span>Types de tracks</a></li>
+        <li><a href="#element-tracks"><span class="nav-dot"></span>Animation d'element</a></li>
         <li><a href="#events-erianim"><span class="nav-dot"></span>Events dans .erianim</a></li>
       </ul>
     </div>
@@ -1444,6 +1445,12 @@ boolean playing = AnimatedItemController.isPlaying("monmod:item/epee");</code></
             <td style="padding:8px 12px;color:var(--text-muted);">Les pistes d'animation pour chaque groupe du modele. Cle = nom du groupe.</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 12px;"><code>elementTracks</code> <span class="badge badge-cyan">v1.5.1</span></td>
+            <td style="padding:8px 12px;color:var(--text-muted);">object</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">{}</td>
+            <td style="padding:8px 12px;color:var(--text-muted);">Pistes d'animation ciblant des elements individuels a l'interieur d'un groupe. Cle = <code>"nomGroupe:indexElement"</code> (ex : <code>"body:2"</code>). Meme structure qu'une track de groupe. Voir <a href="#element-tracks">Element-level animation</a>.</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
             <td style="padding:8px 12px;"><code>events</code></td>
             <td style="padding:8px 12px;color:var(--text-muted);">array</td>
             <td style="padding:8px 12px;color:var(--text-muted);">[]</td>
@@ -1757,6 +1764,145 @@ boolean playing = AnimatedItemController.isPlaying("monmod:item/epee");</code></
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ELEMENT-LEVEL ANIMATION (v1.5.1)
+    ====================================================== -->
+    <section class="doc-section" id="element-tracks">
+      <h2>Animation au niveau de l'element <span class="badge badge-cyan">v1.5.1</span></h2>
+      <p>
+        Par defaut, une piste d'animation s'applique au <strong>groupe Blockbench entier</strong> : toute la geometrie
+        rattachee au groupe tourne / se deplace / s'echelle ensemble autour du pivot du groupe. Depuis la v1.5.1,
+        tu peux egalement animer des <strong>elements individuels</strong> a l'interieur d'un groupe. Chaque element
+        (cube Blockbench) possede son propre <code>rotation.origin</code> (pivot) defini dans le modele et devient
+        animable independamment.
+      </p>
+
+      <h3>Quand utiliser elementTracks ?</h3>
+      <ul>
+        <li>Un bouton, une gachette, une piece mecanique a l'interieur d'un groupe qui doit bouger independamment des autres cubes du meme groupe.</li>
+        <li>Plusieurs elements du meme groupe qui doivent tourner sur des pivots differents (ex : les pales d'une turbine qui partagent un groupe "turbine").</li>
+        <li>Cas ou tu ne veux pas (ou ne peux pas) restructurer le modele Blockbench en sous-groupes.</li>
+      </ul>
+      <p>
+        Si chaque piece mobile merite deja son propre groupe dans Blockbench, utilise simplement <code>tracks</code> &mdash;
+        c'est plus lisible et plus economique a runtime.
+      </p>
+
+      <h3>Format JSON</h3>
+      <p>
+        Le champ <code>elementTracks</code> se place a cote de <code>tracks</code> dans la definition d'animation. Les cles
+        suivent le format <strong><code>"nomGroupe:indexElement"</code></strong>, ou <code>indexElement</code> est la position
+        (base 0) de l'element dans le tableau <code>elements</code> de son groupe Blockbench. La valeur a la meme structure
+        qu'une track de groupe (rotation, rotate, translation, scale, visible, spin &mdash; voir <a href="#tracks">Types de tracks</a>).
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON &mdash; Animation d'element avec rotation infinie</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-json">{
+  "formatVersion": 1,
+  "modelId": "mymod:block/turret",
+  "animations": {
+    "idle": {
+      "duration": 40,
+      "endBehavior": "loop",
+      "tracks": {
+        "base": {
+          "rotation": [
+            { "tick": 0,  "value": [0, 0, 0] },
+            { "tick": 40, "value": [0, 360, 0] }
+          ]
+        }
+      },
+      "elementTracks": {
+        "body:2": {
+          "translation": [
+            { "tick": 0,  "value": [0, 0, 0] },
+            { "tick": 20, "value": [0, 2, 0] },
+            { "tick": 40, "value": [0, 0, 0] }
+          ]
+        }
+      }
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Retrocompatibilite totale.</strong> Si <code>elementTracks</code> est absent, le comportement est identique aux versions precedentes : seules les pistes de groupe s'appliquent et aucune matrice OpenGL supplementaire n'est poussee par element.
+      </div>
+
+      <h3>API Java</h3>
+      <p>
+        Tout l'ecosysteme d'animation (<code>AnimationDef</code>, <code>AnimationPose</code>, <code>AnimationController</code>,
+        <code>AnimatedBlockTESR</code>, <code>AnimatedEntityRenderer</code>) supporte les poses d'element. Tu peux lire une pose
+        d'element via <code>AnimationPose.getElement(String groupName, int elementIndex)</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; AnimationDef</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Tester la presence de pistes d'element avant d'iterer
+if (animDef.hasElementTracks()) {
+    for (Map.Entry&lt;String, GroupTrack&gt; entry : animDef.getElementTracks().entrySet()) {
+        // entry.getKey() = "body:2"
+        // entry.getValue() = GroupTrack
+    }
+}
+
+// Acces direct via groupe + index
+GroupTrack t = animDef.getElementTrack("body", 2);
+
+// Cle canonique (utilitaire statique)
+String key = AnimationDef.elementTrackKey("body", 2); // -&gt; "body:2"</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; AnimationPose</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">AnimationPose pose = controller.getCurrentPose(partialTicks);
+
+// Pose du groupe
+AnimationPose.GroupPose bodyPose = pose.getGroup("body");
+
+// Pose de l'element (null si aucune piste n'existe pour cet element)
+AnimationPose.GroupPose elemPose = pose.getElement("body", 2);
+if (elemPose != null) {
+    if (!elemPose.visible) return; // element cache
+    float rotY = elemPose.rotation[1];
+    // ...
+}</code></pre>
+      </div>
+
+      <h3>Rendu &mdash; ordre des transformations</h3>
+      <p>
+        Dans <code>AnimatedBlockTESR</code> et <code>AnimatedEntityRenderer</code>, pour chaque element anime, la matrice OpenGL
+        est empilee autour du <code>rotationOrigin</code> de l'element avec l'ordre suivant :
+      </p>
+      <ol>
+        <li><code>translate(rotationOrigin)</code></li>
+        <li>Rotation statique JSON de l'element (si <code>rotation</code> est definie dans le modele Blockbench).</li>
+        <li>Translation animee (<code>elemPose.translation / 16</code>, convertie depuis les pixels Blockbench).</li>
+        <li>Rotations animees (<code>rotation</code> Z/Y/X puis <code>cumulativeRotation</code> Y/X/Z &mdash; la part <em>spin</em>).</li>
+        <li>Echelle animee (<code>elemPose.scale</code>).</li>
+        <li><code>translate(-rotationOrigin)</code>.</li>
+        <li>Rendu des faces de l'element.</li>
+      </ol>
+      <p>
+        La rotation statique JSON de l'element est donc preservee &mdash; l'animation s'applique <em>par-dessus</em>, dans le repere
+        local du pivot. Si l'element n'a ni pose animee ni rotation statique, aucune matrice supplementaire n'est empilee
+        (optimisation : le chemin cout zero des versions precedentes).
+      </p>
     </section>
 
     <div class="section-divider"></div>

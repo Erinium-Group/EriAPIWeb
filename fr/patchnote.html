@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.3.2 · 1.12.2</span>
+  <span class="version-badge">v1.5.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,10 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.5.1"><span class="nav-dot"></span>v1.5.1</a></li>
+        <li><a href="#v1.4.2"><span class="nav-dot"></span>v1.4.2</a></li>
+        <li><a href="#v1.4.1"><span class="nav-dot"></span>v1.4.1</a></li>
+        <li><a href="#v1.4.0"><span class="nav-dot"></span>v1.4.0</a></li>
         <li><a href="#v1.3.2"><span class="nav-dot"></span>v1.3.2</a></li>
         <li><a href="#v1.3.1"><span class="nav-dot"></span>v1.3.1</a></li>
         <li><a href="#v1.3.0"><span class="nav-dot"></span>v1.3.0</a></li>
@@ -100,6 +104,150 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.5.1 ===== -->
+    <section class="doc-section" id="v1.5.1">
+      <h2>v1.5.1 <span class="badge badge-cyan">18 Avril 2026</span></h2>
+
+      <h3>Animation au niveau de l'element (elementTracks)</h3>
+      <p>
+        Les animations <code>.erianim.json</code> peuvent desormais cibler des elements
+        individuels a l'interieur d'un groupe Blockbench, pas uniquement le groupe entier.
+        Chaque element possede son propre <code>rotationOrigin</code> (pivot) defini dans
+        le modele, et l'animation peut appliquer rotation, translation, echelle, visibilite
+        et <em>spin</em> autour de ce pivot. Entierement retrocompatible : les animations
+        existantes sans <code>elementTracks</code> fonctionnent exactement comme avant.
+      </p>
+      <ul>
+        <li><strong>Format JSON</strong> &mdash; Nouveau champ optionnel <code>"elementTracks"</code> a cote de <code>"tracks"</code> dans chaque <code>AnimationDef</code>. Cles au format <code>"nomGroupe:indexElement"</code> (ex : <code>"body:2"</code>). La structure d'une piste element est identique a celle d'une piste groupe (<code>rotation</code>, <code>rotate</code>, <code>translation</code>, <code>scale</code>, <code>visible</code>, <code>spin</code>).</li>
+        <li><strong>AnimationDef</strong> &mdash; Nouveau getter <code>getElementTracks()</code>, helper <code>hasElementTracks()</code>, raccourci <code>getElementTrack(String groupName, int elementIndex)</code>, et utilitaire statique <code>elementTrackKey(String, int)</code> pour formater la cle canonique.</li>
+        <li><strong>AnimationPose</strong> &mdash; Nouveau map <code>elementPoses</code> parallele au <code>groupPoses</code> existant, avec <code>getElement(groupName, elementIndex)</code> et <code>getOrCreateElement(...)</code>. Les methodes <code>reset()</code>, <code>copyFrom()</code> et <code>lerpToward()</code> incluent desormais les poses d'elements.</li>
+        <li><strong>AnimationController</strong> &mdash; Le sampler itere <code>elementTracks</code> apres les pistes de groupe et alimente les poses d'element via un helper factorise <code>populatePoseFromTrack(...)</code>. Le blending entre animations (START / END) s'applique aussi aux poses d'element.</li>
+        <li><strong>AnimatedBlockTESR</strong> / <strong>AnimatedEntityRenderer</strong> &mdash; Les deux renderers lisent la pose d'element et appliquent une matrice OpenGL locale autour du <code>rotationOrigin</code> de chaque element avant de rendre ses faces. La rotation statique JSON est preservee et appliquee en premier, puis la pose animee par-dessus.</li>
+      </ul>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>JSON &mdash; Exemple elementTracks</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-json">{
+  "formatVersion": 1,
+  "modelId": "mymod:block/turret",
+  "animations": {
+    "idle": {
+      "length": 40,
+      "loop": true,
+      "tracks": {
+        "base": { }
+      },
+      "elementTracks": {
+        "body:2": {
+          "rotation": [
+            { "tick": 0,  "value": [0, 0, 0] },
+            { "tick": 20, "value": [0, 180, 0] },
+            { "tick": 40, "value": [0, 360, 0] }
+          ]
+        }
+      }
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Lecture d'une pose d'element</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">AnimationPose pose = controller.getCurrentPose(partialTicks);
+AnimationPose.GroupPose bodyPose = pose.getGroup("body");
+AnimationPose.GroupPose elemPose = pose.getElement("body", 2);
+if (elemPose != null &amp;&amp; !elemPose.visible) return;</code></pre>
+      </div>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version &mdash; uniquement des ajouts, 100% retrocompatibles.</li>
+      </ul>
+    </section>
+
+    <!-- ===== v1.4.2 ===== -->
+    <section class="doc-section" id="v1.4.2">
+      <h2>v1.4.2 <span class="badge badge-cyan">17 Avril 2026</span></h2>
+
+      <h3>EriProjectile &mdash; builder de projectiles custom</h3>
+      <p>
+        Nouveau builder fluent pour declarer un projectile personnalise (entite lancee) sans boilerplate
+        Forge. Supporte velocite, degats directs et de zone (AOE), physique (gravite, trainee),
+        effets a l'impact, et callbacks lifecycle. Le projectile est genere dynamiquement via
+        <code>GeneratedProjectile</code> et alloue un slot dans <code>GeneratedProjectileSlots</code>
+        (pool de 32 sous-classes statiques) &mdash; compatible CleanRoom, sans ASM.
+      </p>
+      <ul>
+        <li><strong>EriProjectile</strong> &mdash; Builder fluent : <code>model()</code>, <code>texture()</code>, <code>velocity()</code>, <code>gravity()</code>, <code>drag()</code>, <code>damage()</code>, <code>aoe()</code>, <code>effectOnHit()</code>, <code>onHitBlock()</code>, <code>onHitEntity()</code>, <code>onTick()</code>, <code>register()</code>.</li>
+        <li><strong>ProjectileDefinition</strong> &mdash; POJO de configuration contenant tous les parametres du projectile.</li>
+        <li><strong>GeneratedProjectile</strong> / <strong>GeneratedProjectileSlots</strong> &mdash; Entites generees dynamiquement a partir de la definition, chacune dans son propre slot pour respecter la contrainte Forge "une Class par EntityEntry".</li>
+        <li><strong>ContentRegistry</strong> &mdash; Enregistrement automatique des projectiles lors de l'evenement <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>.</li>
+      </ul>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version &mdash; uniquement des ajouts.</li>
+      </ul>
+    </section>
+
+    <!-- ===== v1.4.1 ===== -->
+    <section class="doc-section" id="v1.4.1">
+      <h2>v1.4.1 <span class="badge badge-cyan">17 Avril 2026</span></h2>
+
+      <h3>PathfinderBuilder &mdash; AI tasks custom pour EriEntity</h3>
+      <p>
+        Builder fluent pour configurer les <em>AI tasks</em> d'une entite <code>EriEntity</code>
+        au-dela des presets (<code>PASSIVE</code>, <code>HOSTILE_MELEE</code>, ...). Permet d'ajouter
+        des comportements precis (nager, attaquer au corps a corps, errer, fuir, ouvrir les portes,
+        sauter vers la cible, etc.) en une chaine fluide. Les tasks sont stockees sous forme de
+        factories (<code>Function&lt;EntityLiving, EntityAIBase&gt;</code>) pour differer
+        l'instanciation jusqu'a ce que l'entite existe.
+      </p>
+      <ul>
+        <li><strong>API</strong> &mdash; <code>EriEntity.ai(ai -&gt; ai.swim().meleeAttack(1.0, false).wander(1.0).watchPlayers(12f).lookIdle().targetPlayers().hurtByTarget(true))</code></li>
+        <li><strong>Goals disponibles</strong> &mdash; <code>swim</code>, <code>meleeAttack</code>, <code>wander</code>, <code>watchClosest</code>, <code>watchPlayers</code>, <code>lookIdle</code>, <code>panicOnHurt</code>, <code>leapAtTarget</code>, <code>avoidEntity</code>, <code>openDoors</code>, <code>task(...)</code> (custom).</li>
+        <li><strong>Target goals disponibles</strong> &mdash; <code>targetPlayers</code>, <code>targetClass</code>, <code>hurtByTarget</code>, <code>targetTask(...)</code> (custom).</li>
+      </ul>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version &mdash; uniquement des ajouts.</li>
+      </ul>
+    </section>
+
+    <!-- ===== v1.4.0 ===== -->
+    <section class="doc-section" id="v1.4.0">
+      <h2>v1.4.0 <span class="badge badge-cyan">17 Avril 2026</span></h2>
+
+      <h3>Entity Framework complet &mdash; stats, AI presets, drops, spawn rules, callbacks</h3>
+      <p>
+        Extension majeure d'<code>EriEntity</code> (39 methodes fluent) pour declarer une entite complete
+        en une seule chaine : statistiques (health/armor/damage/speed/range), sons, preset d'AI
+        (<code>PASSIVE</code> / <code>HOSTILE_MELEE</code> / <code>HOSTILE_RANGED</code> / <code>NEUTRAL</code>
+        / <code>BOSS</code>), drops, spawn rules (biomes/light/height/dimension) et callbacks lifecycle
+        (<code>onSpawn</code>, <code>onDeath</code>, <code>onUpdate</code>, <code>onAttack</code>,
+        <code>onHurt</code>, <code>onInteract</code>).
+      </p>
+      <ul>
+        <li><strong>EntityDefinition</strong> &mdash; Etendu avec tous les nouveaux champs + inner class <code>EntityDrop</code>.</li>
+        <li><strong>AiPreset</strong> / <strong>EriSpawner</strong> &mdash; Nouveaux types pour configurer comportement et spawn.</li>
+        <li><strong>GeneratedEntity</strong> &mdash; Entite generique (extends <code>EntityMob</code>) qui applique la definition : <code>applyEntityAttributes</code>, <code>initEntityAI</code> (branche sur le preset), <code>dropLoot</code>, <code>getExperiencePoints</code>, sons. <code>onSpawn</code> via flag persistant en NBT pour eviter les re-fires au chunk reload.</li>
+        <li><strong>GeneratedEntitySlots</strong> &mdash; Pool de 32 sous-classes statiques (<code>Slot0</code>..<code>Slot31</code>) pour respecter la contrainte Forge 1.12.2 "une Class par EntityEntry" sans ASM (compatible CleanRoom).</li>
+        <li><strong>ContentRegistry.onRegisterEntities</strong> &mdash; Enregistrement automatique (egg, tracker, spawn rules) et cablage de <code>AnimatedEntityRenderer</code> cote client.</li>
+      </ul>
+
+      <h3>Corrections</h3>
+      <ul>
+        <li>Aucune correction de bug dans cette version &mdash; uniquement des ajouts.</li>
+      </ul>
     </section>
 
     <!-- ===== v1.3.2 ===== -->
