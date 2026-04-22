@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.5.1 · 1.12.2</span>
+  <span class="version-badge">v1.5.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.5.2"><span class="nav-dot"></span>v1.5.2</a></li>
         <li><a href="#v1.5.1"><span class="nav-dot"></span>v1.5.1</a></li>
         <li><a href="#v1.4.2"><span class="nav-dot"></span>v1.4.2</a></li>
         <li><a href="#v1.4.1"><span class="nav-dot"></span>v1.4.1</a></li>
@@ -103,6 +104,52 @@
         <p class="subtitle">
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
+      </div>
+    </section>
+
+    <!-- ===== v1.5.2 ===== -->
+    <section class="doc-section" id="v1.5.2">
+      <h2>v1.5.2 <span class="badge badge-cyan">April 22, 2026</span></h2>
+
+      <h3>EriBlock — Custom hitboxes (.hitbox / .hitboxes)</h3>
+      <p>
+        <code>EriBlock</code> now supports custom collision and selection boxes directly in the builder,
+        without manually subclassing <code>Block</code>.
+      </p>
+      <ul>
+        <li>
+          <strong><code>.hitbox(AxisAlignedBB)</code></strong> &mdash; Replaces the default full-block hitbox
+          with a single custom box. Automatically sets <code>isFullCube</code> and <code>isOpaque</code> to
+          <code>false</code>. Unit: <code>1.0 = 1 block = 16 pixels</code>.
+        </li>
+        <li>
+          <strong><code>.hitboxes(AxisAlignedBB...)</code></strong> &mdash; Defines multiple independent
+          collision boxes. Each box is tested separately during entity collision via
+          <code>addCollisionBoxToList</code>. The selection outline (hover highlight) shows the union of all
+          boxes. Automatically sets <code>isFullCube</code> and <code>isOpaque</code> to <code>false</code>.
+        </li>
+      </ul>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Examples</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Single hitbox — half-block height (1.0 = 1 block = 16 pixels)
+EriBlock.create("mymod", "half_slab")
+    .material(Material.ROCK)
+    .hardness(2.0f)
+    .hitbox(new AxisAlignedBB(0, 0, 0, 1, 0.5, 1))
+    .register();
+
+// Multiple hitboxes — flat base + central pillar
+EriBlock.create("mymod", "machine")
+    .material(Material.IRON)
+    .hardness(4.0f)
+    .hitboxes(
+        new AxisAlignedBB(0,    0,    0,    1,    0.25, 1),
+        new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 1,    0.75)
+    )
+    .register();</code></pre>
       </div>
     </section>
 

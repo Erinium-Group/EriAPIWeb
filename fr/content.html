@@ -122,6 +122,19 @@
       <div class="nav-group-title">Entites</div>
       <ul>
         <li><a href="#eri-entity"><span class="nav-dot"></span>EriEntity</a></li>
+        <li><a href="#pathfinder-builder"><span class="nav-dot"></span>PathfinderBuilder</a></li>
+        <li><a href="#eri-spawner"><span class="nav-dot"></span>EriSpawner</a></li>
+        <li><a href="#eri-projectile"><span class="nav-dot"></span>EriProjectile</a></li>
+        <li><a href="#entity-data-sync"><span class="nav-dot"></span>EntityDataSync / @SyncParam</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Classes custom <span class="badge badge-green" style="font-size:9px;">v1.5</span></div>
+      <ul>
+        <li><a href="#eri-entity-base"><span class="nav-dot"></span>EriEntityBase</a></li>
+        <li><a href="#eri-projectile-base"><span class="nav-dot"></span>EriProjectileBase</a></li>
+        <li><a href="#eri-item-base"><span class="nav-dot"></span>EriItemBase</a></li>
       </ul>
     </div>
 
@@ -1163,6 +1176,30 @@ public static void initArmure() {
           </li>
           <li class="method-item">
             <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> hitbox(<span class="param">AxisAlignedBB box</span>)</div>
+              <div class="method-desc">
+                Definit une hitbox unique (selection + collision). Remplace la hitbox plein-bloc par defaut.
+                Desactive automatiquement <code>isFullCube</code> et <code>isOpaque</code>.
+                Les coordonnees sont en blocs : <strong>1.0 = 1 bloc = 16 pixels</strong>.
+                <br>Exemple : <code>new AxisAlignedBB(0, 0, 0, 1, 0.5, 1)</code> = demi-bloc.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> hitboxes(<span class="param">AxisAlignedBB... boxes</span>)</div>
+              <div class="method-desc">
+                Definit plusieurs hitboxes independantes. Chaque boite est utilisee separement pour la collision.
+                La selection (outline au survol) affiche l'union englobante de toutes les boites.
+                Desactive automatiquement <code>isFullCube</code> et <code>isOpaque</code>.
+                Recommande : max 6-8 boites pour ne pas impacter les TPS sur serveur charge.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
               <div class="method-sig"><span class="ret">Block</span> register()</div>
               <div class="method-desc">
                 Finalise et enregistre le bloc aupres de Forge. Retourne l'instance <code>Block</code> creee.
@@ -1175,7 +1212,7 @@ public static void initArmure() {
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Exemple EriBlock</span>
+          <span>Java — Exemple EriBlock avec hitboxes</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.content.EriBlock;
@@ -1183,11 +1220,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.SoundType;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class MonBlocs {
 
     public static Block MINERAI_RUBIS;
     public static Block BLOC_RUBIS;
+    public static Block DEMI_BLOC;
+    public static Block MACHINE;
 
     public static void init() {
 
@@ -1209,6 +1249,24 @@ public class MonBlocs {
             .harvestTool("pickaxe", 2)
             .soundType(SoundType.METAL)
             .creativeTab(CreativeTabs.BUILDING_BLOCKS)
+            .register();
+
+        // Hitbox simple : demi-bloc (8 pixels de haut)
+        // 1.0 = 1 bloc = 16 pixels
+        DEMI_BLOC = EriBlock.create("monmod", "demi_bloc")
+            .material(Material.ROCK)
+            .hardness(2.0f)
+            .hitbox(new AxisAlignedBB(0, 0, 0, 1, 0.5, 1))
+            .register();
+
+        // Plusieurs hitboxes : socle + pilier central
+        MACHINE = EriBlock.create("monmod", "machine")
+            .material(Material.IRON)
+            .hardness(4.0f)
+            .hitboxes(
+                new AxisAlignedBB(0,    0,    0,    1,    0.25, 1),    // socle plat
+                new AxisAlignedBB(0.25, 0.25, 0.25, 0.75, 1,    0.75) // pilier central
+            )
             .register();
     }
 }</code></pre>
@@ -1429,9 +1487,13 @@ public class MonBlocs {
             <div>
               <div class="method-sig"><span class="ret">EriAnimBlock</span> tileEntity(<span class="param">Class&lt;?&gt; teClass</span>)</div>
               <div class="method-desc">
-                TileEntity custom (optionnel). Doit etendre <code>AnimatedBlockTileEntity</code> et avoir un
-                <strong>constructeur sans argument</strong>. Si non specifie, EriAPI utilise
-                <code>AnimatedBlockTileEntityGeneric</code>.
+                <strong>TileEntity custom (optionnel).</strong> Doit etendre <code>AnimatedBlockTileEntity</code> et avoir un
+                <strong>constructeur public sans argument</strong>. Si non specifie, EriAPI utilise
+                <code>AnimatedBlockTileEntityGeneric</code> (suffisant pour 90% des cas).
+                <br><br>
+                Utilise cette option quand tu as besoin de <strong>logique custom</strong> : reagir a un event
+                d'animation a une frame precise, enchainer plusieurs animations conditionnellement, sauvegarder
+                un etat NBT propre au bloc, synchroniser des donnees vers le client, etc.
               </div>
             </div>
             <span class="method-badge mb-fluent">Fluent</span>
@@ -1470,6 +1532,222 @@ EriAnimBlock.create("monmod", "coffre_special")
     .animation("monmod:block/coffre_special")
     .onRightClick(ctx -> {
         AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null &amp;&amp; !te.isAnimating()) {
+            te.playAnimation("open");
+        }
+    })
+    .register();</code></pre>
+      </div>
+
+      <h3>TileEntity custom : <code>AnimatedBlockTileEntity</code></h3>
+      <p>
+        Quand tu passes <code>.tileEntity(MonTile.class)</code> au builder, EriAPI utilise ta classe au lieu
+        de <code>AnimatedBlockTileEntityGeneric</code>. Ta classe doit etendre <code>AnimatedBlockTileEntity</code>
+        et avoir un <strong>constructeur public sans argument</strong>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">AnimatedBlockTileEntity</div>
+            <div class="package-path">fr.eri.eriapi.anim.AnimatedBlockTileEntity</div>
+          </div>
+          <span class="badge badge-purple">Extends</span>
+        </div>
+        <p>Base class a etendre pour un comportement custom. Les 3 methodes ci-dessous sont conçues pour etre surchargees.</p>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Methodes a surcharger (protected)</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationEvent(<span class="param">AnimationEvent event</span>)</div>
+              <div class="method-desc">
+                Appele pour <strong>chaque event</strong> declenche par l'animation (keyframes
+                de type <code>effect</code>, <code>sound</code>, <code>particle</code>, <code>custom</code>).
+                Utile pour spawner un son/particle a une frame precise.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Override</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationComplete(<span class="param">String animName</span>)</div>
+              <div class="method-desc">
+                Appele quand une animation se <strong>termine</strong> (atteint la derniere keyframe en
+                mode <code>ONCE</code> / <code>HOLD</code> / <code>HIDE</code>, ou apres une boucle complete
+                pour <code>LOOP_N</code>). Idaal pour chainer plusieurs animations.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Override</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> onAnimationCallback(<span class="param">String callbackName</span>)</div>
+              <div class="method-desc">
+                Appele specifiquement pour les keyframes de type <strong>callback</strong> avec le nom du
+                callback (defini dans le JSON animation). Permet de nommer des points precis de
+                l'animation (ex: <code>"chest_opened"</code>) et de reagir en Java.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Override</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Utilitaires publics (a appeler)</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> playAnimation(<span class="param">String animName</span>)</div>
+              <div class="method-desc">Joue l'animation nommee avec le <code>EndBehavior</code> defini dans le JSON (par defaut).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> playAnimation(<span class="param">String animName, EndBehavior endBehaviorOverride</span>)</div>
+              <div class="method-desc">Joue l'animation en forçant un <code>EndBehavior</code> custom (<code>ONCE</code>, <code>LOOP</code>, <code>HOLD</code>, <code>HIDE</code>, <code>LOOP_N</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> pauseAnimation()</div>
+              <div class="method-desc">Met l'animation en pause a la frame courante (synchronise client+serveur).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resumeAnimation()</div>
+              <div class="method-desc">Reprend une animation mise en pause.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resetAnimation()</div>
+              <div class="method-desc">Retourne a la pose initiale (interpolation fluide).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> resetAnimation(<span class="param">boolean instant</span>)</div>
+              <div class="method-desc">Retourne a la pose initiale ; <code>instant=true</code> saute l'interpolation (snap immediat).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> stopAnimation()</div>
+              <div class="method-desc">Arrete l'animation courante (reste a la frame courante sans revenir a la pose de base).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setTexture(<span class="param">String target, String value</span>)</div>
+              <div class="method-desc">
+                Remplace a la volee une texture du modele. <code>target</code> est la clef de texture du JSON Blockbench,
+                <code>value</code> est le chemin de la nouvelle texture (ex: <code>"monmod:blocks/core_active"</code>).
+                Synchronise vers le client.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> clearTexture(<span class="param">String target</span>)</div>
+              <div class="method-desc">Supprime l'override de texture sur <code>target</code> (retour a la texture originale du modele).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> clearAllTextures()</div>
+              <div class="method-desc">Supprime tous les overrides de texture d'un coup.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> isAnimating()</div>
+              <div class="method-desc">Retourne <code>true</code> si une animation est en cours.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getCurrentAnimation()</div>
+              <div class="method-desc">Nom de l'animation courante, ou <code>null</code> si aucune n'est active.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">float</span> getAnimationProgress()</div>
+              <div class="method-desc">Progression de l'animation courante, de <code>0.0</code> a <code>1.0</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> setBlockYRotation(<span class="param">float rotation</span>)</div>
+              <div class="method-desc">Rotation du bloc autour de l'axe Y (degres). Synchronise vers le client.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — TileEntity custom avec callbacks d'animation</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
+import fr.eri.eriapi.anim.AnimationEvent;
+
+public class TileEntityCoffreSpecial extends AnimatedBlockTileEntity {
+
+    public TileEntityCoffreSpecial() {
+        super("monmod:block/coffre_special", "monmod:block/coffre_special");
+    }
+
+    @Override
+    protected void onAnimationEvent(AnimationEvent event) {
+        // Ex: jouer un son a une frame precise
+        if ("creak".equals(event.getValue())) {
+            world.playSound(null, pos, SoundEvents.BLOCK_CHEST_OPEN,
+                SoundCategory.BLOCKS, 1.0f, 1.0f);
+        }
+    }
+
+    @Override
+    protected void onAnimationComplete(String animName) {
+        // Ex: chainer une autre animation
+        if ("open".equals(animName)) {
+            playAnimation("idle_open", EndBehavior.LOOP);
+        }
+    }
+
+    @Override
+    protected void onAnimationCallback(String callbackName) {
+        // Ex: spawner le loot a un point precis
+        if ("spawn_loot".equals(callbackName) &amp;&amp; !world.isRemote) {
+            spawnLootAt(pos);
+        }
+    }
+}
+
+// Enregistrement :
+EriAnimBlock.create("monmod", "coffre_special")
+    .material(Material.WOOD)
+    .animation("monmod:block/coffre_special")
+    .tileEntity(TileEntityCoffreSpecial.class)
+    .onRightClick(ctx -&gt; {
+        TileEntityCoffreSpecial te = (TileEntityCoffreSpecial)
             ctx.world.getTileEntity(ctx.pos);
         if (te != null &amp;&amp; !te.isAnimating()) {
             te.playAnimation("open");
@@ -1912,7 +2190,7 @@ public class MonMod {
          ERI ENTITY
     ====================================================== -->
     <section class="doc-section" id="eri-entity">
-      <h2>EriEntity <span class="badge badge-cyan">v1.3.0</span></h2>
+      <h2>EriEntity <span class="badge badge-green">v2.0</span></h2>
       <p>
         <code>EriEntity</code> est le builder fluent pour enregistrer des entites custom avec un modele
         Blockbench anime. Il fonctionne de pair avec <code>AnimatedEntityRenderer</code> et l'interface
@@ -1922,13 +2200,12 @@ public class MonMod {
       <div class="info-box info">
         <div class="ib-icon">&#8505;</div>
         <div class="ib-body">
-          <div class="ib-title">Enregistrement manuel</div>
+          <div class="ib-title">Auto-enregistrement</div>
           <p>
-            Contrairement a <code>EriItem</code> et <code>EriBlock</code>, <code>EriEntity</code>
-            ne gere <strong>pas</strong> l'enregistrement automatique dans Forge. Les definitions sont
-            stockees dans <code>ContentRegistry</code>, mais le mod doit les enregistrer lui-meme dans
-            <code>RegistryEvent.Register&lt;EntityEntry&gt;</code>. Cela permet d'utiliser des sous-classes
-            custom de <code>EntityLivingBase</code>.
+            Depuis v1.4.0, <code>EriEntity.register()</code> enregistre automatiquement l'entite dans
+            Forge via un pool de 32 slots pre-compiles (<code>GeneratedEntitySlot0</code>…<code>GeneratedEntitySlot31</code>).
+            Le mod n'a <strong>plus</strong> besoin de gerer l'<code>EntityEntry</code> ou le renderer manuellement.
+            Un maximum de 32 types d'entites EriEntity peut etre enregistre par mod.
           </p>
         </div>
       </div>
@@ -2023,9 +2300,225 @@ public class MonMod {
           <li class="method-item">
             <div>
               <div class="method-sig"><span class="ret">EriEntity</span> register()</div>
-              <div class="method-desc">Enregistre la definition dans le ContentRegistry. Le mod doit ensuite enregistrer l'EntityEntry manuellement.</div>
+              <div class="method-desc">Enregistre la definition dans le ContentRegistry ET enregistre automatiquement l'EntityEntry, le renderer, le spawn egg et les regles de spawn dans Forge via le pool de 32 slots (v1.4.0).</div>
             </div>
             <span class="method-badge mb-abstract">Terminal</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Methodes avancees (v1.4.0)</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> name(<span class="type">String</span> displayName)</div>
+              <div class="method-desc">Nom d'affichage de l'entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> health(<span class="type">double</span> health)</div>
+              <div class="method-desc">PV max de l'entite (defaut: 20.0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> armor(<span class="type">double</span> armor)</div>
+              <div class="method-desc">Valeur d'armure (defaut: 0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> armorToughness(<span class="type">double</span> toughness)</div>
+              <div class="method-desc">Robustesse de l'armure (defaut: 0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> attackDamage(<span class="type">double</span> damage)</div>
+              <div class="method-desc">Degats au corps a corps (defaut: 2.0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> movementSpeed(<span class="type">double</span> speed)</div>
+              <div class="method-desc">Vitesse de deplacement (defaut: 0.25).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> followRange(<span class="type">double</span> range)</div>
+              <div class="method-desc">Portee de detection des cibles (defaut: 16).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> knockbackResistance(<span class="type">double</span> resist)</div>
+              <div class="method-desc">Resistance au knockback, 0.0–1.0 (defaut: 0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> immuneToFire()</div>
+              <div class="method-desc">L'entite est immunisee au feu.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> immuneToKnockback()</div>
+              <div class="method-desc">L'entite est immunisee au knockback.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> canSwim(<span class="type">boolean</span> swim)</div>
+              <div class="method-desc">Definit si l'entite peut nager (defaut: true).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> experienceDrop(<span class="type">int</span> min, <span class="type">int</span> max)</div>
+              <div class="method-desc">XP droppee a la mort (valeur aleatoire entre min et max).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> ambientSound(<span class="type">SoundEvent</span> sound)</div>
+              <div class="method-desc">Son ambiant.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> hurtSound(<span class="type">SoundEvent</span> sound)</div>
+              <div class="method-desc">Son de degats.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> deathSound(<span class="type">SoundEvent</span> sound)</div>
+              <div class="method-desc">Son de mort.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> stepSound(<span class="type">SoundEvent</span> sound)</div>
+              <div class="method-desc">Son de pas.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> ambientSoundInterval(<span class="type">int</span> ticks)</div>
+              <div class="method-desc">Intervalle entre sons ambiants (defaut: 80 ticks).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> aiPreset(<span class="type">AiPreset</span> preset)</div>
+              <div class="method-desc">Comportement IA predefini. Valeurs : <code>PASSIVE</code>, <code>HOSTILE_MELEE</code>, <code>HOSTILE_RANGED</code>, <code>NEUTRAL</code>, <code>BOSS</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> ai(<span class="type">Consumer&lt;PathfinderBuilder&gt;</span> config)</div>
+              <div class="method-desc">Configuration IA custom via <code>PathfinderBuilder</code> (voir section dediee ci-dessous).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> drop(<span class="type">ItemStack</span> stack, <span class="type">float</span> chance)</div>
+              <div class="method-desc">Drop d'item a la mort (chance: 0.0–1.0).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> drop(<span class="type">Item</span> item, <span class="type">int</span> min, <span class="type">int</span> max, <span class="type">float</span> chance)</div>
+              <div class="method-desc">Drop aleatoire entre min et max items.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> rareDrop(<span class="type">ItemStack</span> stack, <span class="type">float</span> chance)</div>
+              <div class="method-desc">Drop rare (chance divisee par looting level).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> spawn(<span class="type">Consumer&lt;EriSpawner&gt;</span> config)</div>
+              <div class="method-desc">Regles de spawn naturel (voir section <code>EriSpawner</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> tracker(<span class="type">int</span> range, <span class="type">int</span> freq, <span class="type">boolean</span> velocity)</div>
+              <div class="method-desc">Parametres de tracking reseau (defaut: 64, 3, true).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onSpawn(<span class="type">Consumer&lt;EntityLivingBase&gt;</span> cb)</div>
+              <div class="method-desc">Callback appele au spawn initial.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onDeath(<span class="type">BiConsumer&lt;EntityLivingBase, DamageSource&gt;</span> cb)</div>
+              <div class="method-desc">Callback a la mort.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onUpdate(<span class="type">Consumer&lt;EntityLivingBase&gt;</span> cb)</div>
+              <div class="method-desc">Callback chaque tick (<code>onLivingUpdate</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onAttack(<span class="type">BiConsumer&lt;EntityLivingBase, Entity&gt;</span> cb)</div>
+              <div class="method-desc">Callback quand l'entite attaque.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onHurt(<span class="type">BiConsumer&lt;EntityLivingBase, DamageSource&gt;</span> cb)</div>
+              <div class="method-desc">Callback quand l'entite recoit des degats.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> onInteract(<span class="type">BiConsumer&lt;EntityLivingBase, EntityPlayer&gt;</span> cb)</div>
+              <div class="method-desc">Callback quand un joueur clic droit sur l'entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
           </li>
         </ul>
       </div>
@@ -2095,72 +2588,1134 @@ public class MonMod {
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java — Exemple complet EriEntity</span>
+          <span>Java — Exemple complet EriEntity (v1.4.0)</span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">import fr.eri.eriapi.anim.*;
-import fr.eri.eriapi.content.EriEntity;
-import fr.eri.eriapi.content.ContentRegistry;
-import fr.eri.eriapi.content.EntityDefinition;
-import net.minecraft.entity.EntityLiving;
+        <pre><code class="language-java">// Dans preInit() — auto-enregistrement complet
+EriEntity.create("monmod", "garde_elite")
+    .model("monmod:entity/garde")
+    .texture("body", "monmod:textures/entity/garde_body")
+    .animation("idle", "monmod:entity/garde_idle")
+    .animation("walk", "monmod:entity/garde_walk")
+    .animation("attack", "monmod:entity/garde_attack")
+    .hitbox(0.7f, 2.0f)
+    .name("Garde Elite")
+    .health(40).attackDamage(6).armor(4).movementSpeed(0.28)
+    .hurtSound(SoundEvents.ENTITY_ZOMBIE_HURT)
+    .deathSound(SoundEvents.ENTITY_ZOMBIE_DEATH)
+    .aiPreset(AiPreset.HOSTILE_MELEE)
+    .ai(ai -> ai.swim().meleeAttack(1.1, false).wander(0.8).watchPlayers(16f).lookIdle().targetPlayers().hurtByTarget(true))
+    .drop(new ItemStack(Items.IRON_SWORD), 0.05f)
+    .drop(Items.IRON_INGOT, 0, 2, 0.4f)
+    .experienceDrop(5, 15)
+    .spawn(s -> s.type(EnumCreatureType.MONSTER).weight(8).group(1, 3).lightLevel(0, 7).dimension(0))
+    .spawnEgg(0x2C2C2C, 0xFFD700)
+    .onDeath((entity, src) -> EriniumFaction.LOGGER.info("Garde tue par {}", src.getDamageType()))
+    .register();
+// C'est tout ! Pas de EntityEntry manuel, pas de RenderingRegistry manuel.</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PATHFINDER BUILDER
+    ====================================================== -->
+    <section class="doc-section" id="pathfinder-builder">
+      <h2>PathfinderBuilder <span class="badge badge-green">v2.0</span></h2>
+      <p>
+        Builder fluent pour configurer les AI tasks d'une entite EriEntity. Utilise dans
+        <code>EriEntity.ai(Consumer&lt;PathfinderBuilder&gt;)</code>. Les tasks sont appliquees
+        dans l'ordre d'appel.
+      </p>
+
+      <h3>Goal tasks</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> swim()</div>
+              <div class="method-desc">Permet a l'entite de nager quand elle est dans l'eau.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> meleeAttack(<span class="type">double</span> speed, <span class="type">boolean</span> longMemory)</div>
+              <div class="method-desc">Attaque au corps a corps. <code>longMemory</code> continue de poursuivre la cible meme perdue de vue.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> wander(<span class="type">double</span> speed)</div>
+              <div class="method-desc">Deplacement aleatoire en idle.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> watchClosest(<span class="type">Class&lt;EntityLivingBase&gt;</span> target, <span class="type">float</span> distance)</div>
+              <div class="method-desc">L'entite regarde l'entite cible la plus proche dans la distance donnee.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> watchPlayers(<span class="type">float</span> distance)</div>
+              <div class="method-desc">Raccourci : regarde le joueur le plus proche.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> lookIdle()</div>
+              <div class="method-desc">Regard aleatoire en idle.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> panicOnHurt(<span class="type">double</span> speed)</div>
+              <div class="method-desc">L'entite panique et fuit quand elle est blessee.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> leapAtTarget(<span class="type">float</span> motionY)</div>
+              <div class="method-desc">L'entite saute sur sa cible avec la vitesse verticale donnee.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> avoidEntity(<span class="type">Class</span> cls, <span class="type">float</span> distance, <span class="type">double</span> walkSpeed, <span class="type">double</span> sprintSpeed)</div>
+              <div class="method-desc">Evite les entites de la classe donnee (fuite a <code>walkSpeed</code>, sprint a <code>sprintSpeed</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> openDoors(<span class="type">boolean</span> closeBehind)</div>
+              <div class="method-desc">L'entite peut ouvrir les portes. <code>closeBehind</code> les referme derriere elle.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Target tasks</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> targetPlayers()</div>
+              <div class="method-desc">Cible les joueurs a portee.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> targetClass(<span class="type">Class</span> cls)</div>
+              <div class="method-desc">Cible une classe d'entite specifique.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> hurtByTarget(<span class="type">boolean</span> callForHelp)</div>
+              <div class="method-desc">Riposte contre l'attaquant. <code>callForHelp</code> appelle les allies du meme type.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Tasks custom</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> task(<span class="type">EntityAIBase</span> ai)</div>
+              <div class="method-desc">Ajoute un goal task custom deja instancie.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> targetTask(<span class="type">EntityAIBase</span> ai)</div>
+              <div class="method-desc">Ajoute un target task custom deja instancie.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> task(<span class="type">Function&lt;EntityLiving, EntityAIBase&gt;</span> factory)</div>
+              <div class="method-desc">Factory qui construit le goal task a partir de l'instance de l'entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">PathfinderBuilder</span> targetTask(<span class="type">Function&lt;EntityLiving, EntityAIBase&gt;</span> factory)</div>
+              <div class="method-desc">Factory qui construit le target task a partir de l'instance de l'entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple PathfinderBuilder</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriEntity.create("monmod", "garde")
+    .health(30).attackDamage(4)
+    .aiPreset(AiPreset.HOSTILE_MELEE)
+    .ai(ai -> ai
+        .swim()
+        .meleeAttack(1.0, false)
+        .wander(0.8)
+        .watchPlayers(12f)
+        .lookIdle()
+        .targetPlayers()
+        .hurtByTarget(true))
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ERI SPAWNER
+    ====================================================== -->
+    <section class="doc-section" id="eri-spawner">
+      <h2>EriSpawner <span class="badge badge-green">v2.0</span></h2>
+      <p>
+        Builder fluent pour configurer les regles de spawn naturel d'une entite. Utilise dans
+        <code>EriEntity.spawn(Consumer&lt;EriSpawner&gt;)</code>. Les regles sont enregistrees
+        automatiquement dans Forge via <code>EntityRegistry.addSpawn()</code>.
+      </p>
+
+      <h3>Methodes du builder</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> type(<span class="type">EnumCreatureType</span> type)</div>
+              <div class="method-desc">Categorie de creature : <code>MONSTER</code>, <code>CREATURE</code>, <code>AMBIENT</code>, <code>WATER_CREATURE</code>.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> weight(<span class="type">int</span> weight)</div>
+              <div class="method-desc">Poids du spawn (plus eleve = plus frequent).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> group(<span class="type">int</span> min, <span class="type">int</span> max)</div>
+              <div class="method-desc">Taille du groupe au spawn (valeur aleatoire entre min et max).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> dimension(<span class="type">int...</span> ids)</div>
+              <div class="method-desc">Dimensions autorisees (0 = Overworld, -1 = Nether, 1 = End).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> biome(<span class="type">Biome...</span> biomes)</div>
+              <div class="method-desc">Biomes autorises pour le spawn.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> excludeBiome(<span class="type">Biome...</span> biomes)</div>
+              <div class="method-desc">Biomes interdits pour le spawn.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> lightLevel(<span class="type">int</span> min, <span class="type">int</span> max)</div>
+              <div class="method-desc">Plage de niveau de lumiere pour le spawn (0–15).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> heightRange(<span class="type">int</span> min, <span class="type">int</span> max)</div>
+              <div class="method-desc">Plage d'altitude Y pour le spawn.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> maxPerChunk(<span class="type">int</span> max)</div>
+              <div class="method-desc">Nombre maximum d'entites de ce type par chunk.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriSpawner</span> despawnDistance(<span class="type">int</span> blocks)</div>
+              <div class="method-desc">Distance (en blocks) au-dela de laquelle l'entite despawn.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple EriSpawner</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriEntity.create("monmod", "zombie_garde")
+    .health(20).attackDamage(3)
+    .aiPreset(AiPreset.HOSTILE_MELEE)
+    .spawn(s -> s
+        .type(EnumCreatureType.MONSTER)
+        .weight(10)
+        .group(2, 4)
+        .lightLevel(0, 7)
+        .dimension(0)
+        .maxPerChunk(8))
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ERI PROJECTILE
+    ====================================================== -->
+    <section class="doc-section" id="eri-projectile">
+      <h2>EriProjectile <span class="badge badge-green">v2.0</span></h2>
+      <p>
+        Builder fluent pour enregistrer des projectiles custom avec physique, combat, visuel et
+        callbacks d'impact. Auto-enregistrement Forge via un pool de 32 slots
+        (<code>GeneratedProjectileSlot0</code>…<code>GeneratedProjectileSlot31</code>) : pas besoin
+        de sous-classer <code>EntityThrowable</code> ou d'enregistrer manuellement l'<code>EntityEntry</code>.
+      </p>
+
+      <h3>Factory</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> create(<span class="type">String</span> modId, <span class="type">String</span> registryName)</div>
+              <div class="method-desc">Cree un nouveau builder de projectile. Methode statique.</div>
+            </div>
+            <span class="method-badge mb-abstract">Factory</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Physique</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> velocity(<span class="type">float</span> velocity)</div>
+              <div class="method-desc">Vitesse initiale du projectile.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> gravity(<span class="type">float</span> gravity)</div>
+              <div class="method-desc">Gravite appliquee par tick (0 = pas de gravite).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> inaccuracy(<span class="type">float</span> inaccuracy)</div>
+              <div class="method-desc">Imprecision aleatoire du tir.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> lifetime(<span class="type">int</span> ticks)</div>
+              <div class="method-desc">Duree de vie max du projectile en ticks.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> piercing(<span class="type">int</span> maxEntities)</div>
+              <div class="method-desc">Le projectile traverse jusqu'a N entites avant disparition.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> bouncing(<span class="type">int</span> maxBounces)</div>
+              <div class="method-desc">Le projectile rebondit N fois sur les blocs.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Combat</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> damage(<span class="type">float</span> damage)</div>
+              <div class="method-desc">Degats infliges a l'impact.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> damageType(<span class="type">DamageSource</span> type)</div>
+              <div class="method-desc">Type de degats custom (defaut: thrown).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> knockback(<span class="type">float</span> knockback)</div>
+              <div class="method-desc">Force de knockback a l'impact.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> setFire(<span class="type">int</span> seconds)</div>
+              <div class="method-desc">Met le feu a l'entite touchee pendant N secondes.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Visuel</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> texture(<span class="type">ResourceLocation</span> texture)</div>
+              <div class="method-desc">Texture du projectile.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> renderAsItem(<span class="type">ItemStack</span> stack)</div>
+              <div class="method-desc">Rend le projectile comme un item 3D au lieu d'une texture plate.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> scale(<span class="type">float</span> scale)</div>
+              <div class="method-desc">Echelle de rendu.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> glowing(<span class="type">boolean</span> glow)</div>
+              <div class="method-desc">Le projectile brille (fullbright).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> trailParticle(<span class="type">EnumParticleTypes</span> particle)</div>
+              <div class="method-desc">Particules laissees dans le sillage du projectile.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> trailColor(<span class="type">int</span> argb)</div>
+              <div class="method-desc">Couleur de la trainee (format ARGB).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Callbacks &amp; effets d'impact</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> onHitEntity(<span class="type">BiConsumer&lt;Entity, Entity&gt;</span> cb)</div>
+              <div class="method-desc">Callback (projectile, cible) quand le projectile touche une entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> onHitBlock(<span class="type">BiConsumer&lt;Entity, BlockPos&gt;</span> cb)</div>
+              <div class="method-desc">Callback (projectile, pos) quand le projectile touche un bloc.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> onExpire(<span class="type">Consumer&lt;Entity&gt;</span> cb)</div>
+              <div class="method-desc">Callback quand le projectile expire (lifetime ecoule).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> explosionOnImpact(<span class="type">float</span> power, <span class="type">boolean</span> fire)</div>
+              <div class="method-desc">Declenche une explosion a l'impact.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> potionOnImpact(<span class="type">PotionEffect</span> effect, <span class="type">float</span> radius)</div>
+              <div class="method-desc">Eclaboussure de potion dans un rayon donne.</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> aoeOnImpact(<span class="type">float</span> radius, <span class="type">float</span> damage)</div>
+              <div class="method-desc">Degats de zone dans un rayon (pas d'explosion, pas de destruction).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Spawn egg &amp; tracker</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> spawnEgg(<span class="type">int</span> primary, <span class="type">int</span> secondary)</div>
+              <div class="method-desc">Active un spawn egg (format 0xRRGGBB).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> tracker(<span class="type">int</span> range, <span class="type">int</span> freq, <span class="type">boolean</span> velocity)</div>
+              <div class="method-desc">Parametres de tracking reseau (defaut: 64, 10, true).</div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Enregistrement &amp; tir</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> register()</div>
+              <div class="method-desc">Enregistre le projectile dans Forge via le slot pool et retourne le builder (utilisable ensuite pour <code>spawn()</code>).</div>
+            </div>
+            <span class="method-badge mb-abstract">Terminal</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">Entity</span> spawn(<span class="type">World</span> world, <span class="type">Entity</span> shooter)</div>
+              <div class="method-desc">Instancie et tire le projectile depuis une entite (position et direction du shooter).</div>
+            </div>
+            <span class="method-badge mb-fluent">Action</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">Entity</span> spawnAt(<span class="type">World</span> world, <span class="type">double</span> x, <span class="type">double</span> y, <span class="type">double</span> z, <span class="type">float</span> yaw, <span class="type">float</span> pitch)</div>
+              <div class="method-desc">Tire le projectile depuis des coordonnees et une direction precises.</div>
+            </div>
+            <span class="method-badge mb-fluent">Action</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple EriProjectile</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriProjectile fireball = EriProjectile.create("monmod", "fireball")
+    .velocity(1.8f)
+    .gravity(0.02f)
+    .damage(6.0f)
+    .setFire(3)
+    .knockback(0.5f)
+    .texture(new ResourceLocation("monmod", "textures/entity/fireball"))
+    .explosionOnImpact(2.0f, true)
+    .onHitEntity((proj, target) -> target.setFire(60))
+    .register();
+
+// Tirer depuis une entite
+fireball.spawn(world, shooterEntity);
+
+// Tirer depuis coordonnees
+fireball.spawnAt(world, x, y, z, yaw, pitch);</code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         ENTITY DATA SYNC
+    ====================================================== -->
+    <section class="doc-section" id="entity-data-sync">
+      <h2>EntityDataSync / @SyncParam <span class="badge badge-green">v2.0</span></h2>
+      <p>
+        Gestion automatique des <code>DataParameter</code> d'une entite via annotations. Declare un champ
+        avec <code>@SyncParam</code>, appelle <code>EntityDataSync.register(this)</code> dans
+        <code>entityInit()</code>, puis utilise <code>get()</code> / <code>set()</code> type-safe sans
+        reflexion en hot path. Persistence NBT automatique pour les champs marques
+        <code>persistent = true</code>.
+      </p>
+
+      <h3>@SyncParam</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">@interface</span> SyncParam</div>
+              <div class="method-desc">Annotation a placer sur un champ d'entite pour l'inclure dans la synchronisation client/serveur.</div>
+            </div>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="type">boolean</span> persistent() <span class="ret">default true</span></div>
+              <div class="method-desc">Si <code>false</code>, le champ n'est pas sauvegarde en NBT (perdu au restart).</div>
+            </div>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="type">String</span> nbtKey() <span class="ret">default ""</span></div>
+              <div class="method-desc">Cle NBT custom. Si vide, le nom du champ Java est utilise.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <h3>EntityDataSync</h3>
+      <div class="method-list">
+        <ul>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> register(<span class="type">EntityLiving</span> entity)</div>
+              <div class="method-desc">A appeler dans <code>entityInit()</code> apres <code>super.entityInit()</code>. Scanne les champs <code>@SyncParam</code> par reflexion (une seule fois par classe) et cree les <code>DataParameter</code> correspondants.</div>
+            </div>
+            <span class="method-badge mb-abstract">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">T</span> get(<span class="type">EntityLiving</span> entity, <span class="type">String</span> fieldName)</div>
+              <div class="method-desc">Lit la valeur synchronisee d'un champ. Zero reflexion au runtime.</div>
+            </div>
+            <span class="method-badge mb-abstract">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> set(<span class="type">EntityLiving</span> entity, <span class="type">String</span> fieldName, <span class="type">Object</span> value)</div>
+              <div class="method-desc">Ecrit la valeur synchronisee d'un champ (propage automatiquement au client).</div>
+            </div>
+            <span class="method-badge mb-abstract">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> writeNBT(<span class="type">EntityLiving</span> entity, <span class="type">NBTTagCompound</span> tag)</div>
+              <div class="method-desc">A appeler dans <code>writeEntityToNBT()</code>. Serialise tous les champs <code>persistent = true</code>.</div>
+            </div>
+            <span class="method-badge mb-abstract">Static</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> readNBT(<span class="type">EntityLiving</span> entity, <span class="type">NBTTagCompound</span> tag)</div>
+              <div class="method-desc">A appeler dans <code>readEntityFromNBT()</code>. Deserialise tous les champs <code>persistent = true</code>.</div>
+            </div>
+            <span class="method-badge mb-abstract">Static</span>
+          </li>
+        </ul>
+      </div>
+
+      <h3>Types supportes</h3>
+      <p>
+        <code>boolean</code>, <code>int</code>, <code>float</code>, <code>String</code>,
+        <code>ItemStack</code>, <code>BlockPos</code>, <code>ITextComponent</code>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Exemple complet @SyncParam</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">public class EntityGarde extends EntityMob {
+
+    @SyncParam private boolean isEnraged = false;
+    @SyncParam private int variant = 0;
+    @SyncParam(persistent = false) private float animBlend = 0f;
+    @SyncParam(nbtKey = "rage_level") private int rageLevel = 0;
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        EntityDataSync.register(this);
+    }
+
+    public void setEnraged(boolean v) { EntityDataSync.set(this, "isEnraged", v); }
+    public boolean isEnraged()        { return EntityDataSync.get(this, "isEnraged"); }
+
+    @Override
+    public void writeEntityToNBT(NBTTagCompound tag) {
+        super.writeEntityToNBT(tag);
+        EntityDataSync.writeNBT(this, tag);
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound tag) {
+        super.readEntityFromNBT(tag);
+        EntityDataSync.readNBT(this, tag);
+    }
+}</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ENTITY BASE (v1.5.0)
+    ====================================================== -->
+    <section class="doc-section" id="eri-entity-base">
+      <h2>EriEntityBase <span class="badge badge-green">v1.5.0</span></h2>
+      <p>
+        <code>EriEntityBase</code> est la <strong>classe de base a etendre</strong> quand tu veux une entite
+        avec une <strong>logique Java custom</strong> (override de methodes, champs synchronises, NBT
+        specifique) tout en gardant l'auto-configuration EriEntity (stats, AI, sons, drops, callbacks).
+      </p>
+      <p>
+        Sans cette classe, EriAPI genere l'entite dans un slot pre-compile du pool
+        <code>GeneratedEntitySlots</code> (limite a 32). Avec <code>.entityClass(MonEntite.class)</code>,
+        ta classe est enregistree directement dans Forge — tu peux donc surcharger n'importe quelle methode
+        de <code>EntityMob</code> / <code>EntityLivingBase</code>.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriEntityBase</div>
+            <div class="package-path">fr.eri.eriapi.content.EriEntityBase</div>
+          </div>
+          <span class="badge badge-purple">Extends EntityMob</span>
+        </div>
+        <p>Classe de base a etendre pour une entite custom. Mirrors la logique de <code>GeneratedEntity</code> mais permet le sous-classement.</p>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Contrat d'extension</h4>
+        <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
+          <li>Extend <code>EriEntityBase</code></li>
+          <li>Avoir un constructeur <strong>public</strong> : <code>public MyEntity(World world) { super(world); }</code></li>
+          <li>Si tu utilises <code>@SyncParam</code>, appelle <code>EntityDataSync.register(this)</code> dans <code>entityInit()</code> apres <code>super.entityInit()</code></li>
+          <li>Tu peux surcharger n'importe quelle methode ; appelle <code>super</code> pour conserver les comportements EriEntity (sons, drops, callbacks...)</li>
+        </ul>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Champs proteges accessibles</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EntityDefinition</span> eriDef</div>
+              <div class="method-desc">La definition qui pilote l'entite. <strong>May be null</strong> si misconfigure.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> eriDefId</div>
+              <div class="method-desc">Id canonique (<code>modId:registryName</code>) utilise pour la restauration NBT.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+        </ul>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Accesseurs publics</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EntityDefinition</span> getEriDef()</div>
+              <div class="method-desc">Retourne la <code>EntityDefinition</code> qui pilote cette entite.</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> getEriDefId()</div>
+              <div class="method-desc">Retourne l'id canonique (<code>modId:registryName</code>).</div>
+            </div>
+            <span class="method-badge mb-fluent">Public</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriEntity.entityClass()</div>
+            <div class="package-path">fr.eri.eriapi.content.EriEntity</div>
+          </div>
+          <span class="badge badge-cyan">Builder</span>
+        </div>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriEntity</span> entityClass(<span class="param">Class&lt;? extends EriEntityBase&gt; clazz</span>)</div>
+              <div class="method-desc">
+                Specifie une classe Java custom. Quand cette methode est appelee, EriAPI enregistre directement
+                ta classe dans Forge au lieu d'utiliser un slot pre-compile. La classe doit etendre
+                <code>EriEntityBase</code> et avoir un constructeur <code>public MyEntity(World world)</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Boss avec champ synchronise @SyncParam</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.content.*;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
-// 1. Definir l'entite via le builder (dans preInit)
-public class MonEntites {
-    public static void init() {
-        EriEntity.create("monmod", "monstre")
-            .model("monmod:entity/monstre")
-            .texture("body", "monmod:textures/entity/monstre/body")
-            .animation("idle", "monmod:entity/monstre_idle")
-            .animation("walk", "monmod:entity/monstre_walk")
-            .animation("attack", "monmod:entity/monstre_attack")
-            .hitbox(0.8f, 1.8f)
-            .seat(0.0f, 24.0f, 0.0f)
-            .spawnEgg(0x333333, 0x00FF00)
-            .register();
-    }
-}
+public class EntityBoss extends EriEntityBase {
 
-// 2. Creer la classe d'entite qui implemente IAnimatedEntity
-public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
-    private AnimationController controller = new AnimationController();
-    private AnimState animState = AnimState.IDLE;
-    private String currentAnim = "";
-    private long animStartTick = 0;
+    @SyncParam public boolean isEnraged = false;
+    @SyncParam public int phase = 1;
 
-    public EntityMonstre(World world) {
+    public EntityBoss(World world) {
         super(world);
-        setSize(0.8f, 1.8f);
     }
 
     @Override
-    public AnimationPose getCurrentPose(float partialTicks) {
-        if (animState == AnimState.IDLE) return null;
-        // Calculer la pose via AnimationController
-        // (similaire a AnimatedBlockTileEntity.getCurrentPose)
-        return null;
+    protected void entityInit() {
+        super.entityInit();
+        EntityDataSync.register(this);
     }
 
     @Override
-    public AnimState getAnimState() {
-        return animState;
+    public void onLivingUpdate() {
+        super.onLivingUpdate();
+        // Passe en phase 2 sous 50% de vie
+        if (!world.isRemote &amp;&amp; phase == 1 &amp;&amp; getHealth() &lt; getMaxHealth() * 0.5f) {
+            EntityDataSync.set(this, "phase", 2);
+            EntityDataSync.set(this, "isEnraged", true);
+        }
     }
 }
 
-// 3. Enregistrer le renderer (dans ClientProxy.preInit)
-public class ClientProxy {
-    public void preInit() {
-        RenderingRegistry.registerEntityRenderingHandler(
-            EntityMonstre.class,
-            AnimatedEntityRenderer.factory("monmod:entity/monstre", 0.5f)
-        );
+// Enregistrement :
+EriEntity.create("monmod", "boss")
+    .health(200).attackDamage(12).armor(10)
+    .aiPreset(AiPreset.BOSS)
+    .entityClass(EntityBoss.class)   // ← classe custom
+    .spawnEgg(0x8B0000, 0xFF4500)
+    .register();</code></pre>
+      </div>
+
+      <div class="info-box info">
+        <div class="ib-icon">&#8505;</div>
+        <div class="ib-body">
+          <div class="ib-title">Quand utiliser EriEntityBase ?</div>
+          <p>Utilise <code>EriEntityBase</code> quand tu as besoin de <strong>champs synchronises</strong>
+          (<code>@SyncParam</code>), de <strong>NBT custom</strong>, d'override de <code>onLivingUpdate()</code>
+          ou d'autres methodes vanilla. Pour les entites simples (stats + AI + drops), les callbacks du builder
+          (<code>onSpawn</code>, <code>onUpdate</code>, <code>onDeath</code>, etc.) suffisent — pas besoin de
+          creer une classe.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI PROJECTILE BASE (v1.5.0)
+    ====================================================== -->
+    <section class="doc-section" id="eri-projectile-base">
+      <h2>EriProjectileBase <span class="badge badge-green">v1.5.0</span></h2>
+      <p>
+        <code>EriProjectileBase</code> est la <strong>classe de base a etendre</strong> quand tu veux un projectile
+        avec une <strong>logique Java custom</strong> (trajectoire speciale, effets custom a l'impact, homing)
+        tout en gardant l'auto-configuration EriProjectile (velocite, gravite, piercing, bouncing, explosion,
+        AOE, potion).
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriProjectileBase</div>
+            <div class="package-path">fr.eri.eriapi.content.EriProjectileBase</div>
+          </div>
+          <span class="badge badge-purple">Extends EntityThrowable</span>
+        </div>
+        <p>Classe de base a etendre pour un projectile custom.</p>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Contrat d'extension</h4>
+        <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
+          <li>Extend <code>EriProjectileBase</code></li>
+          <li>Constructeur obligatoire : <code>public MyProjectile(World world) { super(world); }</code></li>
+          <li>Constructeur optionnel : <code>public MyProjectile(World world, EntityLivingBase thrower)</code></li>
+          <li>Appelle <code>super</code> dans tes overrides pour conserver piercing, bouncing, AOE, etc.</li>
+        </ul>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Champs proteges accessibles</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">ProjectileDefinition</span> eriDef</div>
+              <div class="method-desc">La definition qui pilote ce projectile.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">String</span> eriDefId</div>
+              <div class="method-desc">Id canonique (<code>modId:registryName</code>) utilise pour le log NBT.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> pierceCount</div>
+              <div class="method-desc">Nombre d'entites que ce projectile a deja percees.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> bounceCount</div>
+              <div class="method-desc">Nombre de blocs sur lesquels ce projectile a deja rebondi.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> ticksAlive</div>
+              <div class="method-desc">Nombre de ticks depuis le spawn du projectile.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriProjectile.projectileClass()</div>
+            <div class="package-path">fr.eri.eriapi.content.EriProjectile</div>
+          </div>
+          <span class="badge badge-cyan">Builder</span>
+        </div>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriProjectile</span> projectileClass(<span class="param">Class&lt;? extends EriProjectileBase&gt; clazz</span>)</div>
+              <div class="method-desc">
+                Specifie une classe Java custom. Quand cette methode est appelee, EriAPI enregistre directement
+                ta classe dans Forge au lieu d'utiliser un slot pre-compile de <code>GeneratedProjectileSlots</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Missile a tete chercheuse</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.content.*;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.World;
+
+public class ProjectileMissile extends EriProjectileBase {
+
+    public ProjectileMissile(World world) { super(world); }
+    public ProjectileMissile(World world, EntityLivingBase thrower) {
+        super(world, thrower);
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+
+        // Tete chercheuse : corrige la trajectoire vers la cible la plus proche
+        if (!world.isRemote &amp;&amp; ticksExisted % 5 == 0) {
+            EntityLivingBase target = findNearestTarget();
+            if (target != null) {
+                double dx = target.posX - posX;
+                double dy = target.posY + target.height * 0.5 - posY;
+                double dz = target.posZ - posZ;
+                double len = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                double speed = 0.4;
+                motionX = dx / len * speed;
+                motionY = dy / len * speed;
+                motionZ = dz / len * speed;
+            }
+        }
+    }
+
+    private EntityLivingBase findNearestTarget() {
+        AxisAlignedBB aabb = new AxisAlignedBB(posX-16, posY-16, posZ-16,
+                                                posX+16, posY+16, posZ+16);
+        EntityLivingBase nearest = null;
+        double best = Double.MAX_VALUE;
+        for (EntityLivingBase e : world.getEntitiesWithinAABB(EntityLivingBase.class, aabb)) {
+            if (e == getThrower()) continue;
+            double d = e.getDistanceSq(this);
+            if (d &lt; best) { best = d; nearest = e; }
+        }
+        return nearest;
     }
 }
 
-// 4. Enregistrer l'EntityEntry (dans RegistryEvent)
-// Le mod gere cela manuellement car EriAPI ne fait pas
-// d'auto-registration pour les entites.</code></pre>
+// Enregistrement :
+EriProjectile.create("monmod", "missile")
+    .damage(8f).velocity(1.2f).gravity(0f).lifetime(200)
+    .explosionOnImpact(2.0f, false)
+    .projectileClass(ProjectileMissile.class)  // ← classe custom
+    .register();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         ERI ITEM BASE (v1.5.0)
+    ====================================================== -->
+    <section class="doc-section" id="eri-item-base">
+      <h2>EriItemBase <span class="badge badge-green">v1.5.0</span></h2>
+      <p>
+        <code>EriItemBase</code> est la <strong>classe de base a etendre</strong> quand tu veux un item avec
+        une <strong>logique Java custom</strong> (NBT persistant, cooldowns complexes, rendu conditionnel,
+        interactions speciales) tout en gardant l'auto-configuration EriItem (tooltip, rarity, glow, stack size,
+        durability).
+      </p>
+
+      <div class="info-box warning">
+        <div class="ib-icon">&#9888;</div>
+        <div class="ib-body">
+          <div class="ib-title">Pour les outils / armures</div>
+          <p>Utilise les sous-builders <code>.tool()</code> et <code>.armor()</code> plutot que
+          <code>.itemClass()</code> — EriAPI genere des classes specialisees (<code>GeneratedTool</code>,
+          <code>GeneratedArmor</code>) qui gerent correctement les mechaniques d'outils et d'armure. Utilise
+          <code>.itemClass()</code> pour les items <strong>simples</strong> qui ont besoin de logique custom.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriItemBase</div>
+            <div class="package-path">fr.eri.eriapi.content.EriItemBase</div>
+          </div>
+          <span class="badge badge-purple">Extends Item</span>
+        </div>
+        <p>Classe de base a etendre pour un item custom.</p>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Contrat d'extension</h4>
+        <ul style="color:var(--text-muted);padding-left:20px;line-height:2;">
+          <li>Extend <code>EriItemBase</code></li>
+          <li>Constructeur obligatoire : <code>public MyItem() { super(); }</code> (aucun argument)</li>
+          <li>Tu peux surcharger <code>onItemRightClick</code>, <code>onItemUse</code>, <code>onUpdate</code>, etc.</li>
+          <li>Appelle <code>super</code> dans les overrides pour conserver le callback <code>.onRightClick()</code> du builder</li>
+        </ul>
+
+        <h4 style="margin-top:16px;margin-bottom:8px;color:var(--text);">Champs proteges accessibles</h4>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">ItemDefinition</span> eriDef</div>
+              <div class="method-desc">La definition qui pilote cet item. Contient tooltip, rarity, glow, etc.</div>
+            </div>
+            <span class="method-badge mb-abstract">protected</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">EriItem.itemClass()</div>
+            <div class="package-path">fr.eri.eriapi.content.EriItem</div>
+          </div>
+          <span class="badge badge-cyan">Builder</span>
+        </div>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriItem</span> itemClass(<span class="param">Class&lt;? extends EriItemBase&gt; clazz</span>)</div>
+              <div class="method-desc">
+                Specifie une classe Java custom. Quand cette methode est appelee, EriAPI enregistre directement
+                ta classe dans Forge au lieu de <code>GeneratedItem</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java — Pierre de portail avec NBT custom</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.content.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.*;
+import net.minecraft.world.World;
+
+public class ItemPortail extends EriItemBase {
+
+    public ItemPortail() { super(); }
+
+    @Override
+    public ActionResult&lt;ItemStack&gt; onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        ItemStack stack = player.getHeldItem(hand);
+        NBTTagCompound nbt = stack.getOrCreateSubCompound("Portail");
+
+        if (!nbt.hasKey("X")) {
+            // Premier clic : memorise la position
+            nbt.setInteger("X", (int) player.posX);
+            nbt.setInteger("Y", (int) player.posY);
+            nbt.setInteger("Z", (int) player.posZ);
+            if (!world.isRemote) {
+                player.sendMessage(new TextComponentString("Position memorisee !"));
+            }
+        } else {
+            // Deuxieme clic : teleporte
+            player.setPositionAndUpdate(
+                nbt.getInteger("X"),
+                nbt.getInteger("Y"),
+                nbt.getInteger("Z"));
+            stack.removeSubCompound("Portail");
+        }
+        return new ActionResult&lt;&gt;(EnumActionResult.SUCCESS, stack);
+    }
+}
+
+// Enregistrement :
+EriItem.create("monmod", "portail")
+    .maxStackSize(1).glowing(true).rarity(EnumRarity.RARE)
+    .tooltip("&amp;7Clic droit : memorise la position")
+    .tooltip("&amp;7Deuxieme clic droit : teleporte")
+    .itemClass(ItemPortail.class)  // ← classe custom
+    .register();</code></pre>
       </div>
     </section>
 
