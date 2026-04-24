@@ -1200,6 +1200,88 @@ public static void initArmure() {
           </li>
           <li class="method-item">
             <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> renderLayer(<span class="param">BlockRenderLayer layer</span>)</div>
+              <div class="method-desc">
+                Definit la couche de rendu client du bloc. Utilise pour les blocs translucides, a trous (feuilles,
+                plantes, verre), ou transparents. Valeurs courantes :
+                <ul style="margin-top:8px;">
+                  <li><code>SOLID</code> (defaut) &mdash; bloc opaque plein</li>
+                  <li><code>CUTOUT</code> &mdash; alpha binaire (plantes, grilles)</li>
+                  <li><code>CUTOUT_MIPPED</code> &mdash; alpha binaire avec mipmaps (feuilles)</li>
+                  <li><code>TRANSLUCENT</code> &mdash; transparence alpha continue (verre teinte, glace)</li>
+                </ul>
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> onEntityWalk(<span class="param">TriConsumer&lt;World, BlockPos, Entity&gt; action</span>)</div>
+              <div class="method-desc">
+                Callback execute chaque tick qu'une entite marche <strong>sur</strong> le bloc (equivalent
+                Forge <code>onEntityWalk</code>). Contrairement a <code>onWalk(Consumer&lt;BlockActionContext&gt;)</code>,
+                cette version donne acces direct au monde, a la position et a l'entite, pratique pour
+                appliquer des effets de mouvement ou des degats de zone.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> onEntityCollision(<span class="param">TriConsumer&lt;World, BlockPos, Entity&gt; action</span>)</div>
+              <div class="method-desc">
+                Callback execute chaque tick qu'une entite <strong>traverse</strong> le bloc (entite a l'interieur
+                de la hitbox). Equivalent Forge <code>onEntityCollision</code>. Utile pour les plantes qui infligent
+                des degats au passage, les blocs de ralentissement, ou les pieges a detection.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> logLike()</div>
+              <div class="method-desc">
+                Transforme le bloc en <strong>tronc d'arbre</strong> (<code>BlockRotatedPillar</code>) avec la
+                propriete <code>AXIS</code> (X, Y, Z). Le bloc s'oriente automatiquement selon la face ou il est
+                place (debout, couche nord/sud, couche est/ouest). Le blockstate JSON doit gerer les 3 variants
+                <code>axis=x</code>, <code>axis=y</code>, <code>axis=z</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> leavesLike(<span class="param">Block sapling</span>)</div>
+              <div class="method-desc">
+                Transforme le bloc en <strong>feuilles d'arbre</strong> (<code>BlockLeaves</code>) avec les
+                proprietes <code>CHECK_DECAY</code> et <code>DECAYABLE</code> vanilla. Les feuilles se desintegrent
+                automatiquement quand elles sont coupees d'un tronc. Force la couche de rendu <code>CUTOUT_MIPPED</code>.
+                Le parametre <code>sapling</code> est droppe avec une probabilite de 5% lors de la decomposition
+                naturelle (peut etre <code>null</code> pour desactiver).
+                <br>Overload : <code>leavesLike()</code> equivaut a <code>leavesLike(null)</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">EriBlock</span> plantLike()</div>
+              <div class="method-desc">
+                Transforme le bloc en <strong>plante decorative</strong> :
+                <ul style="margin-top:8px;">
+                  <li>Hitbox reduite (<code>0.15, 0, 0.15</code> a <code>0.85, 0.9, 0.85</code>)</li>
+                  <li>Pas de collision (les entites traversent le bloc)</li>
+                  <li>Couche de rendu <code>CUTOUT</code> automatique</li>
+                  <li><code>isOpaque=false</code>, <code>isFullCube=false</code></li>
+                </ul>
+                Le blockstate JSON doit utiliser le modele <code>block/cross</code> pour l'affichage
+                en X (comme les fleurs vanilla).
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">Fluent</span>
+          </li>
+          <li class="method-item">
+            <div>
               <div class="method-sig"><span class="ret">Block</span> register()</div>
               <div class="method-desc">
                 Finalise et enregistre le bloc aupres de Forge. Retourne l'instance <code>Block</code> creee.

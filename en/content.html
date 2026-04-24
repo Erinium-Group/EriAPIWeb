@@ -922,7 +922,88 @@ boolean playing = AnimatedItemController.isPlaying("mymod:item/animated_sword");
                 Defines multiple independent collision boxes. Each box is tested separately for entity collision.
                 The selection outline (hover highlight) shows the union of all boxes.
                 Automatically sets <code>isFullCube</code> and <code>isOpaque</code> to <code>false</code>.
-                Recommended: keep under 6–8 boxes to avoid TPS impact on busy servers.
+                Recommended: keep under 6-8 boxes to avoid TPS impact on busy servers.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">renderLayer(<span class="param">BlockRenderLayer layer</span>)</div>
+              <div class="method-desc">
+                Sets the client render layer for the block. Used for translucent, alpha-tested, or transparent
+                blocks. Common values:
+                <ul style="margin-top:8px;">
+                  <li><code>SOLID</code> (default) &mdash; opaque full block</li>
+                  <li><code>CUTOUT</code> &mdash; binary alpha (plants, grates)</li>
+                  <li><code>CUTOUT_MIPPED</code> &mdash; binary alpha with mipmaps (leaves)</li>
+                  <li><code>TRANSLUCENT</code> &mdash; continuous alpha transparency (stained glass, ice)</li>
+                </ul>
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onEntityWalk(<span class="param">TriConsumer&lt;World, BlockPos, Entity&gt; action</span>)</div>
+              <div class="method-desc">
+                Callback invoked every tick an entity walks <strong>on top of</strong> the block (equivalent
+                to Forge's <code>onEntityWalk</code>). Unlike <code>onWalk(Consumer&lt;BlockActionContext&gt;)</code>,
+                this variant gives direct access to the world, position, and entity - useful for movement
+                effects or zone damage.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">onEntityCollision(<span class="param">TriConsumer&lt;World, BlockPos, Entity&gt; action</span>)</div>
+              <div class="method-desc">
+                Callback invoked every tick an entity <strong>passes through</strong> the block (entity inside
+                the hitbox). Equivalent to Forge's <code>onEntityCollision</code>. Useful for plants that damage
+                on contact, slowdown blocks, or trigger traps.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">logLike()</div>
+              <div class="method-desc">
+                Turns the block into a <strong>tree log</strong> (<code>BlockRotatedPillar</code>) with the
+                <code>AXIS</code> property (X, Y, Z). The block orients itself based on the face it is placed
+                on (upright, lying north/south, lying east/west). The blockstate JSON must handle the three
+                variants <code>axis=x</code>, <code>axis=y</code>, <code>axis=z</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">leavesLike(<span class="param">Block sapling</span>)</div>
+              <div class="method-desc">
+                Turns the block into <strong>tree leaves</strong> (<code>BlockLeaves</code>) with the vanilla
+                <code>CHECK_DECAY</code> and <code>DECAYABLE</code> properties. Leaves automatically decay when
+                disconnected from a log. Forces the <code>CUTOUT_MIPPED</code> render layer. The <code>sapling</code>
+                argument is dropped with 5% probability during natural decay (may be <code>null</code> to disable).
+                <br>Overload: <code>leavesLike()</code> is equivalent to <code>leavesLike(null)</code>.
+              </div>
+            </div>
+            <span class="method-badge mb-fluent">FLUENT</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig">plantLike()</div>
+              <div class="method-desc">
+                Turns the block into a <strong>decorative plant</strong>:
+                <ul style="margin-top:8px;">
+                  <li>Reduced hitbox (<code>0.15, 0, 0.15</code> to <code>0.85, 0.9, 0.85</code>)</li>
+                  <li>No collision (entities pass through)</li>
+                  <li>Automatic <code>CUTOUT</code> render layer</li>
+                  <li><code>isOpaque=false</code>, <code>isFullCube=false</code></li>
+                </ul>
+                The blockstate JSON should use the <code>block/cross</code> model for the X-shaped display
+                (like vanilla flowers).
               </div>
             </div>
             <span class="method-badge mb-fluent">FLUENT</span>

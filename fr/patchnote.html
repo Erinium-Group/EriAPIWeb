@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.5.2 · 1.12.2</span>
+  <span class="version-badge">v1.6.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.0"><span class="nav-dot"></span>v1.6.0</a></li>
         <li><a href="#v1.5.2"><span class="nav-dot"></span>v1.5.2</a></li>
         <li><a href="#v1.5.1"><span class="nav-dot"></span>v1.5.1</a></li>
         <li><a href="#v1.4.2"><span class="nav-dot"></span>v1.4.2</a></li>
@@ -104,6 +105,78 @@
         <p class="subtitle">
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
+      </div>
+    </section>
+
+    <!-- ===== v1.6.0 ===== -->
+    <section class="doc-section" id="v1.6.0">
+      <h2>v1.6.0 <span class="badge badge-cyan">24 Avril 2026</span></h2>
+
+      <h3>EriBlock — Variantes de blocs et callbacks d'entite</h3>
+      <p>
+        Le builder <code>EriBlock</code> gagne six nouvelles methodes qui couvrent la majorite des patterns
+        vanilla (troncs, feuilles, plantes) et ouvrent les callbacks de marche/collision d'entites.
+        Fini les <code>BlockRotatedPillar</code> et <code>BlockLeaves</code> custom : un simple
+        <code>.logLike()</code> ou <code>.leavesLike(sapling)</code> suffit.
+      </p>
+      <ul>
+        <li><code>.renderLayer(BlockRenderLayer)</code> &mdash; fixe la couche de rendu (SOLID, CUTOUT, CUTOUT_MIPPED, TRANSLUCENT). Indispensable pour feuilles, plantes, verre.</li>
+        <li><code>.onEntityWalk(TriConsumer&lt;World, BlockPos, Entity&gt;)</code> &mdash; callback bas-niveau quand une entite marche sur le bloc.</li>
+        <li><code>.onEntityCollision(TriConsumer&lt;World, BlockPos, Entity&gt;)</code> &mdash; callback quand une entite traverse le bloc (pratique pour pieges / plantes toxiques).</li>
+        <li><code>.logLike()</code> &mdash; genere un <code>BlockRotatedPillar</code> (propriete AXIS) pour les troncs orientables.</li>
+        <li><code>.leavesLike(Block sapling)</code> &mdash; genere un <code>BlockLeaves</code> complet (CHECK_DECAY + DECAYABLE, decomposition naturelle, drop de sapling 5%). Force CUTOUT_MIPPED automatiquement.</li>
+        <li><code>.plantLike()</code> &mdash; plante decorative : hitbox reduite, pas de collision, CUTOUT. Le blockstate doit pointer vers <code>block/cross</code>.</li>
+      </ul>
+
+      <h3>TriConsumer &mdash; Nouvelle interface fonctionnelle</h3>
+      <p>
+        Java 8 ne fournit pas de <code>TriConsumer&lt;A, B, C&gt;</code> nativement. EriAPI ajoute cette interface
+        dans <code>fr.eri.eriapi.content.TriConsumer</code> pour les callbacks a 3 parametres (utilisee par
+        <code>onEntityWalk</code> / <code>onEntityCollision</code> et disponible pour tes propres builders).
+      </p>
+
+      <h3>Refactor interne — GeneratedBlockCommons</h3>
+      <p>
+        Pour eviter la duplication entre les 4 variantes de blocs generes (<code>GeneratedBlock</code>,
+        <code>GeneratedLogBlock</code>, <code>GeneratedLeavesBlock</code>, <code>GeneratedPlantBlock</code>),
+        la logique partagee (drops, hitbox, callbacks, TileEntity) a ete extraite dans
+        <code>GeneratedBlockCommons</code>. Aucun changement visible cote API utilisateur.
+      </p>
+
+      <h3>Exemple complet</h3>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">// Tronc d'arbre custom (axis X/Y/Z automatique)
+Block ERINA_LOG = EriBlock.create("monmod", "erina_log")
+    .material(Material.WOOD)
+    .hardness(2.0f)
+    .harvestTool("axe", 0)
+    .soundType(SoundType.WOOD)
+    .logLike()
+    .register();
+
+// Feuilles qui se decomposent + drop sapling 5%
+Block ERINA_LEAVES = EriBlock.create("monmod", "erina_leaves")
+    .material(Material.LEAVES)
+    .hardness(0.2f)
+    .soundType(SoundType.PLANT)
+    .leavesLike(ERINA_SAPLING)
+    .register();
+
+// Plante toxique qui inflige des degats au contact
+Block TOXIC_PLANT = EriBlock.create("monmod", "toxic_plant")
+    .material(Material.PLANTS)
+    .hardness(0.0f)
+    .soundType(SoundType.PLANT)
+    .plantLike()
+    .onEntityCollision((world, pos, entity) -> {
+        if (entity instanceof EntityLivingBase &amp;&amp; !world.isRemote) {
+            ((EntityLivingBase) entity).addPotionEffect(
+                new PotionEffect(MobEffects.POISON, 60, 0)
+            );
+        }
+    })
+    .register();</code></pre>
       </div>
     </section>
 
