@@ -121,6 +121,7 @@
         <li><a href="#grid-layout"><span class="nav-dot"></span>GridLayout</a></li>
         <li><a href="#scroll-list"><span class="nav-dot"></span>ScrollList</a></li>
         <li><a href="#list-item"><span class="nav-dot"></span>ListItem</a></li>
+        <li><a href="#list-render-context"><span class="nav-dot"></span>ListRenderContext</a></li>
         <li><a href="#scroll-panel"><span class="nav-dot"></span>ScrollPanel</a></li>
         <li><a href="#tab-view"><span class="nav-dot"></span>TabView</a></li>
       </ul>
@@ -2254,6 +2255,219 @@ public class ItemJoueur extends ListItem {
               <div class="method-desc">Retourne l'identifiant unique passé au constructeur.</div>
             </div>
             <span class="method-badge mb-getter">Getter</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         LIST RENDER CONTEXT
+    ====================================================== -->
+    <section class="doc-section" id="list-render-context">
+      <h2>ListRenderContext</h2>
+      <p>
+        <code>ListRenderContext</code> est un helper de rendu pour les <code>ListItem</code>. Il
+        encapsule les coordonnees de la ligne (x, y, width, height) et la position de la souris,
+        et fournit des methodes pretes a l'emploi pour dessiner du texte design-scaled, des icones
+        d'items Minecraft, et calculer des dimensions proportionnelles a la taille de la ligne.
+      </p>
+      <p>
+        Sans ce helper, dessiner du texte centre verticalement dans une ligne dont la hauteur change
+        avec la fenetre devient vite penible. Avec <code>ListRenderContext</code>, tu travailles en
+        permil (1/1000) de la hauteur de la ligne &mdash; le rendu reste correct a toutes les
+        resolutions.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="class-name">ListRenderContext</div>
+            <div class="package-path">fr.eri.eriapi.gui.components.ListRenderContext</div>
+          </div>
+          <span class="badge badge-gray">Helper de rendu</span>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-label">
+            <span>Java &mdash; Utilisation dans un ListItem</span>
+            <button class="copy-btn">Copier</button>
+          </div>
+          <pre><code class="language-java">import fr.eri.eriapi.gui.components.ListItem;
+import fr.eri.eriapi.gui.components.ListRenderContext;
+
+public class RecipeItem extends ListItem {
+    private final ItemStack icon;
+    private final String name, cost, status;
+
+    public RecipeItem(String id, ItemStack icon, String name, String cost, String status) {
+        super(id, name);
+        this.icon = icon; this.name = name; this.cost = cost; this.status = status;
+    }
+
+    @Override
+    public void render(int x, int y, int width, int height, int mouseX, int mouseY, float pt) {
+        ListRenderContext ctx = ListRenderContext.of(x, y, width, height, mouseX, mouseY);
+        int gap = ctx.gap();
+
+        // Icone a gauche, taille auto-proportionnelle
+        int iconSize = ctx.drawItem(icon, gap * 2, 0);
+        int textX = gap * 2 + iconSize + gap;
+
+        // Statut a droite
+        int statusW = ctx.textWidth(status);
+        int statusOffsetX = width - gap * 2 - statusW;
+        int textMaxW = statusOffsetX - textX - gap;
+
+        // Texte avec offset PROPORTIONNEL a la hauteur (drawTextProp)
+        ctx.drawTextProp(name,   textX,         -150, textMaxW,         0xFFFFFFFF);
+        ctx.drawTextProp(cost,   textX,         +150, textMaxW,         0xFF4ADE80);
+        ctx.drawTextProp(status, statusOffsetX, -150, statusW + gap,    0xFFBB55FF);
+    }
+
+    @Override public String getSearchText() { return name; }
+}</code></pre>
+        </div>
+
+        <h3>Champs publics</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">final int</span> x, y, width, height</div>
+              <div class="method-desc">Position et dimensions de la ligne en pixels ecran.</div>
+            </div>
+            <span class="method-badge mb-getter">Champ</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">final int</span> mouseX, mouseY</div>
+              <div class="method-desc">Position de la souris en pixels ecran.</div>
+            </div>
+            <span class="method-badge mb-getter">Champ</span>
+          </li>
+        </ul>
+
+        <h3>Construction</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">static ListRenderContext</span> of(<span class="param">int x, int y, int width, int height, int mouseX, int mouseY</span>)</div>
+              <div class="method-desc">Cree un contexte a partir des parametres de <code>ListItem.render()</code>.</div>
+            </div>
+            <span class="method-badge mb-static">Statique</span>
+          </li>
+        </ul>
+
+        <h3>Tailles proportionnelles</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> propW(<span class="param">int permil</span>)</div>
+              <div class="method-desc">Retourne une largeur proportionnelle a la largeur de la ligne (permil = millieme : 1000 = pleine largeur). Minimum 1 pixel.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> propH(<span class="param">int permil</span>)</div>
+              <div class="method-desc">Retourne une hauteur proportionnelle a la hauteur de la ligne. Minimum 1 pixel.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> gap()</div>
+              <div class="method-desc">Espacement standard proportionnel a la largeur de la ligne (minimum 2 pixels).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+        </ul>
+
+        <h3>Positionnement</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> midY()</div>
+              <div class="method-desc">Y central de la ligne (<code>y + height / 2</code>).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> centerY(<span class="param">int elementHeight</span>)</div>
+              <div class="method-desc">Y pour centrer verticalement un element de la hauteur donnee.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> rightX(<span class="param">int offset</span>)</div>
+              <div class="method-desc">X depuis le bord droit, decale de <code>offset</code> pixels ecran (<code>x + width - offset</code>).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">boolean</span> isHover(<span class="param">int rx, int ry, int rw, int rh</span>)</div>
+              <div class="method-desc">Verifie si la souris est dans le rectangle donne (pixels ecran).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+        </ul>
+
+        <h3>Dessin</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> drawItem(<span class="param">ItemStack stack, int offsetX, int offsetY</span>)</div>
+              <div class="method-desc">Dessine une icone d'item Minecraft. Taille proportionnelle a la hauteur de la ligne (<code>height - 6</code> px). Si <code>offsetY = 0</code>, l'icone est centree verticalement. Retourne la taille de l'icone en pixels ecran.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> drawText(<span class="param">String text, int offsetX, int offsetY, int maxWidth, int color</span>)</div>
+              <div class="method-desc">Dessine du texte design-scaled. <code>offsetY</code> est en <strong>pixels ecran bruts</strong> depuis le centre vertical de la ligne. Si <code>maxWidth &gt; 0</code>, le texte est tronque pour rentrer.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> drawTextProp(<span class="param">String text, int offsetX, int offsetYPermil, int maxWidth, int color</span>) <span class="badge badge-cyan">v1.6.1</span></div>
+              <div class="method-desc">Variante de <code>drawText</code> ou l'offset vertical est <strong>en permil de la hauteur de la ligne</strong> (1/1000). Indispensable pour des layouts qui restent corrects a toutes les tailles de fenetre. Exemple : <code>offsetYPermil = -150</code> place le texte a 15% au-dessus du centre, <code>+150</code> a 15% en dessous.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> drawRect(<span class="param">int rx, int ry, int rw, int rh, int color</span>)</div>
+              <div class="method-desc">Dessine un rectangle plein (badges, boutons internes a la ligne).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">void</span> drawCenteredText(<span class="param">String text, int rx, int ry, int rw, int rh, int color</span>)</div>
+              <div class="method-desc">Dessine du texte centre dans un rectangle.</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+        </ul>
+
+        <h3>Mesure</h3>
+        <ul class="method-list">
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> textWidth(<span class="param">String text</span>)</div>
+              <div class="method-desc">Largeur du texte en pixels ecran (design-scaled).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
+          </li>
+          <li class="method-item">
+            <div>
+              <div class="method-sig"><span class="ret">int</span> textHeight()</div>
+              <div class="method-desc">Hauteur d'une ligne de texte en pixels ecran (design-scaled).</div>
+            </div>
+            <span class="method-badge mb-method">Methode</span>
           </li>
         </ul>
       </div>

@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.0 · 1.12.2</span>
+  <span class="version-badge">v1.6.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.1"><span class="nav-dot"></span>v1.6.1</a></li>
         <li><a href="#v1.6.0"><span class="nav-dot"></span>v1.6.0</a></li>
         <li><a href="#v1.5.2"><span class="nav-dot"></span>v1.5.2</a></li>
         <li><a href="#v1.5.1"><span class="nav-dot"></span>v1.5.1</a></li>
@@ -106,6 +107,40 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.1 ===== -->
+    <section class="doc-section" id="v1.6.1">
+      <h2>v1.6.1 <span class="badge badge-cyan">April 28, 2026</span></h2>
+
+      <h3>ListRenderContext &mdash; Proportional vertical offset (drawTextProp)</h3>
+      <p>
+        New method <code>ListRenderContext.drawTextProp(String, int offsetX, int offsetYPermil, int maxWidth, int color)</code>.
+        Unlike <code>drawText()</code> where <code>offsetY</code> is in raw screen pixels,
+        <code>drawTextProp</code> expresses the vertical offset in <strong>permil of the row height</strong>
+        (1/1000) &mdash; the layout stays correct at every window size.
+      </p>
+      <p>
+        Symptom before: a fixed <code>-14</code> px offset that correctly placed the name above the center
+        at fullscreen (<code>itemHeight ~96 px</code>) pushed the text out of the row bounds in a smaller
+        window when the row was resized. <code>drawTextProp(text, x, -150, w, color)</code> places the
+        text ~15% of the row height above the center, regardless of the actual row height.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-java">// BEFORE — offsetY in screen pixels (breaks in small windows)
+ctx.drawText(name,   textX,         -14, textMaxW,      0xFFFFFFFF);
+ctx.drawText(cost,   textX,         +14, textMaxW,      0xFF4ADE80);
+ctx.drawText(status, statusOffsetX, -14, statusW + gap, 0xFFBB55FF);
+
+// AFTER — offset in permil of the row height (correct at every resolution)
+ctx.drawTextProp(name,   textX,         -150, textMaxW,      0xFFFFFFFF);
+ctx.drawTextProp(cost,   textX,         +150, textMaxW,      0xFF4ADE80);
+ctx.drawTextProp(status, statusOffsetX, -150, statusW + gap, 0xFFBB55FF);</code></pre>
+      </div>
+      <p>
+        The original <code>drawText</code> method is preserved &mdash; no breaking change.
+      </p>
     </section>
 
     <!-- ===== v1.6.0 ===== -->

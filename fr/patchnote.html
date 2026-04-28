@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.0 · 1.12.2</span>
+  <span class="version-badge">v1.6.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.1"><span class="nav-dot"></span>v1.6.1</a></li>
         <li><a href="#v1.6.0"><span class="nav-dot"></span>v1.6.0</a></li>
         <li><a href="#v1.5.2"><span class="nav-dot"></span>v1.5.2</a></li>
         <li><a href="#v1.5.1"><span class="nav-dot"></span>v1.5.1</a></li>
@@ -106,6 +107,40 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.1 ===== -->
+    <section class="doc-section" id="v1.6.1">
+      <h2>v1.6.1 <span class="badge badge-cyan">28 Avril 2026</span></h2>
+
+      <h3>ListRenderContext &mdash; Offset vertical proportionnel (drawTextProp)</h3>
+      <p>
+        Nouvelle methode <code>ListRenderContext.drawTextProp(String, int offsetX, int offsetYPermil, int maxWidth, int color)</code>.
+        Contrairement a <code>drawText()</code> ou <code>offsetY</code> est en pixels ecran bruts,
+        <code>drawTextProp</code> exprime l'offset vertical en <strong>permil de la hauteur de la ligne</strong>
+        (1/1000) &mdash; le rendu reste correct a toutes les tailles de fenetre.
+      </p>
+      <p>
+        Symptome avant : un offset fixe de <code>-14</code> pixels qui plaçait correctement le nom au-dessus
+        du centre en plein ecran (<code>itemHeight ~96 px</code>) faisait sortir le texte des limites en
+        petite fenetre quand l'item etait redimensionne. <code>drawTextProp(text, x, -150, w, color)</code>
+        place le texte ~15% de la hauteur au-dessus du centre, quelle que soit la taille reelle de la ligne.
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label"><span>Java</span><button class="copy-btn">Copier</button></div>
+        <pre><code class="language-java">// AVANT — offsetY en pixels ecran (casse en petite fenetre)
+ctx.drawText(name,   textX,         -14, textMaxW,      0xFFFFFFFF);
+ctx.drawText(cost,   textX,         +14, textMaxW,      0xFF4ADE80);
+ctx.drawText(status, statusOffsetX, -14, statusW + gap, 0xFFBB55FF);
+
+// APRES — offset en permil de la hauteur (correct a toutes resolutions)
+ctx.drawTextProp(name,   textX,         -150, textMaxW,      0xFFFFFFFF);
+ctx.drawTextProp(cost,   textX,         +150, textMaxW,      0xFF4ADE80);
+ctx.drawTextProp(status, statusOffsetX, -150, statusW + gap, 0xFFBB55FF);</code></pre>
+      </div>
+      <p>
+        L'ancienne methode <code>drawText</code> est conservee &mdash; aucun changement cassant.
+      </p>
     </section>
 
     <!-- ===== v1.6.0 ===== -->
