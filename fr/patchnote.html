@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.4 · 1.12.2</span>
+  <span class="version-badge">v1.6.5 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.5"><span class="nav-dot"></span>v1.6.5</a></li>
         <li><a href="#v1.6.4"><span class="nav-dot"></span>v1.6.4</a></li>
         <li><a href="#v1.6.1"><span class="nav-dot"></span>v1.6.1</a></li>
         <li><a href="#v1.6.0"><span class="nav-dot"></span>v1.6.0</a></li>
@@ -108,6 +109,42 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.5 ===== -->
+    <section class="doc-section" id="v1.6.5">
+      <h2>v1.6.5 <span class="badge badge-cyan">02 Mai 2026</span></h2>
+
+      <h3>Animations Java sur le builder &mdash; <code>.javaAnimation()</code></h3>
+      <p>
+        Les builders <code>EriAnimBlock</code> et <code>EriEntity</code> exposent desormais
+        <code>.javaAnimation(String name, EriAnimJava anim)</code> pour enregistrer une animation
+        Java directement sur le builder fluent &mdash; <strong>plus besoin de creer une sous-classe
+        <code>TileEntity</code> custom</strong> ni d'appeler manuellement <code>addJavaAnimation()</code>
+        dans le constructeur. Les anims sont stockees dans la <code>BlockDefinition</code> /
+        <code>EntityDefinition</code> et recuperables via les helpers correspondants.
+      </p>
+      <ul>
+        <li><strong><code>EriAnimBlock.javaAnimation(name, anim)</code></strong> &mdash; ajoute l'anim au map <code>AnimBlockDefinition.javaAnimations</code>. <code>GeneratedBlock.createTileEntity()</code> appelle desormais <code>configure()</code> et boucle pour cabler les anims sur le <code>AnimatedBlockTileEntityGeneric</code> auto-genere.</li>
+        <li><strong><code>EriEntity.javaAnimation(name, anim)</code></strong> &mdash; ajoute l'anim au map <code>EntityDefinition.javaAnimations</code>. Recuperable via <code>ContentRegistry.getEntityDef(modId, name).getJavaAnimation("idle")</code> dans le constructeur de l'entite.</li>
+        <li><strong>Coexiste avec <code>.animation()</code></strong> &mdash; les fichiers <code>.erianim</code> et les classes <code>EriAnimJava</code> peuvent etre melanges sur le meme builder.</li>
+        <li><strong>Helper <code>ContentRegistry.getEntityDef(modId, registryName)</code></strong> &mdash; nouveau lookup direct par nom (anciennement il fallait iterer <code>getEntityDefs()</code>).</li>
+      </ul>
+
+      <h3>Fix &mdash; <code>AnimatedBlockTileEntityGeneric.configure()</code> jamais appele</h3>
+      <p>
+        Bug latent depuis v1.6.4 : le no-arg constructor + pattern <code>configure()</code> du
+        <code>AnimatedBlockTileEntityGeneric</code> n'etait <strong>jamais invoque</strong> &mdash;
+        les blocs animes generes par <code>EriAnimBlock</code> sans <code>.tileEntity(MyTE.class)</code>
+        custom n'avaient ni <code>modelId</code>, ni <code>animFileId</code>, ni
+        <code>defaultAnimation</code>. Resolu dans <code>GeneratedBlock.createTileEntity()</code> : la
+        configuration est appliquee a la creation du TE, en meme temps que les anims Java declarees
+        sur le builder.
+      </p>
+      <p>
+        <strong>100% retrocompatible</strong> &mdash; les fichiers <code>.erianim</code> existants et
+        les TE customs continuent de fonctionner inchanges.
+      </p>
     </section>
 
     <!-- ===== v1.6.4 ===== -->

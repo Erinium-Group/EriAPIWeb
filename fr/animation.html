@@ -541,6 +541,19 @@ public class MonBlocks {
 
           <li class="method-item">
             <div>
+              <div class="method-sig"><span class="ret">EriAnimBlock</span> javaAnimation(<span class="param">String name</span>, <span class="param">EriAnimJava anim</span>) <span class="badge badge-cyan">v1.6.5</span></div>
+              <div class="method-desc">
+                Enregistre une animation Java directement sur le builder &mdash; plus besoin de creer une sous-classe de
+                <code>AnimatedBlockTileEntity</code> juste pour appeler <code>addJavaAnimation()</code>. L'instance est
+                enregistree automatiquement sur le TileEntity (server + client) lors de sa creation. Coexiste avec
+                <code>.animation()</code> pour les fichiers <code>.erianim</code>. Appelable plusieurs fois.
+              </div>
+            </div>
+            <span class="method-badge mb-setter">Setter</span>
+          </li>
+
+          <li class="method-item">
+            <div>
               <div class="method-sig"><span class="ret">EriAnimBlock</span> register()</div>
               <div class="method-desc">
                 Enregistre le block. Configure automatiquement : TileEntity, TESR, type de rendu <code>ENTITYBLOCK_ANIMATED</code>,
@@ -565,21 +578,28 @@ public class MonBlocks {
     .soundType(SoundType.METAL)
     .lightLevel(0.5f)
     .model("monmod:block/machine_raffinage")
-    .animation("monmod:block/machine_raffinage")
+    // Anims Java declarees directement sur le builder (v1.6.5)
+    .javaAnimation("idle", new IdleAnim())
+    .javaAnimation("work", new WorkAnim())
+    .defaultAnimation("idle")              // auto-play au spawn
     .renderDistance(48)
-    .defaultAnimation("idle_breathe")
-    .onRightClick(ctx -> {
+    .onRightClick(ctx -&gt; {
         AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
             ctx.world.getTileEntity(ctx.pos);
-        if (te != null && !te.isAnimating()) {
-            te.playAnimation("process", EndBehavior.WAIT_SERVER);
-        }
+        if (te != null) te.playAnimation("work");
     })
-    .onBreak(ctx -> {
+    .onBreak(ctx -&gt; {
         // Lacher des items quand le block est casse
         dropItems(ctx.world, ctx.pos);
     })
     .register();</code></pre>
+      </div>
+      <div class="callout callout-info">
+        <strong>Quand garder <code>.tileEntity(MyTE.class)</code> ?</strong> Le builder
+        <code>.javaAnimation()</code> couvre 99% des cas. Tu n'as besoin de declarer une classe
+        TileEntity custom que si tu veux <strong>override les callbacks</strong>
+        (<code>onAnimationComplete</code>, <code>onAnimationEvent</code>,
+        <code>onAnimationCallback</code>) ou ajouter des champs / NBT custom au TE.
       </div>
     </section>
 
@@ -941,74 +961,49 @@ public class TileLootbox extends AnimatedBlockTileEntity {
     .register();</code></pre>
       </div>
 
-      <h3>Initialiser un bloc avec uniquement des animations Java <span class="badge badge-cyan">v1.6.4</span></h3>
+      <h3>Initialiser un bloc avec uniquement des animations Java <span class="badge badge-cyan">v1.6.5</span></h3>
       <p>
         Si toutes les animations de ton bloc sont codees en Java (sous-classes de <code>EriAnimJava</code>),
-        tu n'as <strong>plus besoin de fichier <code>.erianim</code></strong>. Le constructeur de ton TE
-        prend uniquement le <code>modelId</code>, et les animations sont enregistrees via
-        <code>addJavaAnimation(name, anim)</code> dans le constructeur. Cote builder, l'appel
-        <code>.animation()</code> devient alors <strong>optionnel</strong>.
+        tu n'as <strong>plus besoin de fichier <code>.erianim</code> ni de TE custom</strong>. Depuis la v1.6.5,
+        declare les anims directement sur le builder via <code>.javaAnimation(name, anim)</code> &mdash;
+        EriAPI les enregistre automatiquement sur le TileEntity (server + client).
       </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java &mdash; TileEntity custom avec animations Java</span>
-          <button class="copy-btn">Copier</button>
-        </div>
-        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
-
-public class TileMaMachine extends AnimatedBlockTileEntity {
-
-    public TileMaMachine() {
-        // modelId seulement &mdash; pas besoin d'animFileId si on utilise uniquement des anims Java
-        super("monmod:block/ma_machine");
-
-        // Enregistrement des animations Java (memes deux cotes : serveur ET client)
-        addJavaAnimation("idle", new IdleAnim());   // boucle de veille
-        addJavaAnimation("work", new WorkAnim());   // animation de travail
-    }
-
-    // Logique serveur : lancer l'anim en fonction de l'etat
-    public void startWorking() {
-        playAnimation("work");   // meme API que pour les anims .erianim
-    }
-
-    public void stopWorking() {
-        playAnimation("idle");
-    }
-}</code></pre>
-      </div>
-
-      <div class="code-wrapper">
-        <div class="code-label">
-          <span>Java &mdash; Builder EriAnimBlock sans .animation()</span>
+          <span>Java &mdash; Builder EriAnimBlock avec animations Java (recommande)</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-java">EriAnimBlock.create("monmod", "ma_machine")
     .material(Material.IRON)
     .hardness(5.0f)
     .model("monmod:block/ma_machine")
-    // .animation("...") &mdash; OPTIONNEL si tu n'utilises QUE des animations Java
-    .tileEntity(TileMaMachine.class)  // &larr; TE custom avec les anims Java enregistrees
-    .onRightClick(ctx -> {
-        TileMaMachine te = (TileMaMachine) ctx.world.getTileEntity(ctx.pos);
-        if (te != null) te.startWorking();
+    // Anims Java directement sur le builder &mdash; pas besoin de TE custom
+    .javaAnimation("idle", new IdleAnim())
+    .javaAnimation("work", new WorkAnim())
+    .defaultAnimation("idle")             // auto-play au spawn
+    .onRightClick(ctx -&gt; {
+        AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null) te.playAnimation("work");
     })
     .register();</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Quand garder <code>.tileEntity(MyTE.class)</code> ?</strong> Le builder
+        <code>.javaAnimation()</code> suffit pour declarer/jouer des animations. Tu n'as besoin
+        d'une classe TE custom que pour <strong>override les callbacks d'animation</strong>
+        (<code>onAnimationComplete</code>, <code>onAnimationEvent</code>,
+        <code>onAnimationCallback</code>) ou ajouter des champs / NBT custom. Dans ce cas,
+        ajoute simplement <code>addJavaAnimation()</code> dans le constructeur du TE.
       </div>
 
       <div class="callout callout-info">
         <strong>Quand garder <code>.animation()</code> ?</strong> L'appel <code>.animation()</code>
         reste <strong>obligatoire</strong> si le bloc utilise des animations <code>.erianim</code>
         en plus des animations Java. Il peut etre <strong>omis</strong> si toutes les animations
-        sont definies en Java via <code>addJavaAnimation()</code>.
-      </div>
-
-      <div class="callout callout-warning">
-        <strong>Important :</strong> les <code>addJavaAnimation()</code> doivent etre appeles dans le
-        constructeur du TE pour que le registre soit identique cote serveur et cote client. Si tu
-        enregistres une anim apres le chargement, elle ne sera pas connue de l'autre cote et
-        <code>playAnimation()</code> echouera silencieusement.
+        sont definies en Java.
       </div>
     </section>
 
@@ -2785,6 +2780,7 @@ if (progress > 0.5f) {
             <tr><td><code>model(String modelId)</code></td><td>Definit le modele Blockbench (ex: <code>"monmod:entity/monstre"</code>).</td></tr>
             <tr><td><code>texture(String key, String path)</code></td><td>Associe une cle de texture du modele a un chemin de ResourceLocation.</td></tr>
             <tr><td><code>animation(String name, String animId)</code></td><td>Associe un nom d'animation (ex: "idle", "walk") a un identifiant .erianim.</td></tr>
+            <tr><td><code>javaAnimation(String name, EriAnimJava anim)</code> <span class="badge badge-cyan">v1.6.5</span></td><td>Enregistre une animation Java directement sur le builder. Stockee dans <code>EntityDefinition.javaAnimations</code>, recuperable via <code>ContentRegistry.getEntityDef(modId, name).getJavaAnimation("idle")</code>. Coexiste avec <code>.animation()</code>.</td></tr>
             <tr><td><code>hitbox(float width, float height)</code></td><td>Definit les dimensions de la hitbox.</td></tr>
             <tr><td><code>seat(float x, float y, float z)</code></td><td>Ajoute un siege passager simple (coordonnees Blockbench pixels).</td></tr>
             <tr><td><code>seat(float x, float y, float z, String attachedGroup)</code></td><td>Ajoute un siege attache a un groupe du modele.</td></tr>
@@ -2960,21 +2956,22 @@ for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java &mdash; Builder EriEntity sans .animation()</span>
+          <span>Java &mdash; Builder EriEntity avec .javaAnimation() <span class="badge badge-cyan">v1.6.5</span></span>
           <button class="copy-btn">Copier</button>
         </div>
-        <pre><code class="language-java">// Les anims Java ne passent PAS par .animation() du builder
+        <pre><code class="language-java">// Anims Java declarees directement sur le builder (depuis v1.6.5)
 EriEntity.create("monmod", "monstre")
     .model("monmod:entity/monstre")
     .texture("body", "monmod:textures/entity/monstre")
     .hitbox(0.8f, 1.8f)
-    // Pas de .animation() pour les anims Java &mdash; elles sont declarees dans la classe Java
+    .javaAnimation("idle", new IdleAnim())
+    .javaAnimation("walk", new WalkAnim())
     .register();</code></pre>
       </div>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java &mdash; Classe d'entite avec EriAnimJava</span>
+          <span>Java &mdash; Classe d'entite : recuperer les anims via ContentRegistry</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-java">import fr.eri.eriapi.anim.AnimationController;
@@ -2983,22 +2980,21 @@ import fr.eri.eriapi.anim.AnimState;
 import fr.eri.eriapi.anim.EndBehavior;
 import fr.eri.eriapi.anim.EriAnimJava;
 import fr.eri.eriapi.anim.IAnimatedEntity;
+import fr.eri.eriapi.content.ContentRegistry;
+import fr.eri.eriapi.content.EntityDefinition;
 
 public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
 
     private final AnimationController controller = new AnimationController();
-
-    // Instances des animations Java (stateless &rarr; partageables, ou instancier par entite)
-    private final IdleAnim idleAnim = new IdleAnim();
-    private final WalkAnim walkAnim = new WalkAnim();
-
-    private EriAnimJava currentAnim = null;
+    private EriAnimJava currentAnim;
     private float animTick = 0;
 
     public EntityMonstre(World world) {
         super(world);
         setSize(0.8f, 1.8f);
-        currentAnim = idleAnim;   // animation par defaut
+        // Anims recuperees depuis l'EntityDefinition cree par EriEntity
+        EntityDefinition def = ContentRegistry.getEntityDef("monmod", "monstre");
+        this.currentAnim = def != null ? def.getJavaAnimation("idle") : null;
     }
 
     @Override
@@ -3007,16 +3003,20 @@ public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
         if (currentAnim != null) {
             animTick += 1.0f;
             float dur = currentAnim.duration();
-            if (currentAnim.endBehavior() == EndBehavior.LOOP && animTick >= dur) {
+            if (currentAnim.endBehavior() == EndBehavior.LOOP &amp;&amp; animTick &gt;= dur) {
                 animTick -= dur;   // boucle
             }
         }
     }
 
-    // Changer d'animation cote serveur (ou client si l'entite est client-only)
-    public void setAnimation(EriAnimJava anim) {
-        this.currentAnim = anim;
-        this.animTick = 0;
+    /** Change d'animation par nom (resolution depuis l'EntityDefinition). */
+    public void setAnimation(String name) {
+        EntityDefinition def = ContentRegistry.getEntityDef("monmod", "monstre");
+        EriAnimJava anim = def != null ? def.getJavaAnimation(name) : null;
+        if (anim != null) {
+            this.currentAnim = anim;
+            this.animTick = 0;
+        }
     }
 
     // --- IAnimatedEntity ---
@@ -3027,12 +3027,12 @@ public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
         long worldTick = world != null ? world.getTotalWorldTime() : 0;
         return controller.computeJavaPose(
             currentAnim,             // EriAnimJava courante
-            AnimState.PLAYING,       // etat
+            AnimState.PLAYING,
             animTick + partialTicks, // tickFloat interpole
-            partialTicks,            // partial pour compute()
-            worldTick,               // tick monde courant
-            this,                    // target (this entity, accessible via ctx.asEntity())
-            null,                    // blendPose (pas de blending ici)
+            partialTicks,
+            worldTick,
+            this,                    // target accessible via ctx.asEntity()
+            null,                    // blendPose
             1.0f                     // blendProgress
         );
     }
@@ -3045,11 +3045,12 @@ public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
       </div>
 
       <div class="callout callout-info">
-        <strong>Pourquoi pas de <code>.animation()</code> ?</strong> Les animations Java sont
-        instanciees directement dans la classe d'entite (champs <code>idleAnim</code>,
-        <code>walkAnim</code>) et passees au controller chaque frame. Le builder
-        <code>EriEntity</code> n'a aucun role dans la resolution Java &mdash; il ne sert qu'a mapper
-        des noms vers des fichiers <code>.erianim</code>.
+        <strong>Pourquoi <code>.javaAnimation()</code> et non <code>.animation()</code> ?</strong>
+        <code>.animation()</code> mappe un nom vers un fichier <code>.erianim</code> (resource pack,
+        chargement disque). <code>.javaAnimation()</code> stocke directement une instance
+        <code>EriAnimJava</code> dans la <code>EntityDefinition</code>, accessible via
+        <code>ContentRegistry.getEntityDef(modId, name).getJavaAnimation("idle")</code> &mdash;
+        plus besoin d'instancier les anims dans la classe d'entite.
       </div>
 
       <div class="callout callout-warning">
