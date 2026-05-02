@@ -95,6 +95,17 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Animation Java <span class="badge badge-cyan">v1.6.4</span></div>
+      <ul>
+        <li><a href="#java-anim-overview"><span class="nav-dot"></span>Vue d'ensemble</a></li>
+        <li><a href="#java-anim-eriAnimJava"><span class="nav-dot"></span>EriAnimJava</a></li>
+        <li><a href="#java-anim-context"><span class="nav-dot"></span>AnimContext</a></li>
+        <li><a href="#java-anim-pose-builder"><span class="nav-dot"></span>GroupPoseBuilder</a></li>
+        <li><a href="#java-anim-overlay"><span class="nav-dot"></span>Overlay</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">TileEntity</div>
       <ul>
         <li><a href="#tile-entity"><span class="nav-dot"></span>AnimatedBlockTileEntity</a></li>
@@ -569,6 +580,286 @@ public class MonBlocks {
         dropItems(ctx.world, ctx.pos);
     })
     .register();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         JAVA ANIMATION API (v1.6.4)
+    ====================================================== -->
+    <section class="doc-section" id="java-anim-overview">
+      <h2>Java Animation API <span class="badge badge-cyan">v1.6.4</span></h2>
+      <p>
+        Depuis la v1.6.4, EriAPI permet d'ecrire des animations <strong>directement en Java</strong>, sans passer par un fichier
+        <code>.erianim</code>. C'est utile pour les animations <strong>procedurales</strong> (oscillations basees sur sin/cos,
+        reactions a l'etat de l'entite, mouvements parametriques, etc.) qu'il serait penible voire impossible d'exprimer en JSON.
+      </p>
+      <p>
+        Une animation Java est une classe qui etend <code>EriAnimJava</code> et qui propose deux points d'extension :
+      </p>
+      <ul>
+        <li><strong><code>defineKeyframes(AnimContext ctx)</code></strong> &mdash; declarations de keyframes statiques
+            (equivalent du JSON <code>.erianim</code>). Appele une seule fois, le resultat est cache.</li>
+        <li><strong><code>compute(AnimContext ctx, AnimationPose pose)</code></strong> &mdash; modifications procedurales
+            appliquees <em>par-dessus</em> la pose interpolee. Appele <strong>chaque frame</strong>.</li>
+      </ul>
+      <p>
+        Les animations Java cohabitent avec les animations <code>.erianim</code> sur le meme TileEntity. La meme API
+        <code>te.playAnimation("nom")</code> dispatche automatiquement vers le bon chemin selon le nom enregistre.
+      </p>
+    </section>
+
+    <section class="doc-section" id="java-anim-eriAnimJava">
+      <h2>EriAnimJava &mdash; classe abstraite</h2>
+      <p>
+        Crees une classe qui etend <code>EriAnimJava</code> et implemente au minimum <code>duration()</code> :
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; animation hybride (keyframes + procedural)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.*;
+import fr.eri.eriapi.gui.anim.Easing;
+
+public class WalkAnim extends EriAnimJava {
+
+    @Override
+    public void defineKeyframes(AnimContext ctx) {
+        // Equivalent au JSON .erianim, mais en code
+        ctx.at(0)
+            .group("leg_left").rotateTo(-30, 0, 0).easing(Easing.EASE_IN_OUT)
+            .group("leg_right").rotateTo(30, 0, 0).easing(Easing.EASE_IN_OUT);
+        ctx.at(15)
+            .group("leg_left").rotateTo(30, 0, 0)
+            .group("leg_right").rotateTo(-30, 0, 0);
+        ctx.at(30)
+            .group("leg_left").rotateTo(-30, 0, 0)
+            .group("leg_right").rotateTo(30, 0, 0);
+    }
+
+    @Override
+    public void compute(AnimContext ctx, AnimationPose pose) {
+        // Procedural: bobbing de la tete sur sin(t)
+        float t = ctx.animTick + ctx.partial;
+        pose.group("head").addRotateY((float) Math.sin(t * 0.2f) * 5f);
+    }
+
+    @Override public float duration() { return 30f; }
+    @Override public EndBehavior endBehavior() { return EndBehavior.LOOP; }
+}</code></pre>
+      </div>
+
+      <h3>Methodes disponibles a override</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Methode</th><th>Type retour</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>defineKeyframes(AnimContext ctx)</code></td><td><code>void</code></td><td>Declaratif. Optionnel. Cache (rebuilt sur <code>invalidateDef()</code>).</td></tr>
+          <tr><td><code>compute(AnimContext ctx, AnimationPose pose)</code></td><td><code>void</code></td><td>Procedural. Optionnel. Appele chaque frame.</td></tr>
+          <tr><td><code>duration()</code></td><td><code>float</code></td><td><strong>Obligatoire.</strong> Duree totale en ticks.</td></tr>
+          <tr><td><code>endBehavior()</code></td><td><code>EndBehavior</code></td><td>Comportement de fin (defaut <code>FREEZE</code>). Voir EndBehaviors.</td></tr>
+          <tr><td><code>invalidateDef()</code></td><td><code>void</code></td><td>Force le rebuild de <code>defineKeyframes()</code> au prochain frame.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Enregistrement et lecture</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; enregistrer puis jouer</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Dans le constructeur du TileEntity (ou un init partage server+client)
+public MyTileEntity() {
+    addJavaAnimation("walk", new WalkAnim());
+    addJavaAnimation("idle", new IdleAnim());
+}
+
+// Lecture (cote serveur, comme .erianim)
+te.playAnimation("walk");
+te.pauseAnimation();
+te.resumeAnimation();
+te.resetAnimationInstant();</code></pre>
+      </div>
+      <div class="callout callout-warning">
+        <strong>Important :</strong> le registre Java doit etre alimente <strong>identiquement sur serveur et client</strong>.
+        L'idiome standard est de l'enregistrer dans le constructeur du TileEntity (qui s'execute des deux cotes).
+      </div>
+    </section>
+
+    <section class="doc-section" id="java-anim-context">
+      <h2>AnimContext</h2>
+      <p>
+        Objet contextuel passe a <code>defineKeyframes()</code> et <code>compute()</code>. Champs publics modifiables :
+      </p>
+      <table class="api-table">
+        <thead>
+          <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>animTick</code></td><td><code>float</code></td><td>Tick d'animation courant (avec partie partielle). Disponible dans <code>compute()</code>.</td></tr>
+          <tr><td><code>partial</code></td><td><code>float</code></td><td>Partial ticks bruts <code>[0.0, 1.0)</code> pour interpolation fine.</td></tr>
+          <tr><td><code>worldTick</code></td><td><code>long</code></td><td>Tick du monde au moment du rendu.</td></tr>
+          <tr><td><code>target</code></td><td><code>Object</code></td><td>Le TileEntity ou l'entite. Cast via les helpers.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Methodes</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Methode</th><th>Retour</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>at(int tick)</code></td><td><code>TickBuilder</code></td><td>Demarre une keyframe a ce tick. Utilise dans <code>defineKeyframes()</code>.</td></tr>
+          <tr><td><code>asEntity()</code></td><td><code>EntityLiving</code></td><td>Cast de <code>target</code>, ou <code>null</code> si non-entite.</td></tr>
+          <tr><td><code>asTileEntity()</code></td><td><code>TileEntity</code></td><td>Cast de <code>target</code>, ou <code>null</code> si non-TE.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>DSL <code>at(tick).group(name).property(...)</code></h3>
+      <p>
+        L'API fluide de <code>defineKeyframes()</code> permet de chainer keyframes et groupes a un meme tick :
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; chainage de keyframes</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">ctx.at(0)
+    .group("arm_left").rotateTo(0, 0, 0)
+    .group("arm_right").rotateTo(0, 0, 0)
+    .group("body").translateTo(0, 0, 0).easing(Easing.EASE_OUT)
+.at(20)
+    .group("arm_left").rotateTo(0, 45, 0)
+    .group("arm_right").rotateTo(0, -45, 0).scaleTo(1.1f, 1.1f, 1.1f)
+    .group("body").translateY(0.2f);</code></pre>
+      </div>
+
+      <h3>GroupKeyframeBuilder &mdash; methodes</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Methode</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>rotateTo(x, y, z)</code> / <code>rotateX/Y/Z(v)</code></td><td>Definit la rotation cible (en degres).</td></tr>
+          <tr><td><code>translateTo(x, y, z)</code> / <code>translateX/Y/Z(v)</code></td><td>Definit la translation cible.</td></tr>
+          <tr><td><code>scaleTo(x, y, z)</code> / <code>scale(s)</code></td><td>Definit l'echelle (uniforme ou par axe).</td></tr>
+          <tr><td><code>visible(boolean)</code></td><td>Definit la visibilite a ce tick (instantanee).</td></tr>
+          <tr><td><code>easing(Easing)</code></td><td>Easing utilise pour atteindre cette keyframe (defaut <code>LINEAR</code>).</td></tr>
+          <tr><td><code>group(name)</code></td><td>Bascule sur un autre groupe au meme tick.</td></tr>
+          <tr><td><code>at(tick)</code></td><td>Passe a un nouveau tick.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-section" id="java-anim-pose-builder">
+      <h2>GroupPoseBuilder &mdash; modifier la pose dans <code>compute()</code></h2>
+      <p>
+        Dans <code>compute()</code>, utilise <code>pose.group("nom").property(...)</code> pour modifier la pose interpolee.
+        Deux familles de methodes :
+      </p>
+      <ul>
+        <li><strong><code>add*</code> (additif)</strong> &mdash; ajoute a la valeur produite par les keyframes. Utilisation typique pour stacker des effets procedural sur une animation declarative.</li>
+        <li><strong><code>set*</code> / sans prefixe (remplacement)</strong> &mdash; ecrase la valeur produite par les keyframes.</li>
+      </ul>
+
+      <h3>Exemple &mdash; oscillation procedural sur la tete</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; sin/cos pour bobbing et balancement</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@Override
+public void compute(AnimContext ctx, AnimationPose pose) {
+    float t = ctx.animTick + ctx.partial;
+
+    // Tete: balance a gauche/droite
+    pose.group("head")
+        .addRotateY((float) Math.sin(t * 0.15f) * 8f)
+        .addRotateZ((float) Math.cos(t * 0.10f) * 3f);
+
+    // Body: petite respiration verticale
+    pose.group("body").addTranslateY((float) Math.sin(t * 0.05f) * 0.05f);
+
+    // Reaction a l'etat de l'entite (si target est une entite)
+    if (ctx.asEntity() != null) {
+        float yaw = ctx.asEntity().rotationYaw;
+        pose.group("head").addRotateY(yaw * 0.1f);
+    }
+}</code></pre>
+      </div>
+
+      <h3>Methodes du GroupPoseBuilder</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Categorie</th><th>Methodes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rotation (set)</td><td><code>rotateX(v)</code>, <code>rotateY(v)</code>, <code>rotateZ(v)</code>, <code>rotateTo(x,y,z)</code></td></tr>
+          <tr><td>Rotation (additif)</td><td><code>addRotateX(v)</code>, <code>addRotateY(v)</code>, <code>addRotateZ(v)</code></td></tr>
+          <tr><td>Translation (set)</td><td><code>translateX(v)</code>, <code>translateY(v)</code>, <code>translateZ(v)</code>, <code>translateTo(x,y,z)</code></td></tr>
+          <tr><td>Translation (additif)</td><td><code>addTranslateX(v)</code>, <code>addTranslateY(v)</code>, <code>addTranslateZ(v)</code></td></tr>
+          <tr><td>Echelle</td><td><code>scaleTo(x,y,z)</code>, <code>scale(s)</code></td></tr>
+          <tr><td>Visibilite</td><td><code>visible(boolean)</code></td></tr>
+          <tr><td>Chainage</td><td><code>group(String)</code> &mdash; bascule sur un autre groupe</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <strong>Quand utiliser quoi ?</strong> Utilise <code>add*</code> par defaut, en complement de <code>defineKeyframes()</code>.
+        Utilise <code>set*</code> uniquement si tu veux <em>contourner</em> totalement le resultat des keyframes (ex : derniers ajustements en
+        fonction d'un parametre runtime).
+      </div>
+    </section>
+
+    <section class="doc-section" id="java-anim-overlay">
+      <h2>Overlay &mdash; jouer une animation par-dessus une autre</h2>
+      <p>
+        Le slot overlay permet de jouer une <strong>seconde animation Java</strong> par-dessus l'animation principale.
+        L'overlay <strong>gagne sur tous les groupes qu'il touche</strong> ; les groupes qu'il ne touche pas conservent
+        la pose de l'animation principale.
+      </p>
+      <p>
+        L'overlay est <strong>local au client</strong> &mdash; il n'est pas synchronise par packets. Utilise-le pour des
+        effets visuels reactifs (clignotement, recul d'arme, brillance temporaire) declenches cote client uniquement.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; declencher un overlay</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Lancer l'overlay
+te.playOverlay("flash", new FlashOverlayAnim());
+
+// Stopper
+te.stopOverlay();
+
+// Verifier
+boolean active = te.hasOverlay();
+String name = te.getOverlayAnimName();</code></pre>
+      </div>
+
+      <h3>API overlay</h3>
+      <table class="api-table">
+        <thead><tr><th>Methode</th><th>Retour</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>playOverlay(String, EriAnimJava)</code></td><td><code>void</code></td><td>Joue une anim Java en overlay. Boucle automatiquement.</td></tr>
+          <tr><td><code>stopOverlay()</code></td><td><code>void</code></td><td>Arrete l'overlay.</td></tr>
+          <tr><td><code>hasOverlay()</code></td><td><code>boolean</code></td><td><code>true</code> si un overlay est actif.</td></tr>
+          <tr><td><code>getOverlayAnimName()</code></td><td><code>String</code></td><td>Nom de l'overlay, ou <code>null</code>.</td></tr>
+          <tr><td><code>addJavaAnimation(name, anim)</code></td><td><code>void</code></td><td>Enregistre une anim Java dans le registre principal.</td></tr>
+          <tr><td><code>isJavaAnimation(name)</code></td><td><code>boolean</code></td><td><code>true</code> si <code>name</code> est dans le registre Java.</td></tr>
+          <tr><td><code>getJavaAnimation(name)</code></td><td><code>EriAnimJava</code></td><td>Recupere une anim enregistree.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning">
+        <strong>Note :</strong> seuls les <code>EndBehavior</code> <code>FREEZE</code>, <code>WAIT_SERVER</code>, <code>LOOP</code>,
+        <code>LOOP_COUNT</code>, <code>LOOP_PAUSE</code> et le reset instantane sont supportes pour les anims Java.
+        Les <code>ROLLBACK</code> sont traites comme un reset instantane (pas de <code>rollbackDuration</code> exposee).
       </div>
     </section>
 

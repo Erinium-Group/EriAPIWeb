@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.1 · 1.12.2</span>
+  <span class="version-badge">v1.6.4 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.4"><span class="nav-dot"></span>v1.6.4</a></li>
         <li><a href="#v1.6.1"><span class="nav-dot"></span>v1.6.1</a></li>
         <li><a href="#v1.6.0"><span class="nav-dot"></span>v1.6.0</a></li>
         <li><a href="#v1.5.2"><span class="nav-dot"></span>v1.5.2</a></li>
@@ -107,6 +108,33 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.4 ===== -->
+    <section class="doc-section" id="v1.6.4">
+      <h2>v1.6.4 <span class="badge badge-cyan">May 02, 2026</span></h2>
+
+      <h3>Java Animation API &mdash; write animations in pure Java</h3>
+      <p>
+        New API to write animations <strong>directly in Java</strong>, bypassing <code>.erianim</code> files.
+        Ideal for procedural animations (sin/cos oscillations, reactions to entity state, parametric movements)
+        impossible or tedious to express in JSON. Coexists with <code>.erianim</code> via the same
+        <code>te.playAnimation("name")</code> API.
+      </p>
+      <ul>
+        <li><strong><code>EriAnimJava</code></strong> &mdash; abstract class to extend. Two methods: <code>defineKeyframes(ctx)</code> (declarative, cached) and <code>compute(ctx, pose)</code> (procedural, per-frame). <code>duration()</code> required, <code>endBehavior()</code> optional.</li>
+        <li><strong><code>AnimContext</code></strong> &mdash; context with <code>animTick</code>, <code>partial</code>, <code>worldTick</code>, <code>target</code>, helpers <code>asEntity()</code>/<code>asTileEntity()</code>, and DSL <code>at(tick).group(name)...</code>.</li>
+        <li><strong><code>GroupPoseBuilder</code></strong> &mdash; fluent API accessible via <code>pose.group("name")</code>. <code>add*</code> methods (additive on keyframes) and <code>set*</code> (replace).</li>
+        <li><strong>Overlay</strong> &mdash; <code>te.playOverlay("name", anim)</code> plays a second Java anim on top of the main one (overlay wins on touched groups). Client-local, never goes through packets.</li>
+        <li><strong>Registration</strong> &mdash; <code>te.addJavaAnimation("walk", new WalkAnim())</code> in the TileEntity constructor. Registry shared server+client.</li>
+      </ul>
+      <p>
+        See the full documentation in <a href="animation.html#java-anim-overview">Animation System &mdash; Java Animation API</a>.
+      </p>
+      <p>
+        <strong>No bug fixes</strong> &mdash; additions only, 100% backward compatible. Existing <code>.erianim</code>
+        files continue to work unchanged.
+      </p>
     </section>
 
     <!-- ===== v1.6.1 ===== -->

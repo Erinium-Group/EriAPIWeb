@@ -95,6 +95,17 @@
     </div>
 
     <div class="nav-group">
+      <div class="nav-group-title">Java animation <span class="badge badge-cyan">v1.6.4</span></div>
+      <ul>
+        <li><a href="#java-anim-overview"><span class="nav-dot"></span>Overview</a></li>
+        <li><a href="#java-anim-eriAnimJava"><span class="nav-dot"></span>EriAnimJava</a></li>
+        <li><a href="#java-anim-context"><span class="nav-dot"></span>AnimContext</a></li>
+        <li><a href="#java-anim-pose-builder"><span class="nav-dot"></span>GroupPoseBuilder</a></li>
+        <li><a href="#java-anim-overlay"><span class="nav-dot"></span>Overlay</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
       <div class="nav-group-title">TileEntity</div>
       <ul>
         <li><a href="#tile-entity"><span class="nav-dot"></span>AnimatedBlockTileEntity</a></li>
@@ -569,6 +580,288 @@ public class MyBlocks {
         dropItems(ctx.world, ctx.pos);
     })
     .register();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ======================================================
+         JAVA ANIMATION API (v1.6.4)
+    ====================================================== -->
+    <section class="doc-section" id="java-anim-overview">
+      <h2>Java Animation API <span class="badge badge-cyan">v1.6.4</span></h2>
+      <p>
+        Since v1.6.4, EriAPI lets you write animations <strong>directly in Java</strong>, bypassing the
+        <code>.erianim</code> file pipeline. This is useful for <strong>procedural animations</strong> (sin/cos
+        oscillations, reactions to entity state, parametric movements, etc.) that would be tedious or impossible to
+        express in JSON.
+      </p>
+      <p>
+        A Java animation is a class extending <code>EriAnimJava</code> with two extension points:
+      </p>
+      <ul>
+        <li><strong><code>defineKeyframes(AnimContext ctx)</code></strong> &mdash; static keyframe declarations
+            (equivalent to <code>.erianim</code> JSON). Called once and cached.</li>
+        <li><strong><code>compute(AnimContext ctx, AnimationPose pose)</code></strong> &mdash; procedural modifications
+            applied <em>on top</em> of the interpolated pose. Called <strong>every frame</strong>.</li>
+      </ul>
+      <p>
+        Java animations coexist with <code>.erianim</code> animations on the same TileEntity. The same
+        <code>te.playAnimation("name")</code> API automatically dispatches to the right path based on the registered name.
+      </p>
+    </section>
+
+    <section class="doc-section" id="java-anim-eriAnimJava">
+      <h2>EriAnimJava &mdash; abstract class</h2>
+      <p>
+        Create a class that extends <code>EriAnimJava</code> and implements at minimum <code>duration()</code>:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; hybrid animation (keyframes + procedural)</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.*;
+import fr.eri.eriapi.gui.anim.Easing;
+
+public class WalkAnim extends EriAnimJava {
+
+    @Override
+    public void defineKeyframes(AnimContext ctx) {
+        // Equivalent to .erianim JSON, but in code
+        ctx.at(0)
+            .group("leg_left").rotateTo(-30, 0, 0).easing(Easing.EASE_IN_OUT)
+            .group("leg_right").rotateTo(30, 0, 0).easing(Easing.EASE_IN_OUT);
+        ctx.at(15)
+            .group("leg_left").rotateTo(30, 0, 0)
+            .group("leg_right").rotateTo(-30, 0, 0);
+        ctx.at(30)
+            .group("leg_left").rotateTo(-30, 0, 0)
+            .group("leg_right").rotateTo(30, 0, 0);
+    }
+
+    @Override
+    public void compute(AnimContext ctx, AnimationPose pose) {
+        // Procedural: head bobbing on sin(t)
+        float t = ctx.animTick + ctx.partial;
+        pose.group("head").addRotateY((float) Math.sin(t * 0.2f) * 5f);
+    }
+
+    @Override public float duration() { return 30f; }
+    @Override public EndBehavior endBehavior() { return EndBehavior.LOOP; }
+}</code></pre>
+      </div>
+
+      <h3>Overridable methods</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Method</th><th>Return</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>defineKeyframes(AnimContext ctx)</code></td><td><code>void</code></td><td>Declarative. Optional. Cached (rebuilt on <code>invalidateDef()</code>).</td></tr>
+          <tr><td><code>compute(AnimContext ctx, AnimationPose pose)</code></td><td><code>void</code></td><td>Procedural. Optional. Called every frame.</td></tr>
+          <tr><td><code>duration()</code></td><td><code>float</code></td><td><strong>Required.</strong> Total duration in ticks.</td></tr>
+          <tr><td><code>endBehavior()</code></td><td><code>EndBehavior</code></td><td>End behavior (default <code>FREEZE</code>). See EndBehaviors.</td></tr>
+          <tr><td><code>invalidateDef()</code></td><td><code>void</code></td><td>Forces a rebuild of <code>defineKeyframes()</code> on the next frame.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Registration and playback</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; register then play</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// In the TileEntity constructor (or a shared server+client init)
+public MyTileEntity() {
+    addJavaAnimation("walk", new WalkAnim());
+    addJavaAnimation("idle", new IdleAnim());
+}
+
+// Playback (server-side, like .erianim)
+te.playAnimation("walk");
+te.pauseAnimation();
+te.resumeAnimation();
+te.resetAnimationInstant();</code></pre>
+      </div>
+      <div class="callout callout-warning">
+        <strong>Important:</strong> the Java registry must be populated <strong>identically on server and client</strong>.
+        The standard pattern is to register inside the TileEntity constructor (which runs on both sides).
+      </div>
+    </section>
+
+    <section class="doc-section" id="java-anim-context">
+      <h2>AnimContext</h2>
+      <p>
+        Context object passed to <code>defineKeyframes()</code> and <code>compute()</code>. Public mutable fields:
+      </p>
+      <table class="api-table">
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>animTick</code></td><td><code>float</code></td><td>Current animation tick (with partial part). Available in <code>compute()</code>.</td></tr>
+          <tr><td><code>partial</code></td><td><code>float</code></td><td>Raw partial ticks <code>[0.0, 1.0)</code> for fine interpolation.</td></tr>
+          <tr><td><code>worldTick</code></td><td><code>long</code></td><td>World tick at render time.</td></tr>
+          <tr><td><code>target</code></td><td><code>Object</code></td><td>The TileEntity or entity. Cast via the helpers below.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Methods</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Method</th><th>Return</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>at(int tick)</code></td><td><code>TickBuilder</code></td><td>Starts a keyframe at this tick. Used in <code>defineKeyframes()</code>.</td></tr>
+          <tr><td><code>asEntity()</code></td><td><code>EntityLiving</code></td><td>Cast of <code>target</code>, or <code>null</code> if not an entity.</td></tr>
+          <tr><td><code>asTileEntity()</code></td><td><code>TileEntity</code></td><td>Cast of <code>target</code>, or <code>null</code> if not a TE.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>DSL <code>at(tick).group(name).property(...)</code></h3>
+      <p>
+        The fluent <code>defineKeyframes()</code> API lets you chain keyframes and groups at a same tick:
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; chained keyframes</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">ctx.at(0)
+    .group("arm_left").rotateTo(0, 0, 0)
+    .group("arm_right").rotateTo(0, 0, 0)
+    .group("body").translateTo(0, 0, 0).easing(Easing.EASE_OUT)
+.at(20)
+    .group("arm_left").rotateTo(0, 45, 0)
+    .group("arm_right").rotateTo(0, -45, 0).scaleTo(1.1f, 1.1f, 1.1f)
+    .group("body").translateY(0.2f);</code></pre>
+      </div>
+
+      <h3>GroupKeyframeBuilder &mdash; methods</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Method</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>rotateTo(x, y, z)</code> / <code>rotateX/Y/Z(v)</code></td><td>Sets the target rotation (in degrees).</td></tr>
+          <tr><td><code>translateTo(x, y, z)</code> / <code>translateX/Y/Z(v)</code></td><td>Sets the target translation.</td></tr>
+          <tr><td><code>scaleTo(x, y, z)</code> / <code>scale(s)</code></td><td>Sets the scale (uniform or per-axis).</td></tr>
+          <tr><td><code>visible(boolean)</code></td><td>Sets visibility at this tick (instantaneous).</td></tr>
+          <tr><td><code>easing(Easing)</code></td><td>Easing used to reach this keyframe (default <code>LINEAR</code>).</td></tr>
+          <tr><td><code>group(name)</code></td><td>Switches to another group at the same tick.</td></tr>
+          <tr><td><code>at(tick)</code></td><td>Moves to a new tick.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-section" id="java-anim-pose-builder">
+      <h2>GroupPoseBuilder &mdash; modify the pose in <code>compute()</code></h2>
+      <p>
+        In <code>compute()</code>, use <code>pose.group("name").property(...)</code> to modify the interpolated pose.
+        Two families of methods:
+      </p>
+      <ul>
+        <li><strong><code>add*</code> (additive)</strong> &mdash; adds to the value produced by keyframes. Typical for
+            stacking procedural effects on top of a declarative animation.</li>
+        <li><strong><code>set*</code> / no prefix (replace)</strong> &mdash; overwrites the value produced by keyframes.</li>
+      </ul>
+
+      <h3>Example &mdash; procedural head oscillation</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; sin/cos for bobbing and swaying</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">@Override
+public void compute(AnimContext ctx, AnimationPose pose) {
+    float t = ctx.animTick + ctx.partial;
+
+    // Head: sway left/right
+    pose.group("head")
+        .addRotateY((float) Math.sin(t * 0.15f) * 8f)
+        .addRotateZ((float) Math.cos(t * 0.10f) * 3f);
+
+    // Body: small vertical breathing
+    pose.group("body").addTranslateY((float) Math.sin(t * 0.05f) * 0.05f);
+
+    // React to entity state (if target is an entity)
+    if (ctx.asEntity() != null) {
+        float yaw = ctx.asEntity().rotationYaw;
+        pose.group("head").addRotateY(yaw * 0.1f);
+    }
+}</code></pre>
+      </div>
+
+      <h3>GroupPoseBuilder methods</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Category</th><th>Methods</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rotation (set)</td><td><code>rotateX(v)</code>, <code>rotateY(v)</code>, <code>rotateZ(v)</code>, <code>rotateTo(x,y,z)</code></td></tr>
+          <tr><td>Rotation (additive)</td><td><code>addRotateX(v)</code>, <code>addRotateY(v)</code>, <code>addRotateZ(v)</code></td></tr>
+          <tr><td>Translation (set)</td><td><code>translateX(v)</code>, <code>translateY(v)</code>, <code>translateZ(v)</code>, <code>translateTo(x,y,z)</code></td></tr>
+          <tr><td>Translation (additive)</td><td><code>addTranslateX(v)</code>, <code>addTranslateY(v)</code>, <code>addTranslateZ(v)</code></td></tr>
+          <tr><td>Scale</td><td><code>scaleTo(x,y,z)</code>, <code>scale(s)</code></td></tr>
+          <tr><td>Visibility</td><td><code>visible(boolean)</code></td></tr>
+          <tr><td>Chain</td><td><code>group(String)</code> &mdash; switch to another group</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <strong>When to use which?</strong> Use <code>add*</code> by default, layered on top of <code>defineKeyframes()</code>.
+        Use <code>set*</code> only when you want to <em>completely override</em> the keyframe result (e.g. last-mile
+        adjustments based on a runtime parameter).
+      </div>
+    </section>
+
+    <section class="doc-section" id="java-anim-overlay">
+      <h2>Overlay &mdash; play an animation on top of another</h2>
+      <p>
+        The overlay slot lets you play a <strong>second Java animation</strong> on top of the main one.
+        The overlay <strong>wins on every group it touches</strong>; groups it does not touch keep the main
+        animation's pose.
+      </p>
+      <p>
+        The overlay is <strong>client-local</strong> &mdash; it is not synced via packets. Use it for reactive
+        visual effects (flash, weapon recoil, temporary glow) triggered on the client only.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; trigger an overlay</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code class="language-java">// Start the overlay
+te.playOverlay("flash", new FlashOverlayAnim());
+
+// Stop it
+te.stopOverlay();
+
+// Check
+boolean active = te.hasOverlay();
+String name = te.getOverlayAnimName();</code></pre>
+      </div>
+
+      <h3>Overlay API</h3>
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Return</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>playOverlay(String, EriAnimJava)</code></td><td><code>void</code></td><td>Plays a Java anim as overlay. Loops automatically.</td></tr>
+          <tr><td><code>stopOverlay()</code></td><td><code>void</code></td><td>Stops the overlay.</td></tr>
+          <tr><td><code>hasOverlay()</code></td><td><code>boolean</code></td><td><code>true</code> if an overlay is active.</td></tr>
+          <tr><td><code>getOverlayAnimName()</code></td><td><code>String</code></td><td>Overlay name, or <code>null</code>.</td></tr>
+          <tr><td><code>addJavaAnimation(name, anim)</code></td><td><code>void</code></td><td>Registers a Java anim in the main registry.</td></tr>
+          <tr><td><code>isJavaAnimation(name)</code></td><td><code>boolean</code></td><td><code>true</code> if <code>name</code> is in the Java registry.</td></tr>
+          <tr><td><code>getJavaAnimation(name)</code></td><td><code>EriAnimJava</code></td><td>Retrieves a registered anim.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning">
+        <strong>Note:</strong> only the <code>EndBehavior</code> values <code>FREEZE</code>, <code>WAIT_SERVER</code>,
+        <code>LOOP</code>, <code>LOOP_COUNT</code>, <code>LOOP_PAUSE</code> and instant reset are supported for Java anims.
+        <code>ROLLBACK</code> is treated as an instant reset (no exposed <code>rollbackDuration</code>).
       </div>
     </section>
 
