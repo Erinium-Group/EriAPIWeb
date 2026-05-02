@@ -940,6 +940,76 @@ public class TileLootbox extends AnimatedBlockTileEntity {
     })
     .register();</code></pre>
       </div>
+
+      <h3>Initialiser un bloc avec uniquement des animations Java <span class="badge badge-cyan">v1.6.4</span></h3>
+      <p>
+        Si toutes les animations de ton bloc sont codees en Java (sous-classes de <code>EriAnimJava</code>),
+        tu n'as <strong>plus besoin de fichier <code>.erianim</code></strong>. Le constructeur de ton TE
+        prend uniquement le <code>modelId</code>, et les animations sont enregistrees via
+        <code>addJavaAnimation(name, anim)</code> dans le constructeur. Cote builder, l'appel
+        <code>.animation()</code> devient alors <strong>optionnel</strong>.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; TileEntity custom avec animations Java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimatedBlockTileEntity;
+
+public class TileMaMachine extends AnimatedBlockTileEntity {
+
+    public TileMaMachine() {
+        // modelId seulement &mdash; pas besoin d'animFileId si on utilise uniquement des anims Java
+        super("monmod:block/ma_machine");
+
+        // Enregistrement des animations Java (memes deux cotes : serveur ET client)
+        addJavaAnimation("idle", new IdleAnim());   // boucle de veille
+        addJavaAnimation("work", new WorkAnim());   // animation de travail
+    }
+
+    // Logique serveur : lancer l'anim en fonction de l'etat
+    public void startWorking() {
+        playAnimation("work");   // meme API que pour les anims .erianim
+    }
+
+    public void stopWorking() {
+        playAnimation("idle");
+    }
+}</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Builder EriAnimBlock sans .animation()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriAnimBlock.create("monmod", "ma_machine")
+    .material(Material.IRON)
+    .hardness(5.0f)
+    .model("monmod:block/ma_machine")
+    // .animation("...") &mdash; OPTIONNEL si tu n'utilises QUE des animations Java
+    .tileEntity(TileMaMachine.class)  // &larr; TE custom avec les anims Java enregistrees
+    .onRightClick(ctx -> {
+        TileMaMachine te = (TileMaMachine) ctx.world.getTileEntity(ctx.pos);
+        if (te != null) te.startWorking();
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Quand garder <code>.animation()</code> ?</strong> L'appel <code>.animation()</code>
+        reste <strong>obligatoire</strong> si le bloc utilise des animations <code>.erianim</code>
+        en plus des animations Java. Il peut etre <strong>omis</strong> si toutes les animations
+        sont definies en Java via <code>addJavaAnimation()</code>.
+      </div>
+
+      <div class="callout callout-warning">
+        <strong>Important :</strong> les <code>addJavaAnimation()</code> doivent etre appeles dans le
+        constructeur du TE pour que le registre soit identique cote serveur et cote client. Si tu
+        enregistres une anim apres le chargement, elle ne sera pas connue de l'autre cote et
+        <code>playAnimation()</code> echouera silencieusement.
+      </div>
     </section>
 
     <div class="section-divider"></div>
@@ -2877,6 +2947,126 @@ for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
     // Enregistrer EntityEntry avec EntityRegistry.registerModEntity(...)
     // Associer AnimatedEntityRenderer via RenderingRegistry (client only)
 }</code></pre>
+      </div>
+
+      <h3>Animations Java pour les entites <span class="badge badge-cyan">v1.6.4</span></h3>
+      <p>
+        Les entites animees supportent aussi le systeme <code>EriAnimJava</code>. Contrairement aux
+        animations <code>.erianim</code>, les animations Java <strong>ne passent pas par le builder</strong> :
+        elles sont declarees directement dans la classe d'entite et servies au renderer via
+        <code>AnimationController.computeJavaPose()</code> dans <code>getCurrentPose()</code>. L'appel
+        <code>.animation()</code> du builder n'est donc pas necessaire pour ces animations.
+      </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Builder EriEntity sans .animation()</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Les anims Java ne passent PAS par .animation() du builder
+EriEntity.create("monmod", "monstre")
+    .model("monmod:entity/monstre")
+    .texture("body", "monmod:textures/entity/monstre")
+    .hitbox(0.8f, 1.8f)
+    // Pas de .animation() pour les anims Java &mdash; elles sont declarees dans la classe Java
+    .register();</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Classe d'entite avec EriAnimJava</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.anim.AnimationController;
+import fr.eri.eriapi.anim.AnimationPose;
+import fr.eri.eriapi.anim.AnimState;
+import fr.eri.eriapi.anim.EndBehavior;
+import fr.eri.eriapi.anim.EriAnimJava;
+import fr.eri.eriapi.anim.IAnimatedEntity;
+
+public class EntityMonstre extends EntityLiving implements IAnimatedEntity {
+
+    private final AnimationController controller = new AnimationController();
+
+    // Instances des animations Java (stateless &rarr; partageables, ou instancier par entite)
+    private final IdleAnim idleAnim = new IdleAnim();
+    private final WalkAnim walkAnim = new WalkAnim();
+
+    private EriAnimJava currentAnim = null;
+    private float animTick = 0;
+
+    public EntityMonstre(World world) {
+        super(world);
+        setSize(0.8f, 1.8f);
+        currentAnim = idleAnim;   // animation par defaut
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        if (currentAnim != null) {
+            animTick += 1.0f;
+            float dur = currentAnim.duration();
+            if (currentAnim.endBehavior() == EndBehavior.LOOP && animTick >= dur) {
+                animTick -= dur;   // boucle
+            }
+        }
+    }
+
+    // Changer d'animation cote serveur (ou client si l'entite est client-only)
+    public void setAnimation(EriAnimJava anim) {
+        this.currentAnim = anim;
+        this.animTick = 0;
+    }
+
+    // --- IAnimatedEntity ---
+
+    @Override
+    public AnimationPose getCurrentPose(float partialTicks) {
+        if (currentAnim == null) return null;
+        long worldTick = world != null ? world.getTotalWorldTime() : 0;
+        return controller.computeJavaPose(
+            currentAnim,             // EriAnimJava courante
+            AnimState.PLAYING,       // etat
+            animTick + partialTicks, // tickFloat interpole
+            partialTicks,            // partial pour compute()
+            worldTick,               // tick monde courant
+            this,                    // target (this entity, accessible via ctx.asEntity())
+            null,                    // blendPose (pas de blending ici)
+            1.0f                     // blendProgress
+        );
+    }
+
+    @Override
+    public AnimState getAnimState() {
+        return currentAnim != null ? AnimState.PLAYING : AnimState.IDLE;
+    }
+}</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Pourquoi pas de <code>.animation()</code> ?</strong> Les animations Java sont
+        instanciees directement dans la classe d'entite (champs <code>idleAnim</code>,
+        <code>walkAnim</code>) et passees au controller chaque frame. Le builder
+        <code>EriEntity</code> n'a aucun role dans la resolution Java &mdash; il ne sert qu'a mapper
+        des noms vers des fichiers <code>.erianim</code>.
+      </div>
+
+      <div class="callout callout-warning">
+        <strong>Synchronisation multijoueur :</strong> dans cet exemple, <code>currentAnim</code> et
+        <code>animTick</code> ne sont pas synchronises serveur&rarr;client. Pour une entite visible
+        par d'autres joueurs, tu dois exposer un identifiant d'animation (par exemple un
+        <code>int</code>) via un <code>DataParameter</code> et reconstruire <code>currentAnim</code>
+        cote client en consequence. Voir le pattern <code>DataParameters</code> dans l'exemple
+        complet ci-dessus.
+      </div>
+
+      <div class="callout callout-info">
+        <strong>EndBehavior pris en charge :</strong> les animations Java supportent
+        <code>FREEZE</code>, <code>WAIT_SERVER</code>, <code>LOOP</code>, <code>LOOP_COUNT</code>
+        et <code>LOOP_PAUSE</code>. <code>ROLLBACK</code> est traite comme un reset instantane.
+        L'exemple ci-dessus gere la boucle manuellement dans <code>onUpdate()</code> pour pouvoir
+        utiliser le tick local sans synchronisation reseau.
       </div>
 
       <div class="info-box warn">
