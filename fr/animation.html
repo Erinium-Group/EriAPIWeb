@@ -968,10 +968,35 @@ public class TileLootbox extends AnimatedBlockTileEntity {
         declare les anims directement sur le builder via <code>.javaAnimation(name, anim)</code> &mdash;
         EriAPI les enregistre automatiquement sur le TileEntity (server + client).
       </p>
+      <p>
+        Les deux approches (<code>.animation()</code> avec un fichier <code>.erianim</code>
+        et <code>.javaAnimation()</code> avec une instance Java) coexistent et peuvent etre
+        mixees sur le meme bloc. Voici les trois variantes possibles :
+      </p>
 
       <div class="code-wrapper">
         <div class="code-label">
-          <span>Java &mdash; Builder EriAnimBlock avec animations Java (recommande)</span>
+          <span>Java &mdash; Avec un fichier .erianim (approche originale)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Approche .erianim &mdash; necessite un fichier assets/monmod/animations/ma_machine.erianim.json
+EriAnimBlock.create("monmod", "ma_machine")
+    .material(Material.IRON)
+    .hardness(5.0f)
+    .model("monmod:block/ma_machine")
+    .animation("monmod:animations/ma_machine")  // &larr; fichier .erianim
+    .defaultAnimation("idle")
+    .onRightClick(ctx -&gt; {
+        AnimatedBlockTileEntity te = (AnimatedBlockTileEntity)
+            ctx.world.getTileEntity(ctx.pos);
+        if (te != null) te.playAnimation("work");
+    })
+    .register();</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Avec des animations Java (pas de fichier .erianim)</span>
           <button class="copy-btn">Copier</button>
         </div>
         <pre><code class="language-java">EriAnimBlock.create("monmod", "ma_machine")
@@ -987,6 +1012,19 @@ public class TileLootbox extends AnimatedBlockTileEntity {
             ctx.world.getTileEntity(ctx.pos);
         if (te != null) te.playAnimation("work");
     })
+    .register();</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Les deux combines (.erianim + Java sur le meme bloc)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Mix : animations .erianim + animations Java sur le meme bloc
+EriAnimBlock.create("monmod", "ma_machine")
+    .model("monmod:block/ma_machine")
+    .animation("monmod:animations/ma_machine")  // animations .erianim
+    .javaAnimation("glow", new GlowPulseAnim()) // animation Java en plus
     .register();</code></pre>
       </div>
 
@@ -2947,12 +2985,27 @@ for (EntityDefinition def : ContentRegistry.getEntityDefs()) {
 
       <h3>Animations Java pour les entites <span class="badge badge-cyan">v1.6.4</span></h3>
       <p>
-        Les entites animees supportent aussi le systeme <code>EriAnimJava</code>. Contrairement aux
-        animations <code>.erianim</code>, les animations Java <strong>ne passent pas par le builder</strong> :
-        elles sont declarees directement dans la classe d'entite et servies au renderer via
-        <code>AnimationController.computeJavaPose()</code> dans <code>getCurrentPose()</code>. L'appel
-        <code>.animation()</code> du builder n'est donc pas necessaire pour ces animations.
+        Les entites animees supportent aussi le systeme <code>EriAnimJava</code>. Depuis la
+        v1.6.5, les animations Java peuvent etre declarees directement sur le builder via
+        <code>.javaAnimation()</code>, exactement comme <code>.animation()</code> pour les
+        fichiers <code>.erianim</code>. Les deux approches coexistent et peuvent etre mixees
+        sur la meme entite.
       </p>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Avec un fichier .erianim (approche originale)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Approche .erianim &mdash; necessite des fichiers .erianim.json dans assets/
+EriEntity.create("monmod", "monstre")
+    .model("monmod:entity/monstre")
+    .texture("body", "monmod:textures/entity/monstre")
+    .hitbox(0.8f, 1.8f)
+    .animation("idle", "monmod:entity/monstre_idle")   // &larr; fichier .erianim
+    .animation("walk", "monmod:entity/monstre_walk")   // &larr; fichier .erianim
+    .register();</code></pre>
+      </div>
 
       <div class="code-wrapper">
         <div class="code-label">
@@ -2966,6 +3019,19 @@ EriEntity.create("monmod", "monstre")
     .hitbox(0.8f, 1.8f)
     .javaAnimation("idle", new IdleAnim())
     .javaAnimation("walk", new WalkAnim())
+    .register();</code></pre>
+      </div>
+
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; Mix .erianim + Java sur la meme entite</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">// Mix : .erianim pour les anims longues/complexes + Java pour les effets proceduraux
+EriEntity.create("monmod", "monstre")
+    .model("monmod:entity/monstre")
+    .animation("walk", "monmod:entity/monstre_walk")   // .erianim
+    .javaAnimation("headBob", new HeadBobAnim())       // Java
     .register();</code></pre>
       </div>
 
