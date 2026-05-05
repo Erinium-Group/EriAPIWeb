@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.5 · 1.12.2</span>
+  <span class="version-badge">v1.6.7 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,8 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.7"><span class="nav-dot"></span>v1.6.7</a></li>
+        <li><a href="#v1.6.6"><span class="nav-dot"></span>v1.6.6</a></li>
         <li><a href="#v1.6.5"><span class="nav-dot"></span>v1.6.5</a></li>
         <li><a href="#v1.6.4"><span class="nav-dot"></span>v1.6.4</a></li>
         <li><a href="#v1.6.1"><span class="nav-dot"></span>v1.6.1</a></li>
@@ -109,6 +111,97 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.7 ===== -->
+    <section class="doc-section" id="v1.6.7">
+      <h2>v1.6.7 <span class="badge badge-cyan">05 Mai 2026</span></h2>
+
+      <h3>Fix &mdash; Modeles 3D animes decales par rapport a la hitbox</h3>
+      <p>
+        Les modeles Blockbench rendus par <code>AnimatedEntityRenderer</code> apparaissaient
+        visuellement <strong>decales d'un demi-bloc en X et Z</strong> par rapport a la hitbox
+        de l'entite. Cause : Blockbench centre les modeles sur (8, 0, 8) en pixels (= 0.5, 0,
+        0.5 en unites GL), mais l'origine de l'entite (<code>posX/posY/posZ</code>) correspond
+        au <strong>centre du bas</strong> de la bounding box. Sans offset, le coin (0,0,0) du
+        modele est rendu au centre de la hitbox.
+      </p>
+      <p>
+        Resolu dans <code>doRender()</code> : ajout d'un <code>GlStateManager.translate(-0.5f,
+        0.0f, -0.5f)</code> apres la rotation de yaw pour recentrer le modele. La rotation se
+        fait autour du veritable axe vertical du modele (son centre), pas autour d'un pivot
+        decale. Corrige aussi en cascade les animations de mouvement qui paraissaient
+        <i>buguees</i> &mdash; elles etaient simplement appliquees autour du mauvais pivot.
+      </p>
+
+      <h3>Fix &mdash; Mobs hostiles attaquent les joueurs en mode Creative / Spectator</h3>
+      <p>
+        Les presets <code>HOSTILE_MELEE</code>, <code>HOSTILE_RANGED</code> et <code>BOSS</code>
+        de <code>EriEntity</code> appelaient <code>EntityAINearestAttackableTarget</code> sans
+        predicat de filtrage. Resultat : les staff/admins en creatif etaient cibles par les
+        mobs comme n'importe quel joueur survie.
+      </p>
+      <ul>
+        <li><strong><code>EriEntityBase</code></strong>, <strong><code>GeneratedEntity</code></strong> et
+            <strong><code>PathfinderBuilder.targetPlayers()</code></strong> &mdash; tous les
+            target tasks ciblant <code>EntityPlayer.class</code> utilisent desormais le
+            constructeur a 6 arguments avec un <code>Predicate&lt;EntityPlayer&gt;</code> qui
+            rejette les joueurs en <code>isCreative()</code> ou <code>isSpectator()</code>.</li>
+        <li>Le predicat est stocke comme <strong>singleton statique</strong> par classe pour
+            eviter une allocation de lambda par entite spawnee &mdash; critique a
+            500-1000 joueurs simultanes.</li>
+      </ul>
+
+      <h3>Perf &mdash; <code>AnimatedEntityRenderer</code> : batch des draw calls par texture</h3>
+      <p>
+        L'ancienne implementation appelait <code>buffer.begin()</code> + <code>tessellator.draw()</code>
+        <strong>par face</strong>. Un modele avec 200 elements et 6 faces par element generait
+        donc <strong>1200 draw calls GPU par entite par frame</strong> &mdash; chute de FPS
+        catastrophique a partir de quelques entites visibles.
+      </p>
+      <p>
+        Refactor de <code>renderElement()</code> : les faces d'un meme element sont desormais
+        regroupees par texture dans un seul <code>begin()</code> / <code>draw()</code>. La
+        plupart des elements n'utilisent qu'une ou deux textures &mdash; la reduction est
+        typiquement <strong>de 6x a 12x</strong> selon le modele. Pour un mob complexe a 200
+        elements mono-texture : <strong>1200 draw calls -&gt; 200</strong>.
+      </p>
+      <ul>
+        <li>Nouvelles methodes internes : <code>resolveTexture(String) -&gt; ResourceLocation</code>
+            (resolution sans bind) et <code>appendFaceVertices(buffer, ...)</code> (ajoute
+            les 4 vertices d'une face dans un buffer deja ouvert).</li>
+        <li>L'ancienne methode <code>drawFace()</code> est remplacee &mdash; aucun changement
+            d'API publique, seul le pipeline interne change.</li>
+        <li>Compatible avec toutes les animations existantes (translation, rotation, scale,
+            cumulativeRotation, texture overrides). Les transforms matricielles restent
+            inchangees, seul le draw-flushing est batche.</li>
+      </ul>
+
+      <p>
+        <strong>100% retrocompatible</strong> &mdash; aucun changement d'API publique.
+      </p>
+    </section>
+
+    <!-- ===== v1.6.6 ===== -->
+    <section class="doc-section" id="v1.6.6">
+      <h2>v1.6.6 <span class="badge badge-cyan">05 Mai 2026</span></h2>
+
+      <h3>Fix &mdash; <code>EriEntityBase</code> : <code>eriDef</code> resolu avant l'initialisation IA / attributs</h3>
+      <p>
+        Le constructeur de <code>EntityLiving</code> appelle <code>applyEntityAttributes()</code>
+        et <code>initEntityAI()</code> via <code>super(world)</code> <strong>avant</strong> que
+        la sous-classe <code>EriEntityBase</code> ait pu assigner <code>this.eriDef</code>.
+        Consequence : les mobs spawnaient sans IA et avec les stats vanilla par defaut, peu
+        importe ce qui etait declare via <code>EriEntity.create(...)</code>.
+      </p>
+      <p>
+        Restructuration : les overrides de <code>applyEntityAttributes()</code> et
+        <code>initEntityAI()</code> sont desormais des no-ops, et le constructeur appelle
+        <code>applyEriAttributes()</code> + <code>setupEriAI()</code> apres avoir resolu
+        <code>eriDef</code> via <code>DEF_BY_CLASS</code>. Les sous-classes de
+        <code>EriEntityBase</code> (utilisees pour la logique Java custom) recoivent maintenant
+        correctement leurs stats, IA et hitbox.
+      </p>
     </section>
 
     <!-- ===== v1.6.5 ===== -->
