@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.7 · 1.12.2</span>
+  <span class="version-badge">v1.6.8 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
         <li><a href="#v1.6.7"><span class="nav-dot"></span>v1.6.7</a></li>
         <li><a href="#v1.6.6"><span class="nav-dot"></span>v1.6.6</a></li>
         <li><a href="#v1.6.5"><span class="nav-dot"></span>v1.6.5</a></li>
@@ -111,6 +112,39 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.8 ===== -->
+    <section class="doc-section" id="v1.6.8">
+      <h2>v1.6.8 <span class="badge badge-cyan">May 07, 2026</span></h2>
+
+      <h3>Critical fix &mdash; <code>EventBuilder.filter()</code> overwrote previous filters</h3>
+      <p>
+        Each call to <code>.filter(...)</code> on an <code>EventBuilder</code> replaced
+        the previous filter outright instead of combining them. As a result, listeners
+        configured with multiple chained <code>.filter(...)</code> calls only honored
+        <strong>the last one</strong>, leaking events that should have been rejected by
+        earlier filters.
+      </p>
+      <p>
+        Real-world example: a <code>PlayerTickEvent</code> handler scoped to a specific
+        dimension, configured like this:
+      </p>
+      <pre><code class="language-java">EriEvents.on(TickEvent.PlayerTickEvent.class)
+    .filter(e -&gt; e.phase == TickEvent.Phase.END)
+    .filter(e -&gt; e.player.world.provider.getDimension() == TARGET_DIM)
+    .filter(e -&gt; !e.player.world.isRemote)   // this filter OVERWROTE the previous ones
+    .handle(e -&gt; applyEffect(e.player));</code></pre>
+      <p>
+        The dimension check was lost, and the effect was applied across <strong>every</strong>
+        dimension on the server side.
+      </p>
+      <p>
+        Fixed: successive calls to <code>filter(...)</code> are now <strong>combined with
+        logical AND</strong> via <code>Predicate.and()</code>. All predicates must return
+        <code>true</code> for the handler to be invoked. The expected and natural behavior
+        is restored, with no impact on listeners that used a single filter.
+      </p>
     </section>
 
     <!-- ===== v1.6.7 ===== -->

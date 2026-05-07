@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.7 · 1.12.2</span>
+  <span class="version-badge">v1.6.8 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -77,6 +77,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
         <li><a href="#v1.6.7"><span class="nav-dot"></span>v1.6.7</a></li>
         <li><a href="#v1.6.6"><span class="nav-dot"></span>v1.6.6</a></li>
         <li><a href="#v1.6.5"><span class="nav-dot"></span>v1.6.5</a></li>
@@ -111,6 +112,40 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.6.8 ===== -->
+    <section class="doc-section" id="v1.6.8">
+      <h2>v1.6.8 <span class="badge badge-cyan">07 Mai 2026</span></h2>
+
+      <h3>Fix critique &mdash; <code>EventBuilder.filter()</code> ecrasait les filtres precedents</h3>
+      <p>
+        Chaque appel a <code>.filter(...)</code> sur un <code>EventBuilder</code> remplacait
+        purement et simplement le filtre precedent au lieu de les combiner. Resultat : un
+        listener configure avec plusieurs <code>.filter(...)</code> chaines ne respectait
+        que <strong>le dernier</strong>, faisant fuir des events qui auraient du etre
+        rejetes par les filtres anterieurs.
+      </p>
+      <p>
+        Exemple concret rencontre : un handler <code>PlayerTickEvent</code> destine a une
+        dimension specifique, configure ainsi :
+      </p>
+      <pre><code class="language-java">EriEvents.on(TickEvent.PlayerTickEvent.class)
+    .filter(e -&gt; e.phase == TickEvent.Phase.END)
+    .filter(e -&gt; e.player.world.provider.getDimension() == TARGET_DIM)
+    .filter(e -&gt; !e.player.world.isRemote)   // ce filtre ECRASAIT les precedents
+    .handle(e -&gt; applyEffect(e.player));</code></pre>
+      <p>
+        Le check de dimension etait perdu, et l'effet s'appliquait sur <strong>toutes</strong>
+        les dimensions cote serveur.
+      </p>
+      <p>
+        Resolu : les appels successifs a <code>filter(...)</code> sont desormais
+        <strong>combines en AND logique</strong> via <code>Predicate.and()</code>. Tous les
+        predicats doivent retourner <code>true</code> pour que le handler soit invoque. Le
+        comportement attendu et naturel est restaure, sans casser les listeners qui
+        n'utilisaient qu'un seul filtre.
+      </p>
     </section>
 
     <!-- ===== v1.6.7 ===== -->

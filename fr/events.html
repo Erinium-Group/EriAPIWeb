@@ -270,7 +270,9 @@ EriEvents.on(PlayerLoggedInEvent.class)
               <td><code>Predicate&lt;E&gt;</code></td>
               <td>
                 Condition a verifier avant d'appeler le handler. Si le predicate retourne <code>false</code>,
-                l'event est ignore pour cet handler.
+                l'event est ignore pour cet handler. <strong>Les appels successifs a <code>filter(...)</code>
+                sont combines en AND logique</strong> : tous les predicats doivent retourner <code>true</code>
+                pour que le handler s'execute. Cela permet de chainer plusieurs conditions sans en perdre.
               </td>
             </tr>
             <tr>
