@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.8 · 1.12.2</span>
+  <span class="version-badge">v1.7.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -112,6 +112,27 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.7.2 ===== -->
+    <section class="doc-section" id="v1.7.2">
+      <h2>v1.7.2 <span class="badge badge-cyan">13 Mai 2026</span></h2>
+
+      <h3>Ajout &mdash; <code>LineChart.yLabelDecimals(int)</code></h3>
+      <p>
+        Le nombre de decimales affichees sur les labels de l'axe Y (et dans le
+        tooltip de survol des points) est desormais configurable. Avant, la
+        methode interne <code>formatValue</code> etait <code>static</code> et
+        hardcodee a 1 decimale, sans setter public &mdash; impossible d'afficher
+        des prix au centime ou des valeurs entieres sans virgule parasite.
+      </p>
+      <pre><code class="language-java">LineChart chart = new LineChart()
+    .yLabelDecimals(2)  // 12.34 au lieu de 12.3
+    .addDataset("Prix", points);</code></pre>
+      <p>
+        Defaut : <code>1</code> (retro-compatible). Mettre <code>0</code> force
+        un affichage entier. Les valeurs negatives sont clampees a 0.
+      </p>
     </section>
 
     <!-- ===== v1.6.8 ===== -->
