@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.1 · 1.12.2</span>
+  <span class="version-badge">v1.8.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
         <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
         <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
@@ -116,6 +117,60 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.2 ===== -->
+    <section class="doc-section" id="v1.8.2">
+      <h2>v1.8.2 <span class="badge badge-cyan">25 Mai 2026</span></h2>
+
+      <h3>Feat &mdash; <code>cosmetic</code> : rendu 3D Blockbench dans tous les contextes d'item</h3>
+      <p>
+        Les items <code>ArmorCosmeticItem</code> rendent desormais leur modele Blockbench
+        en 3D dans <strong>tous</strong> les contextes d'affichage : inventaire, hotbar,
+        premiere personne (main droite / main gauche), troisieme personne (main droite /
+        main gauche), au sol, fixed (item frame), head (porte sur la tete). Avant ce patch,
+        seul le rendu joueur via <code>ArmorCosmeticLayer</code> dessinait le modele 3D
+        &mdash; l'inventaire et toutes les autres vues passaient par un sprite 2D extrude
+        (<code>item/generated</code>) qui transitait par l'item atlas. Cela imposait des
+        textures power-of-two carrees et rejetait les PNG non-POT (rendu noir/rose).
+      </p>
+      <p>
+        Le nouveau pipeline s'appuie sur trois pieces : <code>ArmorCosmeticTEISR</code>
+        (un <code>TileEntityItemStackRenderer</code> qui dessine la geometrie Blockbench
+        avec <code>BlockbenchRenderer</code>), <code>ArmorCosmeticBakedModel</code> (un
+        <code>IBakedModel</code> vide qui flag <code>isBuiltInRenderer()</code> et
+        <code>isGui3d()</code> a <code>true</code>, et expose les transforms par contexte
+        construits depuis le bloc <code>display</code> du JSON), et un handler
+        <code>ModelBakeEvent</code> dans <code>ArmorCosmeticManager</code> qui swap chaque
+        modele cosmetique vanilla par l'<code>ArmorCosmeticBakedModel</code> a chaque reload
+        du resource pack. Les textures sont liees via <code>TextureManager.bindTexture()</code>
+        (passe par <code>SimpleTexture</code>, hors atlas), donc <strong>n'importe quelle
+        dimension de PNG fonctionne</strong> &mdash; POT non requis, multi-texture supporte,
+        UV custom respectes.
+      </p>
+
+      <h3>Feat &mdash; <code>cosmetic</code> : respect du <code>display</code> field du JSON Blockbench</h3>
+      <p>
+        Le bloc <code>display</code> du modele JSON (cles
+        <code>thirdperson_righthand</code>, <code>thirdperson_lefthand</code>,
+        <code>firstperson_righthand</code>, <code>firstperson_lefthand</code>,
+        <code>head</code>, <code>gui</code>, <code>ground</code>, <code>fixed</code>)
+        est converti en <code>ItemCameraTransforms</code> vanilla et applique
+        automatiquement par <code>RenderItem</code> avant l'invocation du TEISR.
+        Les translations en pixels Blockbench (1/16 bloc) sont divisees par 16 pour
+        matcher la convention OpenGL des transforms vanilla. Rotation en degres et
+        scale unit-less sont passes tels quels.
+      </p>
+
+      <h3>Feat &mdash; <code>anim</code> : <code>AnimatedBlockModel.getDisplayTransforms()</code></h3>
+      <p>
+        <code>AnimatedBlockModel</code> expose desormais publiquement la map des
+        transforms par contexte via <code>getDisplayTransforms()</code> (et
+        <code>hasDisplayTransforms()</code> / <code>getDisplayTransform(String)</code>
+        pour les usages cible). La map est extraite par <code>BlockbenchModelParser</code>
+        depuis le champ <code>display</code> du JSON, avec fallback identite si le bloc
+        est absent &mdash; les modeles existants restent retrocompatibles.
+      </p>
     </section>
 
     <!-- ===== v1.8.1 ===== -->

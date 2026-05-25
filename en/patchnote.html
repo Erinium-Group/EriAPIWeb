@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.1 · 1.12.2</span>
+  <span class="version-badge">v1.8.2 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
         <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
         <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
@@ -116,6 +117,60 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.2 ===== -->
+    <section class="doc-section" id="v1.8.2">
+      <h2>v1.8.2 <span class="badge badge-cyan">May 25, 2026</span></h2>
+
+      <h3>Feat &mdash; <code>cosmetic</code>: 3D Blockbench rendering in every item context</h3>
+      <p>
+        <code>ArmorCosmeticItem</code> instances now render their Blockbench model in 3D
+        in <strong>every</strong> display context: inventory, hotbar, first person (right
+        / left hand), third person (right / left hand), on the ground, fixed (item frame),
+        head (worn on the head). Before this patch, only the player rendering via
+        <code>ArmorCosmeticLayer</code> drew the 3D model &mdash; the inventory and all
+        other views went through a 2D extruded sprite (<code>item/generated</code>) routed
+        through the item atlas. That forced square power-of-two textures and rejected
+        non-POT PNGs (black/pink missing-texture output).
+      </p>
+      <p>
+        The new pipeline relies on three pieces: <code>ArmorCosmeticTEISR</code> (a
+        <code>TileEntityItemStackRenderer</code> that draws the Blockbench geometry via
+        <code>BlockbenchRenderer</code>), <code>ArmorCosmeticBakedModel</code> (an empty
+        <code>IBakedModel</code> that flags <code>isBuiltInRenderer()</code> and
+        <code>isGui3d()</code> to <code>true</code>, and exposes per-context transforms
+        built from the JSON <code>display</code> block), and a <code>ModelBakeEvent</code>
+        handler in <code>ArmorCosmeticManager</code> that swaps every cosmetic's vanilla
+        baked model with an <code>ArmorCosmeticBakedModel</code> on every resource pack
+        reload. Textures are bound via <code>TextureManager.bindTexture()</code> (goes
+        through <code>SimpleTexture</code>, off-atlas), so <strong>any PNG dimension
+        works</strong> &mdash; POT not required, multi-texture supported, custom UVs
+        honored.
+      </p>
+
+      <h3>Feat &mdash; <code>cosmetic</code>: respects the Blockbench <code>display</code> field</h3>
+      <p>
+        The JSON model's <code>display</code> block (keys
+        <code>thirdperson_righthand</code>, <code>thirdperson_lefthand</code>,
+        <code>firstperson_righthand</code>, <code>firstperson_lefthand</code>,
+        <code>head</code>, <code>gui</code>, <code>ground</code>, <code>fixed</code>)
+        is converted into a vanilla <code>ItemCameraTransforms</code> and applied
+        automatically by <code>RenderItem</code> before the TEISR call. Translations in
+        Blockbench pixels (1/16 block) are divided by 16 to match the vanilla OpenGL
+        transform convention. Rotation in degrees and unit-less scale are passed through
+        as-is.
+      </p>
+
+      <h3>Feat &mdash; <code>anim</code>: <code>AnimatedBlockModel.getDisplayTransforms()</code></h3>
+      <p>
+        <code>AnimatedBlockModel</code> now publicly exposes the per-context transform
+        map via <code>getDisplayTransforms()</code> (plus <code>hasDisplayTransforms()</code>
+        and <code>getDisplayTransform(String)</code> for targeted lookups). The map is
+        extracted by <code>BlockbenchModelParser</code> from the JSON <code>display</code>
+        field, with an identity fallback when the block is missing &mdash; existing models
+        remain backward compatible.
+      </p>
     </section>
 
     <!-- ===== v1.8.1 ===== -->
