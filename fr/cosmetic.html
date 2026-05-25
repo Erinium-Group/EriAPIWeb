@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmetic — EriAPI</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/script.js" defer></script>
+
+  <meta name="description" content="EriAPI Cosmetic — Affichez des modeles 3D Blockbench sur n'importe quel slot d'armure d'un joueur (tete, torse, jambes, pieds) qui suivent les animations vanilla. Forge 1.12.2.">
+  <meta name="keywords" content="EriAPI, cosmetic Minecraft, armor 3D model, Blockbench cosmetic, layer renderer, ArmorCosmeticLayer, Forge 1.12.2">
+  <meta name="author" content="EriniumGroup">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://eriapi.netlify.app/fr/cosmetic.html">
+
+  <meta property="og:title" content="Cosmetic — EriAPI">
+  <meta property="og:description" content="EriAPI Cosmetic — Affichez des modeles 3D Blockbench sur n'importe quel slot d'armure d'un joueur qui suivent les animations vanilla.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://eriapi.netlify.app/fr/cosmetic.html">
+  <meta property="og:site_name" content="EriAPI Documentation">
+
+  <link rel="alternate" hreflang="fr" href="https://eriapi.netlify.app/fr/cosmetic.html">
+  <link rel="alternate" hreflang="en" href="https://eriapi.netlify.app/en/cosmetic.html">
+  <link rel="alternate" hreflang="x-default" href="https://eriapi.netlify.app/en/cosmetic.html">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">E</div>
+    <span>EriAPI</span>
+  </a>
+
+  <div class="header-spacer"></div>
+
+  <span class="version-badge">v1.8.0 &middot; 1.12.2</span>
+
+  <div class="lang-switch">
+    <a href="cosmetic.html" class="active">FR</a>
+    <a href="../en/cosmetic.html">EN</a>
+  </div>
+
+  <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <nav class="sidebar" aria-label="Navigation principale">
+
+    <div class="nav-group nav-pages">
+      <div class="nav-group-title">Modules</div>
+      <ul>
+        <li><a href="index.html" class="nav-page-link"><span class="nav-dot"></span>Accueil</a></li>
+        <li><a href="gui.html" class="nav-page-link"><span class="nav-dot"></span>GUI Framework</a></li>
+        <li><a href="overlay.html" class="nav-page-link"><span class="nav-dot"></span>Overlay HUD</a></li>
+        <li><a href="config.html" class="nav-page-link"><span class="nav-dot"></span>Config System</a></li>
+        <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
+        <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Content Builder</a></li>
+        <li><a href="animation.html" class="nav-page-link"><span class="nav-dot"></span>Animation System</a></li>
+        <li><a href="cosmetic.html" class="nav-page-link active"><span class="nav-dot"></span>Armor Cosmetics</a></li>
+        <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
+        <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
+        <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
+        <li><a href="capability.html" class="nav-page-link"><span class="nav-dot"></span>Capability Helpers</a></li>
+        <li><a href="events.html" class="nav-page-link"><span class="nav-dot"></span>Event Simplifier</a></li>
+        <li><a href="keys.html" class="nav-page-link"><span class="nav-dot"></span>Keybinding Manager</a></li>
+        <li><a href="security.html" class="nav-page-link"><span class="nav-dot"></span>Security</a></li>
+        <li><a href="network.html" class="nav-page-link"><span class="nav-dot"></span>Network GUI</a></li>
+        <li><a href="patchnote.html" class="nav-page-link"><span class="nav-dot"></span>Patchnote</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Sur cette page</div>
+      <ul>
+        <li><a href="#introduction"><span class="nav-dot"></span>Introduction</a></li>
+        <li><a href="#quickstart"><span class="nav-dot"></span>Installation rapide</a></li>
+        <li><a href="#api"><span class="nav-dot"></span>API du builder</a></li>
+        <li><a href="#bone-mapping"><span class="nav-dot"></span>Mapping des bones</a></li>
+        <li><a href="#multi-bone"><span class="nav-dot"></span>Modeles multi-bones</a></li>
+        <li><a href="#offset"><span class="nav-dot"></span>Offsets par defaut</a></li>
+        <li><a href="#renderer"><span class="nav-dot"></span>BlockbenchRenderer</a></li>
+        <li><a href="#troubleshooting"><span class="nav-dot"></span>Troubleshooting</a></li>
+      </ul>
+    </div>
+
+  </nav>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- ===== INTRODUCTION ===== -->
+    <section class="doc-section section-intro" id="introduction">
+      <div class="hero">
+        <h1>Cosmetic</h1>
+        <p class="subtitle">
+          Affichez un modele 3D Blockbench sur n'importe quel slot d'armure d'un joueur. Le modele suit naturellement les bones vanilla (tilt de la tete, sneak, animations de marche, swing des bras) sans une seule ligne d'OpenGL.
+        </p>
+        <div class="badge-row">
+          <span class="badge badge-cyan">fr.eri.eriapi.cosmetic</span>
+          <span class="badge badge-gray">Client + Serveur</span>
+          <span class="badge badge-gray">Forge 1.12.2</span>
+          <span class="badge badge-green">v1.8.0</span>
+        </div>
+      </div>
+
+      <p>
+        Le module <strong>Cosmetic</strong> resout un probleme classique du modding 1.12.2 : afficher un modele 3D Blockbench sur un joueur sans ecrire un <code>LayerRenderer</code> custom par item, sans toucher au pipeline de rendu vanilla et sans casser l'armure deja equipee.
+      </p>
+      <p>
+        Le builder cree un <code>ItemArmor</code> classique avec une texture d'armure totalement transparente (la couche vanilla est invisible) puis attache un <code>LayerRenderer</code> partage qui dessine votre modele Blockbench au-dessus, accroche au bon bone du joueur.
+      </p>
+
+      <h3>Ce que vous pouvez faire</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;margin-bottom:20px;line-height:2;">
+        <li>Un <strong style="color:var(--text);">masque, casque, couronne, chapeau</strong> sur le slot <code>HEAD</code></li>
+        <li>Une <strong style="color:var(--text);">cape, sac a dos, plastron decoratif</strong> sur le slot <code>CHEST</code></li>
+        <li>Des <strong style="color:var(--text);">jambieres custom</strong> sur le slot <code>LEGS</code></li>
+        <li>Des <strong style="color:var(--text);">bottes 3D</strong> sur le slot <code>FEET</code></li>
+        <li>Un <strong style="color:var(--text);">set complet</strong> avec multi-bones (chaque partie suit son bone vanilla : bras, torse, jambes)</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== INSTALLATION RAPIDE ===== -->
+    <section class="doc-section" id="quickstart">
+      <h2>Installation rapide en 3 etapes</h2>
+
+      <h3>1. Concevez le modele dans Blockbench</h3>
+      <p>
+        Utilisez le preset Blockbench &laquo; Item / Modded Block &raquo; (ou &laquo; Modded Entity &raquo; si vous voulez du multi-bones). La taille standard recommandee pour un casque : un cube centre sur <code>(8, 28, 8)</code> en pixels Blockbench. Sauvegardez le modele JSON dans :
+      </p>
+      <pre><code class="language-text">assets/votremod/models/item/barry_mask.json</code></pre>
+      <p>
+        Et les textures associees dans :
+      </p>
+      <pre><code class="language-text">assets/votremod/textures/blocks/barry_mask/&lt;nomTexture&gt;.png</code></pre>
+
+      <h3>2. Creez l'item avec le builder</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; CommonProxy ou registry d'init</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">import fr.eri.eriapi.cosmetic.EriCosmetics;
+import net.minecraft.inventory.EntityEquipmentSlot;
+
+Item barryMask = EriCosmetics.armor()
+    .modId("eriniumfaction").registryName("barry_mask")
+    .slot(EntityEquipmentSlot.HEAD)
+    .displayName("Masque de Barry")
+    .creativeTab(MyCreativeTab.INSTANCE)
+    .model("eriniumfaction:item/barry_mask")
+    .build();</code></pre>
+      </div>
+
+      <h3>3. Enregistrez l'item dans le registry Forge</h3>
+      <p>
+        Le builder <strong>ne s'enregistre pas automatiquement</strong> dans le registry Forge (meme convention que <code>EriItem</code>). C'est a vous de le faire dans votre handler de registry :
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java &mdash; @SubscribeEvent register</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">@SubscribeEvent
+public static void registerItems(RegistryEvent.Register&lt;Item&gt; event) {
+    event.getRegistry().register(barryMask);
+}</code></pre>
+      </div>
+
+      <p>
+        Cote client, ne faites rien de plus &mdash; le layer renderer est attache automatiquement par EriAPI sur le <code>RenderPlayer</code> de chaque variante de skin (default + slim) pendant <code>init</code>.
+      </p>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
+          <div class="ib-title">Modele d'item en main et inventaire</div>
+          <p>Pour l'affichage de l'item dans la main / l'inventaire, utilisez le pipeline standard de Blockbench (le bloc <code>display</code> dans le JSON, ou <code>EriItem.animatedModel()</code> pour le rendu 3D anime). Le module Cosmetic ne gere QUE le rendu sur le joueur lui-meme.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== API ===== -->
+    <section class="doc-section" id="api">
+      <h2>API du builder</h2>
+
+      <p>Entry point : <code>EriCosmetics.armor()</code> retourne un <code>ArmorCosmeticBuilder</code>.</p>
+
+      <h3>Methodes fluent</h3>
+      <table class="api-table">
+        <thead>
+          <tr><th>Methode</th><th>Defaut</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>modId(String)</code></td><td>&mdash;</td><td>Namespace du registry. <strong>Obligatoire.</strong></td></tr>
+          <tr><td><code>registryName(String)</code></td><td>&mdash;</td><td>Path du registry. <strong>Obligatoire.</strong> ID final : <code>modId:registryName</code>.</td></tr>
+          <tr><td><code>slot(EntityEquipmentSlot)</code></td><td>&mdash;</td><td><code>HEAD</code>, <code>CHEST</code>, <code>LEGS</code> ou <code>FEET</code>. <strong>Obligatoire.</strong></td></tr>
+          <tr><td><code>model(String)</code></td><td>&mdash;</td><td>ID Blockbench (<code>"mod:item/nom"</code>). <strong>Obligatoire.</strong></td></tr>
+          <tr><td><code>displayName(String)</code></td><td><code>null</code></td><td>Nom affiche en tooltip. Si <code>null</code>, utilise la cle de traduction.</td></tr>
+          <tr><td><code>creativeTab(CreativeTabs)</code></td><td><code>null</code></td><td>Onglet creatif. Si <code>null</code>, l'item n'apparait dans aucun onglet.</td></tr>
+          <tr><td><code>scale(float)</code></td><td><code>1.0f</code></td><td>Scale uniforme autour de l'origine du bone.</td></tr>
+          <tr><td><code>offset(float x, float y, float z)</code></td><td><code>(0, 0, 0)</code></td><td>Translation supplementaire en blocs GL (= pixels Blockbench / 16), appliquee APRES le bone offset par defaut.</td></tr>
+          <tr><td><code>rotation(float x, float y, float z)</code></td><td><code>(0, 0, 0)</code></td><td>Rotation Euler en degres autour de l'origine du bone, dans l'ordre X puis Y puis Z.</td></tr>
+          <tr><td><code>followBones(boolean)</code></td><td><code>true</code></td><td>Si <code>true</code>, les groupes Blockbench dont le nom matche un bone vanilla sont rendus a ce bone (voir section suivante). Sinon, tout va au bone principal du slot.</td></tr>
+          <tr><td><code>build()</code></td><td>&mdash;</td><td>Cree et retourne l'<code>Item</code>. Vous devez ensuite l'enregistrer dans le registry Forge.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Validation a build()</h3>
+      <p><code>build()</code> leve <code>IllegalStateException</code> si :</p>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li><code>modId</code> est null ou vide</li>
+        <li><code>registryName</code> est null ou vide</li>
+        <li><code>slot</code> est null ou pas un des 4 slots autorises</li>
+        <li><code>model</code> est null ou vide</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== BONE MAPPING ===== -->
+    <section class="doc-section" id="bone-mapping">
+      <h2>Mapping des bones par slot</h2>
+
+      <p>
+        Chaque slot d'armure pointe vers un <strong>bone principal</strong>. Si votre modele Blockbench n'a qu'un seul groupe (ou plusieurs groupes sans nom particulier), tout est rendu a ce bone.
+      </p>
+
+      <table class="api-table">
+        <thead>
+          <tr><th>Slot</th><th>Bone principal</th><th>Bones additionnels reconnus (multi-bones)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>HEAD</code></td><td><code>bipedHead</code></td><td>(aucun)</td></tr>
+          <tr><td><code>CHEST</code></td><td><code>bipedBody</code></td><td><code>bipedRightArm</code>, <code>bipedLeftArm</code></td></tr>
+          <tr><td><code>LEGS</code></td><td><code>bipedRightLeg</code></td><td><code>bipedLeftLeg</code></td></tr>
+          <tr><td><code>FEET</code></td><td><code>bipedRightLeg</code></td><td><code>bipedLeftLeg</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="info-box tip">
+        <div class="ib-icon">i</div>
+        <div class="ib-body">
+          <div class="ib-title">Pourquoi <code>FEET</code> utilise le bone des jambes ?</div>
+          <p>En 1.12.2, les bottes vanilla sont dessinees sur le bone <code>bipedRightLeg</code> / <code>bipedLeftLeg</code>, pas sur un bone &laquo; foot &raquo; dedie. Le module suit la meme convention &mdash; vos bottes 3D bougent avec la jambe.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== MULTI-BONE ===== -->
+    <section class="doc-section" id="multi-bone">
+      <h2>Modeles multi-bones</h2>
+
+      <p>
+        Pour un cosmetic qui couvre plusieurs parties du corps (par exemple un plastron + des manches), nommez vos groupes Blockbench avec les conventions suivantes (insensible a la casse, les espaces et tirets bas sont accepted) :
+      </p>
+
+      <table class="api-table">
+        <thead>
+          <tr><th>Nom du groupe Blockbench</th><th>Bone vanilla cible</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>head</code></td><td><code>bipedHead</code></td></tr>
+          <tr><td><code>body</code></td><td><code>bipedBody</code></td></tr>
+          <tr><td><code>right_arm</code>, <code>rightarm</code></td><td><code>bipedRightArm</code></td></tr>
+          <tr><td><code>left_arm</code>, <code>leftarm</code></td><td><code>bipedLeftArm</code></td></tr>
+          <tr><td><code>right_leg</code>, <code>rightleg</code></td><td><code>bipedRightLeg</code></td></tr>
+          <tr><td><code>left_leg</code>, <code>leftleg</code></td><td><code>bipedLeftLeg</code></td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        Chaque groupe racine dont le nom matche est rendu a son bone. Les groupes au nom non-matche tombent dans le bone principal du slot.
+      </p>
+
+      <h3>Exemple : un plastron avec manches qui suivent les bras</h3>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Structure du JSON Blockbench (resumee)</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-json">"groups": [
+  { "name": "body",      "children": [...] },
+  { "name": "right_arm", "children": [...] },
+  { "name": "left_arm",  "children": [...] }
+]</code></pre>
+      </div>
+      <p>
+        Resultat : le <code>body</code> est rendu sur le torse, les <code>right_arm</code> / <code>left_arm</code> suivent les bras du joueur (et donc l'animation d'arm-swing pendant la marche, le mouvement lors d'une attaque, etc.).
+      </p>
+
+      <h3>Desactiver le dispatch multi-bones</h3>
+      <p>
+        Si vous voulez que TOUT votre modele reste sur le bone principal (par exemple un casque conique avec un groupe interne nomme &laquo; body &raquo; pour le maillage de support), utilisez <code>.followBones(false)</code> :
+      </p>
+      <div class="code-wrapper">
+        <div class="code-label">
+          <span>Java</span>
+          <button class="copy-btn">Copier</button>
+        </div>
+        <pre><code class="language-java">EriCosmetics.armor()
+    .modId("mymod").registryName("conical_hat")
+    .slot(EntityEquipmentSlot.HEAD)
+    .model("mymod:item/conical_hat")
+    .followBones(false)        // tout va sur bipedHead
+    .build();</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== OFFSET ===== -->
+    <section class="doc-section" id="offset">
+      <h2>Offset par defaut &amp; reperage Blockbench</h2>
+
+      <p>
+        Quand le module dessine votre modele, il appelle d'abord <code>bone.postRender(0.0625f)</code> sur le bone cible (place la matrice OpenGL au pivot du bone, avec sa rotation appliquee &mdash; meme pipeline que l'armure vanilla), puis applique un <strong>offset par defaut</strong> qui ramene l'origine Blockbench <code>(0, 0, 0)</code> a l'emplacement attendu dans le repere du bone.
+      </p>
+
+      <table class="api-table">
+        <thead>
+          <tr><th>Bone</th><th>Offset par defaut (x, y, z) en blocs GL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>bipedHead</code></td><td><code>(-0.5, -1.5, -0.5)</code></td></tr>
+          <tr><td><code>bipedBody</code></td><td><code>(-0.5, -1.5, -0.5)</code></td></tr>
+          <tr><td><code>bipedRightArm</code></td><td><code>(-0.5, -1.5, -0.5)</code></td></tr>
+          <tr><td><code>bipedLeftArm</code></td><td><code>(-0.5, -1.5, -0.5)</code></td></tr>
+          <tr><td><code>bipedRightLeg</code></td><td><code>(-0.5, -0.75, -0.5)</code></td></tr>
+          <tr><td><code>bipedLeftLeg</code></td><td><code>(-0.5, -0.75, -0.5)</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Verifier visuellement</h3>
+      <p>
+        Concevez votre modele dans Blockbench en partant des reperes suivants :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li><strong style="color:var(--text);">Casque</strong> : centre la tete sur <code>(8, 28, 8)</code> en pixels &mdash; le centre du cube tomb pile sur la tete vanilla.</li>
+        <li><strong style="color:var(--text);">Torse</strong> : meme reperage que le casque (centre sur <code>(8, 18, 8)</code>) car le bone du body partage le meme pivot Y que la tete.</li>
+        <li><strong style="color:var(--text);">Jambes</strong> : modelez chaque jambe centree sur <code>(8, 6, 8)</code>, hauteur 12px (de y=0 a y=12).</li>
+      </ul>
+      <p>
+        Le <code>.offset()</code> du builder s'ajoute AU dessus de l'offset par defaut &mdash; utilisez-le pour ajuster finement (par exemple si votre casque doit etre legerement en avant : <code>.offset(0, 0, -0.05f)</code>).
+      </p>
+
+      <h3>Exemple de calcul</h3>
+      <p>
+        Pour un masque dont le devant est dessine en Blockbench <code>from [4,23,3.9] to [12,32,3.9]</code> &mdash; centre <code>(8, 27.5, 3.9)</code> :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li>Conversion en blocs : <code>(0.5, 1.71875, 0.24375)</code></li>
+        <li>Apres l'offset <code>(-0.5, -1.5, -0.5)</code> : <code>(0, 0.21875, -0.25625)</code> dans le repere du bone <code>bipedHead</code></li>
+        <li>La tete vanilla s'etend de <code>y=-0.5</code> (cou) a <code>y=0</code> (sommet) en bone local. <code>y=0.21875</code> est legerement au-dessus du sommet &mdash; corrigeable avec <code>.offset(0, -0.22f, 0)</code> si besoin.</li>
+        <li>La face avant de la tete vanilla est a <code>z=-0.25</code>. Le masque tombe a <code>z=-0.256</code> &mdash; pile devant la tete.</li>
+      </ul>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== BLOCKBENCH RENDERER ===== -->
+    <section class="doc-section" id="renderer">
+      <h2>BlockbenchRenderer (helper public)</h2>
+
+      <p>
+        Le module Cosmetic utilise en interne <code>BlockbenchRenderer</code>, un helper qui rend un <code>AnimatedBlockModel</code> deja parse avec ou sans <code>AnimationPose</code>. Ce helper a ete extrait de <code>AnimatedBlockTESR</code> et est <strong>public</strong> &mdash; vous pouvez l'utiliser pour vos propres systemes de rendu custom (TileEntity, items en main, GUI 3D, etc.).
+      </p>
+
+      <h3>API</h3>
+      <pre><code class="language-java">// Rendu complet du modele en pose statique, textures auto-bind
+BlockbenchRenderer.renderModel(AnimatedBlockModel model);
+
+// Rendu avec une AnimationPose interpolee
+BlockbenchRenderer.renderModel(AnimatedBlockModel model, AnimationPose pose);
+
+// Controle total (bind manuel des textures par le caller)
+BlockbenchRenderer.renderModel(AnimatedBlockModel model, AnimationPose pose, boolean bindTextures);
+
+// Rendre un seul groupe a la position actuelle
+BlockbenchRenderer.renderGroup(ModelGroup group);
+BlockbenchRenderer.renderGroup(ModelGroup group, AnimationPose pose);
+BlockbenchRenderer.renderGroup(ModelGroup group, AnimationPose pose,
+                               Map&lt;String, ResourceLocation&gt; textures, boolean bindTextures);
+
+// Variante avec texture overrides (utilisee par AnimatedBlockTESR)
+BlockbenchRenderer.renderModelWithOverrides(AnimatedBlockModel model, AnimationPose pose,
+                                            Map&lt;String, String&gt; textureOverrides);</code></pre>
+
+      <div class="info-box warn">
+        <div class="ib-icon">!</div>
+        <div class="ib-body">
+          <div class="ib-title">Etat OpenGL</div>
+          <p>Le helper part du principe que l'etat GL est <strong>deja prepare</strong> : matrices en place, blending / culling / lighting setup, lightmap correct. Il ne push / pop pas la matrice racine et ne reset pas la couleur ou le blend mode. Encapsulez l'appel dans <code>pushMatrix()</code> / <code>popMatrix()</code> et configurez votre etat avant.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ===== TROUBLESHOOTING ===== -->
+    <section class="doc-section" id="troubleshooting">
+      <h2>Troubleshooting</h2>
+
+      <h3>Le modele n'apparait pas du tout</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li>Verifiez que vous avez bien enregistre l'item dans le registry Forge (le builder ne le fait pas).</li>
+        <li>Verifiez le chemin du modele : <code>.model("mod:item/nom")</code> doit pointer sur <code>assets/mod/models/item/nom.json</code>.</li>
+        <li>Regardez les logs au demarrage : <code>EriAPI - ArmorCosmeticManager: attached cosmetic layer to N player renderers</code> doit apparaitre. Si <code>N=0</code>, votre <code>ClientProxy</code> tourne avant que le render manager soit pret &mdash; ouvrez une issue.</li>
+      </ul>
+
+      <h3>Le casque vanilla est encore visible</h3>
+      <p>
+        La texture transparente est embarquee dans EriAPI sous <code>assets/eriapi/textures/models/armor/transparent_layer_1.png</code>. Si vous voyez un casque blanc / rose (texture manquante), verifiez que le jar EriAPI est bien dans votre dossier <code>mods/</code> (en dev : ajoutez-le en <code>compile files()</code> dans le <code>build.gradle</code>).
+      </p>
+
+      <h3>Le modele est decalle / dans la mauvaise position</h3>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li>Verifiez que votre modele Blockbench est concu dans le bon repere &mdash; voir <a href="#offset">Offsets par defaut</a>.</li>
+        <li>Ajustez avec <code>.offset(x, y, z)</code> (en blocs GL = pixels Blockbench / 16).</li>
+        <li>Pour un modele importe depuis un autre logiciel, essayez <code>.rotation(0, 180, 0)</code> &mdash; certains exporters inversent le sens du Z.</li>
+      </ul>
+
+      <h3>Les manches ne suivent pas les bras</h3>
+      <p>
+        Verifiez que vos groupes Blockbench s'appellent bien <code>right_arm</code> / <code>left_arm</code> (insensible a la casse, le tiret bas est tolere). Le mapping cherche le nom exact &mdash; un groupe nomme &laquo; ArmRight &raquo; ne sera pas reconnu.
+      </p>
+
+      <h3>Le modele clignote / disparait selon l'angle</h3>
+      <p>
+        Cause classique : votre modele a des faces transparentes mal triees pour le blend OpenGL. Le module active <code>disableCull()</code> et <code>enableBlend()</code> par defaut, mais l'ordre de dessin reste celui des elements du JSON Blockbench. Pour un effet propre, evitez de superposer plusieurs faces transparentes &mdash; preferez un seul cube avec une texture alpha.
+      </p>
+
+      <h3>Performance</h3>
+      <p>
+        Le layer est appele <strong>chaque frame pour chaque joueur visible</strong>. Le cout est minimal car :
+      </p>
+      <ul style="color:var(--text-muted);padding-left:20px;line-height:1.9;">
+        <li>Le lookup <code>Item -&gt; ArmorCosmeticDefinition</code> est un <code>HashMap.get()</code> O(1).</li>
+        <li>Le modele Blockbench est cache en memoire (premier load uniquement).</li>
+        <li>Aucune allocation par frame &mdash; les boucles utilisent des <code>for(int i)</code> sur les listes existantes.</li>
+        <li>Si le joueur est invisible (<code>isInvisible()</code>), le layer est court-circuite.</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<script>hljs.highlightAll();</script>
+</body>
+</html>

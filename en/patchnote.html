@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.6.8 · 1.12.2</span>
+  <span class="version-badge">v1.8.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -62,6 +62,7 @@
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Content Builder</a></li>
         <li><a href="animation.html" class="nav-page-link"><span class="nav-dot"></span>Animation System</a></li>
+        <li><a href="cosmetic.html" class="nav-page-link"><span class="nav-dot"></span>Armor Cosmetics</a></li>
         <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
         <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
@@ -77,6 +78,8 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
+        <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
         <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
         <li><a href="#v1.6.7"><span class="nav-dot"></span>v1.6.7</a></li>
         <li><a href="#v1.6.6"><span class="nav-dot"></span>v1.6.6</a></li>
@@ -112,6 +115,92 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.0 ===== -->
+    <section class="doc-section" id="v1.8.0">
+      <h2>v1.8.0 <span class="badge badge-cyan">May 25, 2026</span></h2>
+
+      <h3>New module &mdash; <code>cosmetic</code> (3D armor cosmetics)</h3>
+      <p>
+        New package <code>fr.eri.eriapi.cosmetic</code> for attaching a Blockbench 3D model
+        to any of the 4 vanilla armor slots (<code>HEAD</code>, <code>CHEST</code>,
+        <code>LEGS</code>, <code>FEET</code>). Cosmetic items inherit zero stats &mdash;
+        no damage reduction, no durability, no enchantability &mdash; they only serve as a
+        visual layer rendered on top of the player via a <code>LayerRenderer&lt;EntityPlayer&gt;</code>
+        attached to every <code>RenderPlayer</code> in the <code>skinMap</code> (default + slim).
+      </p>
+      <pre><code class="language-java">Item mask = EriCosmetics.armor()
+    .modId("yourmod")
+    .registryName("barry_mask")
+    .displayName("Barry Mask")
+    .creativeTab(CreativeTabs.COMBAT)
+    .slot(EntityEquipmentSlot.HEAD)
+    .model(new ResourceLocation("yourmod", "barry_mask"))
+    .build();</code></pre>
+      <p>
+        The model automatically follows the vanilla biped bone matching the slot via
+        <code>postRender(0.0625f)</code>:
+        <code>HEAD &rarr; bipedHead</code>, <code>CHEST &rarr; bipedBody</code>,
+        <code>LEGS / FEET &rarr; bipedRightLeg</code> &mdash; head tilt, body sneak,
+        arm swing and leg walking work natively without any custom rig.
+      </p>
+
+      <h3>Multi-bone convention &mdash; Blockbench group naming</h3>
+      <p>
+        A model may contain multiple root groups whose <strong>name</strong> determines
+        which vanilla bone they attach to (case-insensitive):
+        <code>head</code>, <code>body</code>, <code>right_arm</code>, <code>left_arm</code>,
+        <code>right_leg</code>, <code>left_leg</code> (variants without underscore are also
+        accepted). Any group not matching a bone is rendered on the slot's primary bone.
+        Lets you build a full cosmetic armor set that follows the entire vanilla biped.
+      </p>
+
+      <h3>Refactor &mdash; <code>BlockbenchRenderer</code> extracted from the TESR</h3>
+      <p>
+        The geometry code from <code>AnimatedBlockTESR</code> (<code>AnimatedBlockModel</code>
+        rendering, <code>ModelGroup</code> / <code>ModelElement</code> handling, texture atlas,
+        Blockbench transform application) is now exposed in the public class
+        <code>fr.eri.eriapi.cosmetic.BlockbenchRenderer</code>. It is reused by the
+        <code>cosmetic</code> module and by <code>AnimatedBlockTESR</code> (which now delegates
+        to <code>renderModelWithOverrides()</code>). The TESR keeps its IDLE optimization and
+        perf tracking &mdash; <strong>100% backward compatible</strong>, no public API change
+        for existing users.
+      </p>
+      <ul>
+        <li><code>renderModel(AnimatedBlockModel)</code> &mdash; full render of a model at rest.</li>
+        <li><code>renderModel(model, AnimationPose)</code> &mdash; render with applied pose.</li>
+        <li><code>renderGroup(ModelGroup, ...)</code> &mdash; render of a single group (used by multi-bone dispatch).</li>
+        <li><code>renderModelWithOverrides(model, pose, textureOverrides)</code> &mdash; signature preserving TESR semantics.</li>
+      </ul>
+
+      <h3>Documentation</h3>
+      <p>
+        New page <a href="cosmetic.html"><code>cosmetic.html</code></a> (FR + EN) covering the
+        full builder API, bone mapping, multi-bone convention, default offsets, the public
+        <code>BlockbenchRenderer</code> API and a complete troubleshooting section.
+      </p>
+    </section>
+
+    <!-- ===== v1.7.2 ===== -->
+    <section class="doc-section" id="v1.7.2">
+      <h2>v1.7.2 <span class="badge badge-cyan">May 13, 2026</span></h2>
+
+      <h3>Added &mdash; <code>LineChart.yLabelDecimals(int)</code></h3>
+      <p>
+        The number of decimals displayed on Y-axis labels (and in the point hover tooltip)
+        is now configurable. Previously, the internal <code>formatValue</code> method was
+        <code>static</code> and hardcoded to 1 decimal, with no public setter &mdash;
+        making it impossible to display cent-precise prices or integer-only values without
+        a stray decimal.
+      </p>
+      <pre><code class="language-java">LineChart chart = new LineChart()
+    .yLabelDecimals(2)  // 12.34 instead of 12.3
+    .addDataset("Price", points);</code></pre>
+      <p>
+        Default: <code>1</code> (backward compatible). Setting <code>0</code> forces integer
+        display. Negative values are clamped to 0.
+      </p>
     </section>
 
     <!-- ===== v1.6.8 ===== -->

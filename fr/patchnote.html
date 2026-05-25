@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.7.2 · 1.12.2</span>
+  <span class="version-badge">v1.8.0 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -62,6 +62,7 @@
         <li><a href="commands.html" class="nav-page-link"><span class="nav-dot"></span>Command Framework</a></li>
         <li><a href="content.html" class="nav-page-link"><span class="nav-dot"></span>Content Builder</a></li>
         <li><a href="animation.html" class="nav-page-link"><span class="nav-dot"></span>Animation System</a></li>
+        <li><a href="cosmetic.html" class="nav-page-link"><span class="nav-dot"></span>Armor Cosmetics</a></li>
         <li><a href="data.html" class="nav-page-link"><span class="nav-dot"></span>Data &amp; Storage</a></li>
         <li><a href="scheduler.html" class="nav-page-link"><span class="nav-dot"></span>Scheduler</a></li>
         <li><a href="chat.html" class="nav-page-link"><span class="nav-dot"></span>Chat Builder</a></li>
@@ -77,6 +78,8 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
+        <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
         <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
         <li><a href="#v1.6.7"><span class="nav-dot"></span>v1.6.7</a></li>
         <li><a href="#v1.6.6"><span class="nav-dot"></span>v1.6.6</a></li>
@@ -112,6 +115,74 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.0 ===== -->
+    <section class="doc-section" id="v1.8.0">
+      <h2>v1.8.0 <span class="badge badge-cyan">25 Mai 2026</span></h2>
+
+      <h3>Nouveau module &mdash; <code>cosmetic</code> (cosmetiques d'armure 3D)</h3>
+      <p>
+        Nouveau package <code>fr.eri.eriapi.cosmetic</code> permettant d'attacher un modele
+        Blockbench 3D a n'importe lequel des 4 slots d'armure vanilla (<code>HEAD</code>,
+        <code>CHEST</code>, <code>LEGS</code>, <code>FEET</code>). Les items cosmetiques
+        heritent de zero stats &mdash; pas de reduction de degats, pas de durabilite, pas
+        d'enchantabilite &mdash; ils servent uniquement de couche visuelle rendue par-dessus
+        le joueur via un <code>LayerRenderer&lt;EntityPlayer&gt;</code> attache a chaque
+        <code>RenderPlayer</code> du <code>skinMap</code> (default + slim).
+      </p>
+      <pre><code class="language-java">Item mask = EriCosmetics.armor()
+    .modId("votremod")
+    .registryName("barry_mask")
+    .displayName("Masque de Barry")
+    .creativeTab(CreativeTabs.COMBAT)
+    .slot(EntityEquipmentSlot.HEAD)
+    .model(new ResourceLocation("votremod", "barry_mask"))
+    .build();</code></pre>
+      <p>
+        Le modele suit automatiquement le bone biped vanilla correspondant au slot grace au
+        <code>postRender(0.0625f)</code> :
+        <code>HEAD &rarr; bipedHead</code>, <code>CHEST &rarr; bipedBody</code>,
+        <code>LEGS / FEET &rarr; bipedRightLeg</code> &mdash; head tilt, body sneak, swing
+        des bras et marche des jambes sont gerees nativement sans aucun rig custom.
+      </p>
+
+      <h3>Convention multi-bones &mdash; nommage des groupes Blockbench</h3>
+      <p>
+        Un modele peut contenir plusieurs root groups dont le <strong>nom</strong> determine
+        a quel bone vanilla il s'attache (case-insensitive) :
+        <code>head</code>, <code>body</code>, <code>right_arm</code>, <code>left_arm</code>,
+        <code>right_leg</code>, <code>left_leg</code> (les variantes sans underscore sont
+        aussi acceptees). Tout groupe ne matchant aucun bone est rendu au bone primaire du
+        slot. Permet de creer une armure complete cosmetique qui suit l'integralite du
+        biped vanilla.
+      </p>
+
+      <h3>Refactor &mdash; <code>BlockbenchRenderer</code> extrait du TESR</h3>
+      <p>
+        Le code de geometrie de <code>AnimatedBlockTESR</code> (rendu d'<code>AnimatedBlockModel</code>,
+        gestion des <code>ModelGroup</code> / <code>ModelElement</code>, atlas de textures,
+        application des transformations Blockbench) est desormais expose dans la classe
+        publique <code>fr.eri.eriapi.cosmetic.BlockbenchRenderer</code>. Elle est reutilisee
+        par le module <code>cosmetic</code> et par <code>AnimatedBlockTESR</code> (qui delegue
+        maintenant a <code>renderModelWithOverrides()</code>). Le TESR conserve son optimisation
+        IDLE et son perf tracking &mdash; <strong>100% retrocompatible</strong>, aucun changement
+        d'API publique pour les utilisateurs existants.
+      </p>
+      <ul>
+        <li><code>renderModel(AnimatedBlockModel)</code> &mdash; rendu complet d'un modele au repos.</li>
+        <li><code>renderModel(model, AnimationPose)</code> &mdash; rendu avec pose appliquee.</li>
+        <li><code>renderGroup(ModelGroup, ...)</code> &mdash; rendu d'un seul groupe (utilise par le multi-bone dispatch).</li>
+        <li><code>renderModelWithOverrides(model, pose, textureOverrides)</code> &mdash; signature preservant la semantique du TESR.</li>
+      </ul>
+
+      <h3>Documentation</h3>
+      <p>
+        Nouvelle page <a href="cosmetic.html"><code>cosmetic.html</code></a> (FR + EN) couvrant
+        l'API complete du builder, le mapping des bones, la convention multi-bones, les offsets
+        par defaut, l'API publique de <code>BlockbenchRenderer</code> et un troubleshooting
+        complet.
+      </p>
     </section>
 
     <!-- ===== v1.7.2 ===== -->
