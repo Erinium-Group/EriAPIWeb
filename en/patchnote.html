@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.0 · 1.12.2</span>
+  <span class="version-badge">v1.8.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
         <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
         <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
@@ -115,6 +116,29 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.1 ===== -->
+    <section class="doc-section" id="v1.8.1">
+      <h2>v1.8.1 <span class="badge badge-cyan">May 25, 2026</span></h2>
+
+      <h3>Fix &mdash; <code>cosmetic</code>: Y-flip in <code>ArmorCosmeticLayer</code></h3>
+      <p>
+        Fixed the Y-axis flip in <code>ArmorCosmeticLayer.renderGroupAtBone</code> &mdash;
+        Blockbench models now render right-side up on biped bones. The Blockbench
+        convention (Y+ up, X+ right) is now correctly converted to the MC entity
+        bone-local space (Y- up, <code>ModelBiped.addBox</code> convention) via a
+        <code>GlStateManager.scale(-1, -1, 1)</code> applied right after
+        <code>bone.postRender(0.0625f)</code>. The two sign flips preserve the normal
+        orientation (winding order) without needing <code>glFrontFace</code>. Before
+        this fix, cosmetic models rendered upside-down, hanging below the bone.
+      </p>
+      <p>
+        The public API of the <code>cosmetic</code> module is unchanged &mdash; no
+        consumer-side migration required. The default offsets
+        (<code>DEFAULT_BONE_OFFSETS</code>) and the group-name-to-bone mapping table
+        (<code>GROUP_NAME_TO_BONE</code>) were already correct for the flipped space.
+      </p>
     </section>
 
     <!-- ===== v1.8.0 ===== -->

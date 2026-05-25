@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.0 · 1.12.2</span>
+  <span class="version-badge">v1.8.1 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
         <li><a href="#v1.7.2"><span class="nav-dot"></span>v1.7.2</a></li>
         <li><a href="#v1.6.8"><span class="nav-dot"></span>v1.6.8</a></li>
@@ -115,6 +116,30 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.1 ===== -->
+    <section class="doc-section" id="v1.8.1">
+      <h2>v1.8.1 <span class="badge badge-cyan">25 Mai 2026</span></h2>
+
+      <h3>Fix &mdash; <code>cosmetic</code> : flip Y dans <code>ArmorCosmeticLayer</code></h3>
+      <p>
+        Correction du flip Y dans <code>ArmorCosmeticLayer.renderGroupAtBone</code> &mdash;
+        les modeles Blockbench s'affichent desormais a l'endroit sur les bones biped. La
+        convention Blockbench (Y+ vers le haut, X+ vers la droite) est maintenant
+        correctement convertie vers l'espace MC entity bone-local (Y- vers le haut,
+        convention <code>ModelBiped.addBox</code>) via un <code>GlStateManager.scale(-1, -1, 1)</code>
+        applique juste apres <code>bone.postRender(0.0625f)</code>. Les deux flips de signe
+        preservent l'orientation des normales (winding order) sans necessiter de
+        <code>glFrontFace</code>. Avant ce fix, les modeles cosmetiques etaient rendus tete
+        en bas, suspendus sous le bone.
+      </p>
+      <p>
+        L'API publique du module <code>cosmetic</code> ne change pas &mdash; aucune migration
+        necessaire cote consommateur. Les offsets par defaut (<code>DEFAULT_BONE_OFFSETS</code>)
+        et la table de mapping nom-de-groupe vers bone (<code>GROUP_NAME_TO_BONE</code>) sont
+        deja corrects pour l'espace flippe.
+      </p>
     </section>
 
     <!-- ===== v1.8.0 ===== -->
