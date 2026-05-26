@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.4 · 1.12.2</span>
+  <span class="version-badge">v1.8.5 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.5"><span class="nav-dot"></span>v1.8.5</a></li>
         <li><a href="#v1.8.4"><span class="nav-dot"></span>v1.8.4</a></li>
         <li><a href="#v1.8.3"><span class="nav-dot"></span>v1.8.3</a></li>
         <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
@@ -119,6 +120,62 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.5 ===== -->
+    <section class="doc-section" id="v1.8.5">
+      <h2>v1.8.5 <span class="badge badge-cyan">26 Mai 2026</span></h2>
+
+      <h3>Fix critique &mdash; <code>cosmetic</code> : <code>ModelBakeEvent</code> enregistre trop tard (3e iteration)</h3>
+      <p>
+        <strong>Vraie cause racine du bug texture rose/noir des cosmetiques</strong>, identifiee
+        grace aux logs client. Les corrections 1.8.3 et 1.8.4 ciblaient des hypotheses
+        plausibles (slot de texture GL incorrect, cache <code>MISSING_TEXTURE</code> sentinel,
+        alpha cull du GUI) mais le bug residuel persistait parce qu'aucun
+        <code>ArmorCosmeticBakedModel</code> n'etait jamais installe dans le model registry.
+      </p>
+      <p>
+        <strong>Cause exacte :</strong> <code>ArmorCosmeticManager.bootstrap()</code> &mdash;
+        appele depuis <code>ClientProxy.init()</code> (FMLInit) &mdash; enregistrait le
+        <code>BakeHandler</code> <em>apres</em> que le <code>ModelBakeEvent</code> initial ait
+        deja ete dispatche. Ce dernier fire pendant le rechargement de resource pack qui se
+        produit <em>entre</em> FMLPreInit et FMLInit. Resultat : notre baked model ne
+        remplacait jamais celui par defaut, et vanilla rendait le modele depuis la sprite atlas
+        items &mdash; qui rejetait toute texture non-POT comme <code>MISSING_TEXTURE</code> au
+        stitching.
+      </p>
+      <ul>
+        <li>
+          <strong>Nouveau point d'entree public</strong> : <code>EriCosmetics.preInit()</code>
+          (alias de <code>ArmorCosmeticManager.registerBakeHandler()</code>) &mdash; a appeler
+          depuis <code>FMLPreInitializationEvent</code> dans le mod consommateur.
+        </li>
+        <li>
+          <strong>Enregistrement automatique en preInit</strong> : <code>EriAPI.ClientProxy.preInit()</code>
+          appelle desormais <code>ArmorCosmeticManager.registerBakeHandler()</code>, ce qui
+          enregistre le listener AVANT le premier <code>ModelBakeEvent</code>. Les mods
+          existants n'ont rien a changer.
+        </li>
+        <li>
+          <strong>Refactor de <code>bootstrap()</code></strong> : la methode ne s'occupe plus
+          que de l'attachement du <code>ArmorCosmeticLayer</code> aux <code>RenderPlayer</code>.
+          La logique d'enregistrement du <code>ModelBakeEvent</code> a ete extraite dans
+          <code>registerBakeHandler()</code> (publique). Rétro-compatible &mdash;
+          <code>bootstrap()</code> appelle defensivement <code>registerBakeHandler()</code>
+          au cas ou le consumer mod n'aurait pas migre.
+        </li>
+        <li>
+          <strong>Detecteur de mauvaise registration</strong> : si <code>bootstrap()</code> est
+          appele alors qu'au moins un cosmetique est enregistre mais qu'aucun
+          <code>swap</code> n'a ete applique, un <code>WARN</code> explicite est logge avec
+          la solution actionnable.
+        </li>
+      </ul>
+      <p>
+        Aucune cassure d'API. Mise a jour recommandee pour tout mod utilisant le module
+        cosmetic &mdash; le fix est applique implicitement, l'appel a
+        <code>EriCosmetics.preInit()</code> reste optionnel et documente.
+      </p>
     </section>
 
     <!-- ===== v1.8.4 ===== -->

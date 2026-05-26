@@ -182,6 +182,22 @@ public static void registerItems(RegistryEvent.Register&lt;Item&gt; event) {
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
+          <div class="ib-title">Recommended (v1.8.5+): call <code>EriCosmetics.preInit()</code> in your FMLPreInit</div>
+          <p>Since EriAPI 1.8.5, you can call <code>EriCosmetics.preInit()</code> from your <code>ClientProxy</code>'s <code>FMLPreInitializationEvent</code>. This explicitly registers the <code>ModelBakeEvent</code> listener that installs the <code>ArmorCosmeticBakedModel</code>. <strong>Optional</strong> &mdash; EriAPI already does it automatically from its own preInit, but the explicit call documents the dependency and stays valid if a future EriAPI version removes the implicit registration.</p>
+          <pre><code class="language-java">@SideOnly(Side.CLIENT)
+public class ClientProxy extends CommonProxy {
+    @Override
+    public void preInit(FMLPreInitializationEvent e) {
+        super.preInit(e);
+        EriCosmetics.preInit();
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
           <div class="ib-title">3D rendering in every context (since v1.8.2)</div>
           <p>Since EriAPI 1.8.2, the Cosmetic module renders the Blockbench model in 3D <strong>everywhere</strong>: inventory, hotbar, first person, third person, ground, fixed (item frame), head. No <code>item/generated</code> model to create &mdash; the <code>ArmorCosmeticBakedModel</code> is generated automatically in <code>ModelBakeEvent</code> and delegates the geometry to <code>ArmorCosmeticTEISR</code>. The Blockbench JSON's <code>display</code> block (keys <code>gui</code>, <code>firstperson_*</code>, <code>thirdperson_*</code>, <code>ground</code>, <code>fixed</code>, <code>head</code>) is honored automatically per context &mdash; Blockbench-pixel translations are divided by 16 to match the vanilla OpenGL transform convention.</p>
         </div>

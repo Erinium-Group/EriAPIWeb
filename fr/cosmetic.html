@@ -182,6 +182,22 @@ public static void registerItems(RegistryEvent.Register&lt;Item&gt; event) {
       <div class="info-box tip">
         <div class="ib-icon">&#10003;</div>
         <div class="ib-body">
+          <div class="ib-title">Recommande (v1.8.5+) : <code>EriCosmetics.preInit()</code> dans votre FMLPreInit</div>
+          <p>Depuis EriAPI 1.8.5, vous pouvez appeler <code>EriCosmetics.preInit()</code> depuis le <code>FMLPreInitializationEvent</code> de votre <code>ClientProxy</code>. Cela enregistre explicitement le <code>ModelBakeEvent</code> listener qui installe le <code>ArmorCosmeticBakedModel</code>. <strong>Optionnel</strong> &mdash; EriAPI le fait deja automatiquement depuis son propre preInit, mais l'appel explicite documente la dependance et reste valide si une future version d'EriAPI retirait l'enregistrement implicite.</p>
+          <pre><code class="language-java">@SideOnly(Side.CLIENT)
+public class ClientProxy extends CommonProxy {
+    @Override
+    public void preInit(FMLPreInitializationEvent e) {
+        super.preInit(e);
+        EriCosmetics.preInit();
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="ib-icon">&#10003;</div>
+        <div class="ib-body">
           <div class="ib-title">Rendu 3D dans tous les contextes (depuis v1.8.2)</div>
           <p>Depuis EriAPI 1.8.2, le module Cosmetic dessine le modele Blockbench en 3D <strong>partout</strong> : inventaire, hotbar, premiere personne, troisieme personne, sol, fixed (item frame), head. Aucun modele <code>item/generated</code> a creer &mdash; le <code>ArmorCosmeticBakedModel</code> est genere automatiquement au <code>ModelBakeEvent</code> et delegue la geometrie au <code>ArmorCosmeticTEISR</code>. Le bloc <code>display</code> du JSON Blockbench (cles <code>gui</code>, <code>firstperson_*</code>, <code>thirdperson_*</code>, <code>ground</code>, <code>fixed</code>, <code>head</code>) est respecte automatiquement par contexte &mdash; les translations en pixels Blockbench sont divisees par 16 pour matcher la convention OpenGL des transforms vanilla.</p>
         </div>

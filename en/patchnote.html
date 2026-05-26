@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.4 · 1.12.2</span>
+  <span class="version-badge">v1.8.5 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.5"><span class="nav-dot"></span>v1.8.5</a></li>
         <li><a href="#v1.8.4"><span class="nav-dot"></span>v1.8.4</a></li>
         <li><a href="#v1.8.3"><span class="nav-dot"></span>v1.8.3</a></li>
         <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
@@ -119,6 +120,59 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.5 ===== -->
+    <section class="doc-section" id="v1.8.5">
+      <h2>v1.8.5 <span class="badge badge-cyan">May 26, 2026</span></h2>
+
+      <h3>Critical fix &mdash; <code>cosmetic</code>: <code>ModelBakeEvent</code> registered too late (3rd iteration)</h3>
+      <p>
+        <strong>True root cause of the pink/black cosmetic texture bug</strong>, identified from
+        client logs. The 1.8.3 and 1.8.4 fixes addressed plausible hypotheses (wrong GL texture
+        slot, stale <code>MISSING_TEXTURE</code> cache, GUI alpha cull) but the bug persisted
+        because no <code>ArmorCosmeticBakedModel</code> was ever installed in the model registry.
+      </p>
+      <p>
+        <strong>Exact cause:</strong> <code>ArmorCosmeticManager.bootstrap()</code> &mdash; called
+        from <code>ClientProxy.init()</code> (FMLInit) &mdash; registered the
+        <code>BakeHandler</code> <em>after</em> the initial <code>ModelBakeEvent</code> had
+        already been dispatched. That event fires during the resource-pack reload that happens
+        <em>between</em> FMLPreInit and FMLInit. As a result, our baked model never replaced the
+        default one, and vanilla rendered the model from the items atlas sprite &mdash; which
+        rejected any non-POT texture as <code>MISSING_TEXTURE</code> at stitch time.
+      </p>
+      <ul>
+        <li>
+          <strong>New public entry point</strong>: <code>EriCosmetics.preInit()</code> (alias for
+          <code>ArmorCosmeticManager.registerBakeHandler()</code>) &mdash; to be called from
+          <code>FMLPreInitializationEvent</code> in consumer mods.
+        </li>
+        <li>
+          <strong>Automatic preInit registration</strong>:
+          <code>EriAPI.ClientProxy.preInit()</code> now calls
+          <code>ArmorCosmeticManager.registerBakeHandler()</code>, registering the listener BEFORE
+          the first <code>ModelBakeEvent</code>. Existing consumer mods need no change.
+        </li>
+        <li>
+          <strong>Refactor of <code>bootstrap()</code></strong>: the method now only attaches the
+          <code>ArmorCosmeticLayer</code> to <code>RenderPlayer</code> variants. The
+          <code>ModelBakeEvent</code> registration logic moved into the new public
+          <code>registerBakeHandler()</code>. Backward-compatible &mdash; <code>bootstrap()</code>
+          defensively calls <code>registerBakeHandler()</code> so consumers that never migrate
+          still get the handler registered (only too late for the initial bake).
+        </li>
+        <li>
+          <strong>Late-registration detector</strong>: if <code>bootstrap()</code> runs with at
+          least one registered cosmetic but zero <code>swap</code>s applied, a loud
+          <code>WARN</code> is logged with the actionable fix.
+        </li>
+      </ul>
+      <p>
+        No API breakage. Recommended upgrade for any mod using the cosmetic module &mdash; the
+        fix applies implicitly; calling <code>EriCosmetics.preInit()</code> remains optional and
+        documented.
+      </p>
     </section>
 
     <!-- ===== v1.8.4 ===== -->
