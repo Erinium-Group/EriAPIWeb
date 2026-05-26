@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.2 · 1.12.2</span>
+  <span class="version-badge">v1.8.3 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.3"><span class="nav-dot"></span>v1.8.3</a></li>
         <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
         <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
@@ -117,6 +118,68 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.3 ===== -->
+    <section class="doc-section" id="v1.8.3">
+      <h2>v1.8.3 <span class="badge badge-cyan">26 Mai 2026</span></h2>
+
+      <h3>Fix &mdash; <code>cosmetic</code> : texture missing-texture (rose/noir) dans le contexte item</h3>
+      <p>
+        Correction du rendu de texture des cosmetiques d'armure
+        (<code>ArmorCosmeticItem</code>) dans le contexte item &mdash; inventaire, hotbar,
+        premiere personne, troisieme personne, sol, item frame, GUI. Le modele 3D
+        Blockbench s'affichait bien (geometrie correcte) mais la texture etait remplacee
+        par le pattern missing-texture rose/noir caracteristique. Le rendu sur le joueur
+        via <code>ArmorCosmeticLayer</code> n'etait <strong>pas</strong> affecte.
+      </p>
+      <p>
+        Cause racine &mdash; combinaison de deux problemes :
+      </p>
+      <ul>
+        <li>
+          <strong>Slot de texture incorrect</strong> : la pipeline
+          <code>RenderItem.renderItem(stack, IBakedModel)</code> peut laisser
+          <code>GL_TEXTURE1</code> (utilise pour le lightmap) comme unite de texture
+          active lorsqu'elle delegue au <code>TileEntityItemStackRenderer.renderByItem</code>.
+          <code>TextureManager.bindTexture()</code> bind la texture sur l'unite
+          <em>actuellement</em> active &mdash; si c'est le slot 1, le shader fragment
+          continue d'echantillonner le slot 0 (qui contient encore l'item atlas ou
+          n'importe quelle texture residuelle), d'ou le rendu casse.
+        </li>
+        <li>
+          <strong>Cache statique potentiellement perime</strong> : le champ
+          <code>BlockbenchRenderer.lastBoundTexture</code> court-circuitait le rebind
+          lorsque la meme texture avait deja ete liee, sans tenir compte du fait qu'un
+          autre systeme de rendu (player layer, autre TESR, GUI) avait pu lier une autre
+          texture entre-temps.
+        </li>
+      </ul>
+      <p>
+        Solution &mdash; trois mesures cumulatives :
+      </p>
+      <ul>
+        <li>
+          <code>ArmorCosmeticTEISR.renderByItem</code> force
+          <code>GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)</code> avant
+          tout dessin, et restaure ce slot a la sortie (defensif).
+        </li>
+        <li>
+          <code>BlockbenchRenderer.bindTexture</code> force
+          <code>setActiveTexture(defaultTexUnit)</code> juste avant chaque
+          <code>TextureManager.bindTexture()</code>, comme safety net peu importe le
+          contexte d'appel.
+        </li>
+        <li>
+          Le reset du cache <code>lastBoundTexture = null</code> au debut de chaque
+          methode publique de <code>BlockbenchRenderer</code> etait deja en place &mdash;
+          confirme valide pour eviter les caches perimes entre appels successifs.
+        </li>
+      </ul>
+      <p>
+        Aucun changement d'API publique &mdash; aucune migration necessaire cote
+        consommateur. Le fix est purement interne aux classes de rendu.
+      </p>
     </section>
 
     <!-- ===== v1.8.2 ===== -->

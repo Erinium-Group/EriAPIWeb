@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.2 · 1.12.2</span>
+  <span class="version-badge">v1.8.3 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="../fr/patchnote.html">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.3"><span class="nav-dot"></span>v1.8.3</a></li>
         <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
         <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
         <li><a href="#v1.8.0"><span class="nav-dot"></span>v1.8.0</a></li>
@@ -117,6 +118,68 @@
           Complete changelog of new features, changes, and bug fixes for each EriAPI release.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.3 ===== -->
+    <section class="doc-section" id="v1.8.3">
+      <h2>v1.8.3 <span class="badge badge-cyan">May 26, 2026</span></h2>
+
+      <h3>Fix &mdash; <code>cosmetic</code>: missing-texture (pink/black) in the item context</h3>
+      <p>
+        Fixed the texture rendering of armor cosmetics
+        (<code>ArmorCosmeticItem</code>) in the item context &mdash; inventory, hotbar,
+        first person, third person, ground, item frame, GUI. The 3D Blockbench model
+        showed up correctly (geometry was fine) but the texture was replaced by the
+        characteristic pink/black missing-texture checkerboard. Player rendering through
+        <code>ArmorCosmeticLayer</code> was <strong>not</strong> affected.
+      </p>
+      <p>
+        Root cause &mdash; combination of two issues:
+      </p>
+      <ul>
+        <li>
+          <strong>Wrong texture unit</strong>: the
+          <code>RenderItem.renderItem(stack, IBakedModel)</code> pipeline may leave
+          <code>GL_TEXTURE1</code> (used for the lightmap) as the active texture unit
+          when delegating to <code>TileEntityItemStackRenderer.renderByItem</code>.
+          <code>TextureManager.bindTexture()</code> binds the texture on the
+          <em>currently</em> active unit &mdash; if that is slot 1, the fragment shader
+          keeps sampling slot 0 (which still holds the item atlas or any stale residual
+          texture), which is why the rendering was broken.
+        </li>
+        <li>
+          <strong>Potentially stale static cache</strong>: the
+          <code>BlockbenchRenderer.lastBoundTexture</code> field skipped the rebind when
+          the same texture had already been bound, without accounting for the fact that
+          another rendering system (player layer, another TESR, GUI) may have bound a
+          different texture in between.
+        </li>
+      </ul>
+      <p>
+        Solution &mdash; three cumulative measures:
+      </p>
+      <ul>
+        <li>
+          <code>ArmorCosmeticTEISR.renderByItem</code> forces
+          <code>GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)</code> before
+          any draw, and restores that slot on exit (defensive).
+        </li>
+        <li>
+          <code>BlockbenchRenderer.bindTexture</code> forces
+          <code>setActiveTexture(defaultTexUnit)</code> right before every
+          <code>TextureManager.bindTexture()</code> call, as a safety net regardless of
+          the call context.
+        </li>
+        <li>
+          The <code>lastBoundTexture = null</code> reset at the start of every public
+          <code>BlockbenchRenderer</code> entry point was already in place &mdash;
+          confirmed correct to avoid stale caches across successive calls.
+        </li>
+      </ul>
+      <p>
+        No public API change &mdash; no migration required for consumers. The fix is
+        purely internal to the rendering classes.
+      </p>
     </section>
 
     <!-- ===== v1.8.2 ===== -->
