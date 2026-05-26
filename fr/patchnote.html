@@ -36,7 +36,7 @@
 
   <div class="header-spacer"></div>
 
-  <span class="version-badge">v1.8.3 · 1.12.2</span>
+  <span class="version-badge">v1.8.4 · 1.12.2</span>
 
   <div class="lang-switch">
     <a href="patchnote.html" class="active">FR</a>
@@ -78,6 +78,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Versions</div>
       <ul>
+        <li><a href="#v1.8.4"><span class="nav-dot"></span>v1.8.4</a></li>
         <li><a href="#v1.8.3"><span class="nav-dot"></span>v1.8.3</a></li>
         <li><a href="#v1.8.2"><span class="nav-dot"></span>v1.8.2</a></li>
         <li><a href="#v1.8.1"><span class="nav-dot"></span>v1.8.1</a></li>
@@ -118,6 +119,51 @@
           Historique complet des changements, nouvelles fonctionnalites et corrections de bugs pour chaque version d'EriAPI.
         </p>
       </div>
+    </section>
+
+    <!-- ===== v1.8.4 ===== -->
+    <section class="doc-section" id="v1.8.4">
+      <h2>v1.8.4 <span class="badge badge-cyan">26 Mai 2026</span></h2>
+
+      <h3>Fix &mdash; <code>cosmetic</code> : suite du fix texture missing-texture (2e iteration)</h3>
+      <p>
+        La version 1.8.3 a corrige le slot de texture (<code>GL_TEXTURE0</code> force avant
+        bind) mais le rendu item restait casse en pratique &mdash; texture rose/noir
+        persistante en inventaire, hotbar, main, sol et GUI. La 1.8.4 est un follow-up qui
+        ajoute trois mesures complementaires : preload des textures au bake-time, neutralisation
+        du test alpha + activation explicite de <code>GL_TEXTURE_2D</code> dans le TEISR, et
+        un log diagnostique one-shot qui permet d'identifier la cause exacte si le bug
+        persistait encore.
+      </p>
+      <ul>
+        <li>
+          <strong>Preload des textures au <code>ModelBakeEvent</code></strong> &mdash;
+          <code>ArmorCosmeticManager.BakeHandler</code> force desormais
+          <code>TextureManager.loadTexture(rl, new SimpleTexture(rl))</code> pour chaque
+          texture de chaque cosmetique au moment du resource-pack-load. Cela garantit que
+          la <code>SimpleTexture</code> est uploadee sur un GL ID valide avant tout
+          rendu, et que toute erreur d'I/O (PNG corrompu, ressource manquante) est tracee
+          immediatement avec le chemin attendu sur disque. Une verification additionnelle
+          detecte si la texture chargee est le sentinel <code>TextureUtil.MISSING_TEXTURE</code>
+          et log un <code>WARN</code> explicite.
+        </li>
+        <li>
+          <code>ArmorCosmeticTEISR</code> : ajout de <code>GlStateManager.enableTexture2D()</code>
+          + <code>disableAlpha()</code>/<code>enableAlpha()</code> autour du rendu pour
+          neutraliser les eventuelles desactivations de la pipeline GUI (item glint,
+          alpha cull a 0.1 applique par <code>renderItemModelIntoGUI</code>).
+        </li>
+        <li>
+          <code>BlockbenchRenderer.bindTexture</code> : log diagnostique <strong>one-shot par
+          texture par session</strong> qui affiche le <code>ResourceLocation</code>, le
+          <code>glTextureId</code> et un flag <code>missing=true/false</code>. Aucun spam
+          per-frame ou per-face.
+        </li>
+      </ul>
+      <p>
+        Aucun changement d'API publique. Les modifications sont purement internes aux
+        classes de rendu et d'enregistrement.
+      </p>
     </section>
 
     <!-- ===== v1.8.3 ===== -->
